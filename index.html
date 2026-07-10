@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>공인싸 — 공공기관 홍보 담당자를 위한 인사이트 미디어</title>
+    <meta name="description" content="공공기관·지자체 홍보 실무자를 위한 트렌드, 우수사례, 실무 노하우를 격주로 정리합니다. 공보레터를 구독하세요." />
+    <meta name="keywords" content="공공기관 홍보, 지자체 SNS, 보도자료 작성법, 공공 홍보 트렌드, 공공기관 카드뉴스" />
+    <link rel="canonical" href="https://gonginssa.kr/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="공인싸" />
+    <meta property="og:title" content="공인싸 — 공공기관 홍보 담당자를 위한 인사이트 미디어" />
+    <meta property="og:description" content="공공 홍보 트렌드·우수사례·실무 노하우를 격주로. 공보레터를 구독하세요." />
+    <link rel="stylesheet" href="assets/site.css" />
+  </head>
+  <body id="top">
+    <header class="masthead">
+      <div class="wrap masthead__row">
+        <a class="brand" href="#top" aria-label="공인싸 홈">
+          <span class="brand__seal">公</span>
+          <span class="brand__name">공인<b>싸</b></span>
+        </a>
+        <nav class="nav" aria-label="주요 메뉴">
+          <a href="#latest">트렌드</a>
+          <a href="#latest">사례</a>
+          <a href="#latest">실무</a>
+          <a href="#index">자료</a>
+          <a href="#index">데이터</a>
+          <a href="#newsletter">공보레터</a>
+          <a href="#studio">소개</a>
+        </nav>
+        <div class="masthead__cta">
+          <button class="theme-btn" aria-label="테마 전환" onclick="giToggleTheme()">◐</button>
+          <a class="btn btn--primary" href="#subscribe">공보레터 구독</a>
+          <button class="menu-btn" aria-label="메뉴" onclick="document.getElementById('m-nav').scrollIntoView()">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="dateline">
+      <div class="wrap dateline__row">
+        <span class="mono" id="dateline-left">발행 정보 로딩 중…</span>
+        <div class="mono dateline__tags">
+          <span>공공기관 홍보 인사이트</span>
+          <span>격주 발행</span>
+          <span>발행 · 이음전략소</span>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <section class="hero">
+        <div class="wrap"><div class="hero__grid" id="hero-grid"></div></div>
+      </section>
+
+      <section class="section section--rule" id="latest">
+        <div class="wrap">
+          <div class="sec-head">
+            <div class="sec-head__l"><span class="eyebrow">This week</span><h2 class="sec-title">이번 주 공인싸</h2></div>
+            <a class="more" href="#" data-demo>아티클 전체 →</a>
+          </div>
+          <div class="cards reveal" id="latest-cards"></div>
+        </div>
+      </section>
+
+      <section class="section" id="index">
+        <div class="wrap">
+          <div class="sec-head">
+            <div class="sec-head__l"><span class="eyebrow">Index</span><h2 class="sec-title">카테고리 색인</h2>
+              <p class="sec-sub">공보레터 5개 코너가 그대로 사이트 카테고리가 됩니다.</p></div>
+          </div>
+          <div class="catindex reveal" id="cat-index"></div>
+        </div>
+      </section>
+
+      <section class="section section--rule">
+        <div class="wrap">
+          <div class="sec-head">
+            <div class="sec-head__l"><span class="eyebrow">Keywords</span><h2 class="sec-title">트렌드 키워드로 찾아보기</h2></div>
+          </div>
+          <div class="cloud reveal" id="cloud"></div>
+        </div>
+      </section>
+
+      <section class="section" id="subscribe">
+        <div class="wrap">
+          <div class="band reveal">
+            <div class="band__deco" aria-hidden="true"></div>
+            <div class="band__grid">
+              <div>
+                <h2>격주마다 공공 홍보 인사이트를<br />이메일로 받아보세요</h2>
+                <p>공보레터는 무료입니다. 언제든 구독을 취소할 수 있습니다.</p>
+              </div>
+              <form class="subform" onsubmit="return giSubscribe(event)">
+                <div class="subform__row">
+                  <input type="email" placeholder="이메일 주소" aria-label="이메일 주소" required />
+                  <button type="submit" class="btn btn--primary">구독하기</button>
+                </div>
+                <label class="agree"><input type="checkbox" required /><span>광고성 정보 수신에 동의합니다. (언제든 구독 취소 가능)</span></label>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="jobs">
+        <div class="wrap">
+          <div class="sec-head">
+            <div class="sec-head__l"><span class="eyebrow">Careers</span><h2 class="sec-title">공공 홍보 채용</h2>
+              <p class="sec-sub">공공기관·공기업·홍보 대행사 채용 소식을 모았습니다.</p></div>
+            <a class="more" href="#" data-demo>채용 전체 →</a>
+          </div>
+          <div class="jobs-list reveal" id="jobs-list"></div>
+        </div>
+      </section>
+
+      <section class="section section--rule" id="studio">
+        <div class="wrap">
+          <div class="studio reveal">
+            <div>
+              <span class="eyebrow">Publisher</span>
+              <h2 style="margin-top: 10px">공인싸는 이음전략소가 만듭니다</h2>
+              <p>이음전략소는 공공 홍보·마케팅 풀서비스 대행사입니다. 공인싸의 모든 콘텐츠는 현장에서 직접 쌓은 경험에서 나옵니다.</p>
+              <div class="studio__actions">
+                <a class="btn btn--primary" href="#" data-demo>이음전략소 알아보기</a>
+                <a class="btn btn--line" href="#" data-demo>상담 문의하기</a>
+              </div>
+            </div>
+            <div class="studio__svc" aria-hidden="true">
+              <span class="svc">기획</span><span class="svc">제작</span>
+              <span class="svc">운영</span><span class="svc">광고</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="newsletter">
+        <div class="wrap">
+          <div class="sec-head">
+            <div class="sec-head__l"><span class="eyebrow">Archive</span><h2 class="sec-title">최근 공보레터</h2></div>
+            <a class="more" href="#" data-demo>지난 호 전체 →</a>
+          </div>
+          <div class="np reveal" id="np"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer__grid" id="m-nav">
+        <div class="footer__brand">
+          <a class="brand" href="#top"><span class="brand__seal">公</span><span class="brand__name">공인<b>싸</b></span></a>
+          <p>공공기관·지자체 홍보 실무자를 위한 트렌드·우수사례·실무 노하우를 격주로 정리합니다.</p>
+        </div>
+        <div><h4>콘텐츠</h4><div class="footer__links" id="foot-cats"></div></div>
+        <div>
+          <h4>서비스</h4>
+          <div class="footer__links">
+            <a href="#latest">아티클 전체</a>
+            <a href="#subscribe">공보레터 구독</a>
+            <a href="#studio">이음전략소 소개</a>
+            <a href="admin.html">관리자</a>
+          </div>
+        </div>
+        <div>
+          <h4>공보레터 구독</h4>
+          <p style="color: var(--ink-2); font-size: 13px; margin-bottom: 12px">격주로 공공 홍보 인사이트를 메일함으로.</p>
+          <form class="subform" onsubmit="return giSubscribe(event)">
+            <div class="subform__row" style="flex-direction: column">
+              <input type="email" placeholder="이메일 주소" aria-label="이메일 주소" required
+                style="background: var(--surface); border-color: var(--line-2); color: var(--ink)" />
+              <button type="submit" class="btn btn--primary">구독하기</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="wrap footer__bottom-row">
+          <span>© 2026 이음전략소 · 공인싸(GONGINSSA)</span>
+          <span>본 사이트는 학습용 데모이며 모든 콘텐츠·수치는 가상의 더미입니다.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/ui.js"></script>
+    <script src="data/config.js"></script>
+    <script src="assets/render.js"></script>
+  </body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>공인싸 관리자 — 게시글 관리</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="stylesheet" href="assets/site.css" />
+    <style>
+      .admin { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; }
+      .admin__top { display: flex; align-items: center; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+      .admin__top .brand__name { font-size: 20px; }
+      .badge-admin { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+        color: var(--accent); background: var(--accent-weak); padding: 4px 10px; border-radius: 6px; }
+      .admin__actions { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+      .grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; margin-top: 26px; align-items: start; }
+      @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+
+      .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
+      .panel h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+      .panel .hint { color: var(--ink-2); font-size: 13.5px; margin-bottom: 16px; }
+
+      .field { margin-bottom: 16px; }
+      .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+      .field .req { color: var(--danger); }
+      .field input, .field textarea, .field select {
+        width: 100%; padding: 11px 13px; border: 1.5px solid var(--line-2); border-radius: 10px;
+        background: var(--surface-2); color: var(--ink); font-family: var(--font-sans); font-size: 15px; }
+      .field textarea { resize: vertical; min-height: 84px; line-height: 1.6; }
+      .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
+      .field .sub { font-size: 12px; color: var(--ink-3); margin-top: 5px; }
+      .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+      @media (max-width: 520px) { .row2, .row3 { grid-template-columns: 1fr; } }
+      .check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+      .check input { width: auto; accent-color: var(--accent); }
+      .form-actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+      .list { display: flex; flex-direction: column; gap: 10px; max-height: 620px; overflow-y: auto; }
+      .item { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px;
+        border: 1px solid var(--line); border-radius: 11px; background: var(--surface-2); transition: border-color .15s; }
+      .item:hover { border-color: var(--accent); }
+      .item.editing { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+      .item__dot { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 15px; }
+      .item__body { min-width: 0; }
+      .item__title { font-size: 14.5px; font-weight: 700; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .item__meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+      .item__btns { display: flex; gap: 6px; }
+      .icon-btn { border: 1px solid var(--line-2); background: transparent; color: var(--ink-2); border-radius: 8px;
+        width: 30px; height: 30px; cursor: pointer; font-size: 13px; display: grid; place-items: center; }
+      .icon-btn:hover { border-color: var(--ink); color: var(--ink); }
+      .icon-btn.del:hover { border-color: var(--danger); color: var(--danger); }
+
+      .callout { border: 1px dashed var(--line-2); border-radius: 12px; padding: 16px 18px; background: var(--surface-2);
+        font-size: 13.5px; color: var(--ink-2); line-height: 1.7; margin-top: 20px; }
+      .callout b { color: var(--ink); }
+      .callout code { font-family: var(--font-mono); font-size: 12.5px; background: var(--paper); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); }
+      .stat-row { display: flex; gap: 22px; margin-bottom: 16px; flex-wrap: wrap; }
+      .stat { font-family: var(--font-mono); }
+      .stat b { display: block; font-size: 22px; color: var(--ink); }
+      .stat span { font-size: 12px; color: var(--ink-3); }
+      input[type="file"] { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="admin">
+      <div class="admin__top">
+        <a class="brand" href="index.html"><span class="brand__seal">公</span><span class="brand__name">공인<b>싸</b></span></a>
+        <span class="badge-admin">Admin</span>
+        <div class="admin__actions">
+          <button class="theme-btn" aria-label="테마 전환" onclick="giToggleTheme()">◐</button>
+          <a class="btn btn--line btn--sm" href="index.html" target="_blank">홈 미리보기 ↗</a>
+          <label class="btn btn--line btn--sm" for="import-file">JSON 불러오기</label>
+          <input type="file" id="import-file" accept="application/json,.json" />
+          <button class="btn btn--primary btn--sm" onclick="downloadJSON()">articles.json 저장 ↓</button>
+        </div>
+      </div>
+
+      <div class="stat-row" style="margin-top:22px">
+        <span class="stat"><b id="stat-total">0</b><span>전체 아티클</span></span>
+        <span class="stat"><b id="stat-featured">0</b><span>에디터 픽</span></span>
+        <span class="stat"><b id="stat-issue">0</b><span>최신 호(수록)</span></span>
+      </div>
+
+      <div class="grid2">
+        <!-- LEFT: form -->
+        <div class="panel">
+          <h2 id="form-title">새 게시글 작성</h2>
+          <p class="hint">작성하면 아래 목록과 홈 미리보기에 바로 반영됩니다. 완료 후 <b>articles.json 저장</b>으로 파일을 내려받아 GitHub에 올리세요.</p>
+          <form id="article-form" onsubmit="return saveArticle(event)">
+            <input type="hidden" id="f-id" />
+            <div class="field">
+              <label for="f-title">제목 <span class="req">*</span></label>
+              <input type="text" id="f-title" required maxlength="90" placeholder="예: 공공기관 보도자료 쓰는 법: 주무관이 자주 틀리는 5가지" />
+            </div>
+            <div class="field">
+              <label for="f-excerpt">한 줄 요약 <span class="req">*</span></label>
+              <textarea id="f-excerpt" required maxlength="200" placeholder="검색·SNS에 노출될 요약. 80~120자 권장."></textarea>
+              <span class="sub" id="excerpt-count">0 / 200</span>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="f-category">카테고리 <span class="req">*</span></label>
+                <select id="f-category" required></select>
+              </div>
+              <div class="field">
+                <label for="f-date">발행일 <span class="req">*</span></label>
+                <input type="date" id="f-date" required />
+              </div>
+            </div>
+            <div class="row3">
+              <div class="field">
+                <label for="f-readtime">읽기 시간(분)</label>
+                <input type="number" id="f-readtime" min="1" max="60" value="6" />
+              </div>
+              <div class="field">
+                <label for="f-issue">공보레터 호수</label>
+                <input type="number" id="f-issue" min="1" placeholder="없으면 비움" />
+              </div>
+              <div class="field">
+                <label for="f-series">시리즈 슬러그</label>
+                <input type="text" id="f-series" placeholder="예: sns-master" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-tags">태그 (쉼표로 구분)</label>
+              <input type="text" id="f-tags" placeholder="보도자료, 지자체SNS, 카드뉴스" />
+            </div>
+            <div class="field">
+              <label class="check"><input type="checkbox" id="f-featured" /> 에디터 픽 (커버 후보)</label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn--primary">저장</button>
+              <button type="button" class="btn btn--line" onclick="resetForm()">초기화</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIGHT: list -->
+        <div class="panel">
+          <h2>게시글 목록 <span class="mono" style="font-size:13px;color:var(--ink-3)" id="list-count"></span></h2>
+          <p class="hint">최신순. 연필로 편집, 휴지통으로 삭제합니다.</p>
+          <div class="list" id="list"></div>
+          <div class="callout">
+            <b>📦 GitHub에 반영하는 법</b><br />
+            ① <code>articles.json 저장 ↓</code>으로 파일 내려받기 →
+            ② 내려받은 파일을 저장소의 <code>gonginssa/data/articles.json</code> 에 덮어쓰기 →
+            ③ commit & push 하면 GitHub Pages에 자동 반영됩니다.<br /><br />
+            <b>공보레터 정보</b>(호수·제목·수록 코너)는 <button class="btn btn--line btn--sm" type="button" onclick="openNL()">여기서 수정</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="assets/ui.js"></script>
+    <script src="data/config.js"></script>
+    <script>
+      const CFG = window.GI_CONFIG;
+      const CAT = CFG.categories;
+      const ORDER = CFG.categoryOrder;
+      let DATA = { newsletter: null, articles: [] };
+
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+      // 카테고리 셀렉트 채우기
+      $("f-category").innerHTML = ORDER.map((s) => `<option value="${s}">${CAT[s].name} · ${CAT[s].corner}</option>`).join("");
+
+      /* ---------- 로드: 로컬초안 > articles.json ---------- */
+      function load() {
+        const draft = localStorage.getItem("gi_articles_preview");
+        if (draft) { try { DATA = JSON.parse(draft); afterLoad("[로컬 초안 복원됨]"); return; } catch (e) {} }
+        fetch("data/articles.json")
+          .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then((d) => { DATA = d; afterLoad(); })
+          .catch(() => { DATA = { newsletter: { no: 1, date: today(), title: "", summary: "", corners: [] }, articles: [] };
+            afterLoad("articles.json을 못 읽어 빈 상태로 시작합니다."); });
+      }
+      function afterLoad(msg) { renderList(); if (msg) giToast(msg); }
+      function today() { return new Date().toISOString().slice(0, 10); }
+
+      /* ---------- 목록 렌더 ---------- */
+      function renderList() {
+        const list = [...DATA.articles].sort((a, b) => b.date.localeCompare(a.date));
+        $("list").innerHTML = list.length ? list.map((a) => {
+          const c = CAT[a.category] || { color: "#888", emoji: "📄", name: "?" };
+          return `<div class="item" data-id="${a.id}">
+            <span class="item__dot" style="background:color-mix(in srgb, ${c.color} 18%, transparent)">${c.emoji}</span>
+            <div class="item__body">
+              <div class="item__title">${a.featured ? "★ " : ""}${esc(a.title)}</div>
+              <div class="item__meta">${c.name} · ${a.date}${a.issue ? " · 📬" + a.issue + "호" : ""}${a.series ? " · 📚" + esc(a.series) : ""}</div>
+            </div>
+            <div class="item__btns">
+              <button class="icon-btn" title="편집" onclick="editArticle(${a.id})">✎</button>
+              <button class="icon-btn del" title="삭제" onclick="delArticle(${a.id})">🗑</button>
+            </div>
+          </div>`;
+        }).join("") : '<p class="hint" style="margin:0">아직 게시글이 없습니다. 왼쪽에서 작성해보세요.</p>';
+
+        $("list-count").textContent = `(${DATA.articles.length})`;
+        $("stat-total").textContent = DATA.articles.length;
+        $("stat-featured").textContent = DATA.articles.filter((a) => a.featured).length;
+        const nlNo = DATA.newsletter ? DATA.newsletter.no : null;
+        $("stat-issue").textContent = DATA.articles.filter((a) => a.issue === nlNo).length;
+
+        // 미리보기 초안 저장 (홈에서 즉시 반영)
+        localStorage.setItem("gi_articles_preview", JSON.stringify(DATA));
+      }
+
+      /* ---------- 저장(신규/수정) ---------- */
+      function saveArticle(e) {
+        e.preventDefault();
+        const id = $("f-id").value;
+        const tags = $("f-tags").value.split(",").map((t) => t.trim()).filter(Boolean);
+        const issue = $("f-issue").value ? Number($("f-issue").value) : null;
+        const obj = {
+          id: id ? Number(id) : nextId(),
+          category: $("f-category").value,
+          title: $("f-title").value.trim(),
+          excerpt: $("f-excerpt").value.trim(),
+          date: $("f-date").value,
+          readTime: Number($("f-readtime").value) || 6,
+          tags, issue,
+          featured: $("f-featured").checked,
+          series: $("f-series").value.trim() || null,
+        };
+        if (id) {
+          const i = DATA.articles.findIndex((a) => a.id === Number(id));
+          if (i >= 0) DATA.articles[i] = obj;
+          giToast("수정되었습니다.");
+        } else {
+          DATA.articles.push(obj);
+          giToast("새 게시글이 추가되었습니다.");
+        }
+        renderList(); resetForm();
+        return false;
+      }
+      function nextId() { return DATA.articles.reduce((m, a) => Math.max(m, a.id), 0) + 1; }
+
+      function editArticle(id) {
+        const a = DATA.articles.find((x) => x.id === id);
+        if (!a) return;
+        $("f-id").value = a.id;
+        $("f-title").value = a.title;
+        $("f-excerpt").value = a.excerpt;
+        $("f-category").value = a.category;
+        $("f-date").value = a.date;
+        $("f-readtime").value = a.readTime;
+        $("f-issue").value = a.issue || "";
+        $("f-series").value = a.series || "";
+        $("f-tags").value = (a.tags || []).join(", ");
+        $("f-featured").checked = !!a.featured;
+        $("form-title").textContent = "게시글 편집 (#" + a.id + ")";
+        updateCount();
+        document.querySelectorAll(".item").forEach((el) => el.classList.toggle("editing", Number(el.dataset.id) === id));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function delArticle(id) {
+        const a = DATA.articles.find((x) => x.id === id);
+        if (!a) return;
+        if (!confirm(`"${a.title}"\n이 게시글을 삭제할까요?`)) return;
+        DATA.articles = DATA.articles.filter((x) => x.id !== id);
+        renderList();
+        if ($("f-id").value === String(id)) resetForm();
+        giToast("삭제되었습니다.");
+      }
+
+      function resetForm() {
+        $("article-form").reset();
+        $("f-id").value = "";
+        $("f-date").value = today();
+        $("form-title").textContent = "새 게시글 작성";
+        document.querySelectorAll(".item").forEach((el) => el.classList.remove("editing"));
+        updateCount();
+      }
+
+      /* ---------- 공보레터 편집 ---------- */
+      function openNL() {
+        const nl = DATA.newsletter || { no: 1, date: today(), title: "", summary: "", corners: [] };
+        const no = prompt("공보레터 호수", nl.no);
+        if (no === null) return;
+        const title = prompt("이번 호 제목", nl.title);
+        if (title === null) return;
+        const date = prompt("발행일 (YYYY-MM-DD)", nl.date);
+        if (date === null) return;
+        const summary = prompt("요약", nl.summary);
+        if (summary === null) return;
+        const corners = prompt("수록 코너 (쉼표, 값: " + ORDER.join("/") + ")", (nl.corners || []).join(","));
+        if (corners === null) return;
+        DATA.newsletter = {
+          no: Number(no) || nl.no, title: title.trim(), date: date.trim(), summary: summary.trim(),
+          corners: corners.split(",").map((s) => s.trim()).filter((s) => ORDER.includes(s)),
+        };
+        renderList(); giToast("공보레터 정보가 수정되었습니다.");
+      }
+
+      /* ---------- JSON 저장/불러오기 ---------- */
+      function downloadJSON() {
+        const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "articles.json"; a.click();
+        URL.revokeObjectURL(url);
+        giToast("articles.json 을 내려받았습니다. data/ 폴더에 덮어쓰세요.");
+      }
+      $("import-file").addEventListener("change", (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const d = JSON.parse(reader.result);
+            if (!d.articles) throw new Error("형식 오류");
+            DATA = d; renderList(); resetForm(); giToast("불러왔습니다.");
+          } catch (err) { giToast("불러오기 실패: 올바른 articles.json이 아닙니다."); }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      });
+
+      // 글자수 카운터
+      function updateCount() { $("excerpt-count").textContent = ($("f-excerpt").value.length) + " / 200"; }
+      $("f-excerpt").addEventListener("input", updateCount);
+
+      // init
+      resetForm();
+      load();
+    </script>
+  </body>
+</html>
