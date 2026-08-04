@@ -66,28 +66,28 @@
   section[id]{scroll-margin-top:88px}
 
   /* ---------- HERO ---------- */
-  .hero{padding:64px 0 70px;overflow:hidden;background:var(--hero-bg);position:relative}
-  .hero-grid{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
-  .hero-kicker{font-size:14.5px;font-weight:700;color:var(--blue);letter-spacing:.01em;margin-bottom:14px}
-  .hero h1{font-size:clamp(28px,3.8vw,42px);font-weight:900;letter-spacing:-.02em;line-height:1.35;color:var(--ink)}
-  .hero-copy{margin-top:22px;max-width:460px}
-  .hero-copy p{font-size:17.5px;font-weight:600;color:#3A3F4C;line-height:1.6}
-  .hero-copy p:first-child{margin-bottom:16px}
-  .hero-copy p:nth-child(3){margin-top:4px}
+  .hero{padding:80px 0 64px;overflow:hidden;background:var(--hero-bg);position:relative}
+  .hero-center{position:relative;z-index:1;max-width:640px;margin:0 auto;text-align:center}
+  .hero-kicker{font-size:14.5px;font-weight:700;color:var(--blue);letter-spacing:.01em;margin-bottom:16px}
+  .hero h1{font-size:clamp(30px,4.6vw,46px);font-weight:900;letter-spacing:-.02em;line-height:1.3;color:var(--ink)}
+  .hero h1 .accent{color:var(--blue)}
+  .hero-copy{margin-top:24px}
+  .hero-copy p{font-size:16.5px;font-weight:600;color:#3A3F4C;line-height:1.7}
   .pname{color:var(--blue);font-weight:800}
-  .hero-actions{margin-top:30px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
-  .hero-actions .btn{padding:14px 24px;font-size:15px}
+  .hero-actions{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .hero-actions .btn{padding:14px 26px;font-size:15px}
   .hero-freq{font-size:12.5px;color:var(--muted)}
   .hero-freq a{color:var(--muted);font-weight:700;text-decoration:underline;text-decoration-color:var(--line)}
   .hero-freq a:hover{color:var(--ink)}
 
-  /* hero visual — soft blue blob behind the layered accent shapes (kept as-is) */
-  .hero-visual{position:relative;height:340px;width:100%;overflow:hidden}
-  .hero-art{position:absolute;top:50%;left:52%;width:340px;height:340px;transform:translate(-50%,-50%)}
+  /* hero background — layered blob cluster upper-right + scattered accent dots either side */
+  .hero-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .hero-art{position:absolute;top:-60px;right:-70px;width:460px;height:460px}
   .spark{position:absolute;border-radius:50%;background:var(--warm);z-index:1}
-  .spark.s1{width:16px;height:16px;top:6%;right:10%}
-  .spark.s2{width:9px;height:9px;bottom:14%;left:6%}
-  .spark.s3{width:11px;height:11px;top:46%;right:2%;background:var(--blue)}
+  .spark.s1{width:14px;height:14px;left:3%;top:56%}
+  .spark.s2{width:10px;height:10px;left:9%;top:80%;background:var(--blue)}
+  .spark.s3{width:13px;height:13px;right:22%;top:58%}
+  .spark.s4{width:9px;height:9px;right:6%;top:86%;background:var(--blue)}
 
   /* ---------- SECTION SHELL ---------- */
   section.block{padding:76px 0}
@@ -192,6 +192,8 @@
   .closing{background:var(--blue-dark);color:#fff;padding:60px 0 66px;position:relative;overflow:hidden;text-align:center}
   .closing-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
   .closing .eb-light{display:inline-flex;font-size:13px;font-weight:700;letter-spacing:.02em;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);padding:7px 16px;border-radius:999px;margin-bottom:20px}
+  .closing .eb-light{max-width:92%;text-align:center;white-space:normal;line-height:1.4}
+  @media (max-width:480px){ .closing .eb-light{font-size:12px;padding:7px 14px} }
   .closing h2{font-size:clamp(20px,3vw,28px);font-weight:800;line-height:1.6;color:#fff}
   .closing h2 .lead{display:block;font-size:clamp(23px,3.6vw,32px);margin-bottom:10px}
   .closing h2 .sub{display:block;font-size:.62em;font-weight:600;white-space:nowrap}
@@ -218,8 +220,7 @@
   @media (max-width:980px){
     .wrap{padding:0 28px}
     .nav{padding:11px 28px}
-    .hero-grid{grid-template-columns:1fr}
-    .hero-visual{height:300px;max-width:420px;margin:0 auto}
+    .hero-art{width:360px;height:360px;top:-40px;right:-90px}
     .tgrid{grid-template-columns:1fr 1fr}
     .tcard-featured{grid-template-columns:1fr;gap:20px}
     .sub-inner{grid-template-columns:1fr}
@@ -234,16 +235,14 @@
     .sub-bottom{flex-direction:column;align-items:stretch}
     .sub-bottom .btn{width:100%}
     .closing{padding:64px 0 68px}
-    .hero{padding:36px 0 32px}
-    .hero-visual{height:240px;max-width:280px}
-    .hero-art{width:230px;height:230px}
-    .spark.s3{display:none}
+    .hero{padding:48px 0 40px}
+    .hero-art{width:260px;height:260px;top:-30px;right:-70px;opacity:.8}
+    .spark.s3,.spark.s4{display:none}
   }
   @media (max-width:400px){
     .wrap{padding:0 18px}
     .nav{padding:11px 18px}
-    .hero-visual{height:200px;max-width:230px}
-    .hero-art{width:190px;height:190px}
+    .hero-art{width:210px;height:210px}
     .spark.s2{display:none}
   }
 </style>
@@ -260,30 +259,29 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <p class="hero-kicker">공인싸 · 공공 홍보 인사이트 플랫폼</p>
-        <h1>공공기관 홍보 담당자를 위한 실무 인사이트</h1>
-        <div class="hero-copy">
-          <p>보도자료 한 줄, 카드뉴스 문구 하나까지 고민될 때,</p>
-          <p>공인싸-이드 뉴스레터를 구독하고</p>
-          <p>오늘의 업무에 바로 적용할 실무 팁을 확인해보세요.</p>
-        </div>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#newsletter">공인싸-이드 구독하기 →</a>
-          <p class="hero-freq">by <a href="#about">이음전략소</a></p>
-        </div>
+    <div class="hero-bg" aria-hidden="true">
+      <svg class="hero-art" viewBox="0 0 300 300" aria-hidden="true">
+        <path d="M60 40 C110 18 185 28 215 70 C245 112 232 172 190 202 C150 230 88 226 58 196 C22 160 18 98 60 40Z" fill="var(--hero-blob)"/>
+        <path d="M150 85 C188 72 224 96 226 136 C228 172 198 202 162 198 C130 194 106 168 108 138 C110 112 122 96 150 85Z" fill="var(--blue)"/>
+        <path d="M120 150 C142 144 162 160 158 182 C154 202 130 212 112 202 C96 193 94 170 104 158 C108 153 114 151 120 150Z" fill="var(--blue-dark)" opacity=".85"/>
+        <path d="M65 185 C78 180 92 189 90 203 C88 216 74 222 63 215 C53 209 52 194 62 187 C63 186 64 186 65 185Z" fill="var(--warm)"/>
+      </svg>
+      <span class="spark s1"></span>
+      <span class="spark s2"></span>
+      <span class="spark s3"></span>
+      <span class="spark s4"></span>
+    </div>
+    <div class="wrap hero-center">
+      <p class="hero-kicker">공공 홍보 인사이트 플랫폼</p>
+      <h1>홍보 담당자가<br><span class="accent">일잘러가</span> 되는 가장 빠른 길</h1>
+      <div class="hero-copy">
+        <p>보도자료 한 줄, 카드뉴스 문구 하나까지 고민될 때,</p>
+        <p><span class="pname">공인싸-이드</span> 뉴스레터를 구독하고</p>
+        <p>오늘의 업무에 바로 적용할 실무 팁을 확인해보세요.</p>
       </div>
-      <div class="hero-visual" aria-hidden="true">
-        <svg class="hero-art" viewBox="0 0 300 300" aria-hidden="true">
-          <path d="M60 40 C110 18 185 28 215 70 C245 112 232 172 190 202 C150 230 88 226 58 196 C22 160 18 98 60 40Z" fill="var(--hero-blob)"/>
-          <path d="M150 85 C188 72 224 96 226 136 C228 172 198 202 162 198 C130 194 106 168 108 138 C110 112 122 96 150 85Z" fill="var(--blue)"/>
-          <path d="M120 150 C142 144 162 160 158 182 C154 202 130 212 112 202 C96 193 94 170 104 158 C108 153 114 151 120 150Z" fill="var(--blue-dark)" opacity=".85"/>
-          <path d="M65 185 C78 180 92 189 90 203 C88 216 74 222 63 215 C53 209 52 194 62 187 C63 186 64 186 65 185Z" fill="var(--warm)"/>
-        </svg>
-        <span class="spark s1"></span>
-        <span class="spark s2"></span>
-        <span class="spark s3"></span>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#newsletter">뉴스레터 구독하기 →</a>
+        <p class="hero-freq">by <a href="#about">이음전략소</a></p>
       </div>
     </div>
   </section>
@@ -439,8 +437,8 @@
       <circle cx="120" cy="130" r="2.5" fill="#4D8BFF" fill-opacity=".6"/>
     </svg>
     <div class="wrap closing-inner">
-      <span class="eb-light">이음전략소</span>
-      <h2><span class="lead">담당자의 업무는 가볍게, 홍보의 완성도는 높게!</span><span class="sub">정책 이해부터 실행까지, 검증된 실무 경험으로 함께합니다.</span></h2>
+      <span class="eb-light">공공 홍보·광고 전략 파트너, 이음전략소</span>
+      <h2><span class="lead">실무 부담은 덜고 성과는 분명하게.</span><span class="sub">정책 기반의 전략과 실행으로 공공 홍보 전반을 설계합니다.</span></h2>
       <div class="closing-cta-group">
         <a class="btn btn-primary" href="https://www.iumist.com/home?anchor=RCGQV" target="_blank" rel="noopener">무료 상담 신청 →</a>
         <a class="btn btn-ghost-dark" href="https://www.iumist.com/RT1kT" target="_blank" rel="noopener" id="aboutBtn">포트폴리오 보기</a>
