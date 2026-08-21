@@ -48,6 +48,9 @@
       .field .sub{font-size:12px;color:var(--muted);margin-top:5px}
       .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
       @media (max-width:520px){.row2{grid-template-columns:1fr}}
+      .thumb-row{display:flex;gap:8px;align-items:stretch}
+      .thumb-row input[type="text"]{flex:1;min-width:0}
+      .thumb-row input[type="file"]{display:none}
       .tabchecks{display:flex;gap:14px;flex-wrap:wrap}
       .check{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;cursor:pointer}
       .check input{width:auto;accent-color:var(--blue)}
@@ -142,8 +145,14 @@
               <span class="sub" id="excerpt-count">0 / 200</span>
             </div>
             <div class="field">
-              <label for="f-thumb">썸네일 이미지 URL <span class="req">*</span></label>
-              <input type="url" id="f-thumb" required placeholder="https://images.unsplash.com/... 또는 자체 호스팅 이미지 URL" />
+              <label for="f-thumb">썸네일 이미지 <span class="sub" style="display:inline">(선택 — 비워두면 카테고리 기본 썸네일 적용)</span></label>
+              <div class="thumb-row">
+                <input type="text" id="f-thumb" placeholder="이미지 URL 붙여넣기, 또는 오른쪽 버튼으로 파일 업로드" />
+                <label class="btn btn-line btn-sm" for="f-thumb-file" style="white-space:nowrap">파일 선택</label>
+                <input type="file" id="f-thumb-file" accept="image/*" />
+              </div>
+              <p class="sub" id="thumb-file-hint">파일 업로드는 용량이 작은 이미지(800KB 이하) 권장 — 파일이 크면 저장 파일(articles.json) 용량이 커집니다. 큰 이미지는 어딘가에 올린 뒤 URL로 붙여넣는 걸 권장합니다.</p>
+              <img id="thumb-preview" alt="썸네일 미리보기" style="display:none;max-width:220px;border-radius:10px;margin-top:8px;border:1px solid var(--line)" />
             </div>
             <div class="row2">
               <div class="field">
@@ -296,18 +305,58 @@
         localStorage.setItem("gi_articles_preview", JSON.stringify(DATA));
       }
 
+      /* ---------- 썸네일: 카테고리 기본값 + 파일 업로드(base64) + 미리보기 ---------- */
+      // config.js 의 5개 배지 카테고리(trend/case/practical/resource/data)에 대응하는 기본 썸네일.
+      // build_articles.py 파이프라인의 실무 꿀팁→tips / 레퍼런스→reference 매핑과 최대한 맞춘 것.
+      const THUMB_DEFAULT = {
+        practical: "assets/articles/thumb-tips.svg",
+        trend: "assets/articles/thumb-reference.svg",
+        case: "assets/articles/thumb-reference.svg",
+        resource: "assets/articles/thumb-reference.svg",
+        data: "assets/articles/thumb-reference.svg",
+      };
+      const THUMB_MAX_BYTES = 800 * 1024; // 800KB — 넘으면 articles.json이 과도하게 커짐
+
+      function updateThumbPreview() {
+        const v = $("f-thumb").value.trim();
+        const img = $("thumb-preview");
+        if (v) { img.src = v; img.style.display = "block"; }
+        else { img.style.display = "none"; img.removeAttribute("src"); }
+      }
+      $("f-thumb").addEventListener("input", updateThumbPreview);
+      $("f-thumb-file").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) { toast("이미지 파일만 업로드할 수 있습니다."); e.target.value = ""; return; }
+        if (file.size > THUMB_MAX_BYTES) {
+          toast(`파일이 너무 큽니다(${Math.round(file.size/1024)}KB). 800KB 이하로 줄이거나, 이미지 호스팅에 올린 뒤 URL로 붙여넣어 주세요.`);
+          e.target.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          $("f-thumb").value = reader.result; // data:image/...;base64,... 그대로 thumb 값으로 사용
+          updateThumbPreview();
+          toast("이미지를 불러왔습니다. 저장하면 함께 반영됩니다.");
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+      });
+
       /* ---------- 저장(신규/수정) ---------- */
       function saveArticle(e) {
         e.preventDefault();
         const id = $("f-id").value;
         const tabs = Array.from(document.querySelectorAll(".tab-check:checked")).map((cb) => cb.value);
         if (!tabs.length) { toast("노출 탭을 하나 이상 선택하세요."); return false; }
+        const category = $("f-category").value;
+        const thumb = $("f-thumb").value.trim() || THUMB_DEFAULT[category] || THUMB_DEFAULT.case;
         const obj = {
           id: id ? Number(id) : nextId(),
-          category: $("f-category").value,
+          category,
           title: $("f-title").value.trim(),
           excerpt: $("f-excerpt").value.trim(),
-          thumb: $("f-thumb").value.trim(),
+          thumb,
           date: $("f-date").value,
           readTime: Number($("f-readtime").value) || 6,
           tabs,
@@ -339,6 +388,7 @@
         document.querySelectorAll(".tab-check").forEach((cb) => { cb.checked = (a.tabs || []).includes(cb.value); });
         $("form-title").textContent = "게시글 편집 (#" + a.id + ")";
         updateCount();
+        updateThumbPreview();
         document.querySelectorAll(".item").forEach((el) => el.classList.toggle("editing", Number(el.dataset.id) === id));
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -361,6 +411,7 @@
         document.querySelectorAll(".tab-check").forEach((cb) => (cb.checked = false));
         document.querySelectorAll(".item").forEach((el) => el.classList.remove("editing"));
         updateCount();
+        updateThumbPreview();
       }
 
       /* ---------- JSON 저장/불러오기 ---------- */

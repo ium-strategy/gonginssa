@@ -167,7 +167,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:description" content="{excerpt}">
 <meta name="twitter:image" content="{site_url}/{thumb}">
 <link rel="icon" type="image/png" href="../assets/logo-mark.png">
-<link rel="apple-touch-icon" href="../assets/logo-mark.png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUITE@2/fonts/static/woff2/SUITE.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css" rel="stylesheet">
