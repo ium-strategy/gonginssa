@@ -21,6 +21,7 @@ FALLBACK_DATE = "2026-08-19"  # frontmatter에 date가 비어 있을 때만 사�
 
 TAB_MAP = {"실무 꿀팁": ["popular", "workbook"], "레퍼런스": ["popular", "featured"]}
 THUMB_MAP = {"실무 꿀팁": "assets/articles/thumb-tips.svg", "레퍼런스": "assets/articles/thumb-reference.svg"}
+OG_FALLBACK_IMAGE = "assets/og-image.jpg"  # SVG 썸네일은 카카오톡·페이스북 등에서 og:image로 잘 안 뜨므로 소셜 공유용은 별도 처리
 
 def load_articles():
     """content/articles/*.md 를 읽어 과거 ARTICLES 리스트와 같은 형태의 dict 리스트로 반환.
@@ -214,7 +215,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
       <div class="subscribe subscribe-compact">
         <div class="sub-copy">
           <span class="freq-pill">무료 구독 · 격주 화요일 발행</span>
-          <h2><b class="pname">공인싸-이드</b> 뉴스레터로 실무 팁을 이어서 받아보세요.</h2>
+          <h2><b class="pname">인싸레터</b>로 실무 팁을 이어서 받아보세요.</h2>
         </div>
         <a class="btn btn-primary" href="../index.html#newsletter">뉴스레터 구독하기 →</a>
       </div>
@@ -321,6 +322,9 @@ def build():
             tags = [a["category"]]
         tabs = TAB_MAP.get(a["category"], ["popular"])
         thumb = a["thumb"] or THUMB_MAP.get(a["category"], THUMB_MAP["실무 꿀팁"])
+        # 실제 사진(thumb)이 있으면 그걸, 없으면(SVG 기본 썸네일) 소셜 공유용 대표 이미지로 대체
+        # (site_url + "/" + og_thumb 로 합치므로 앞의 "/"는 제거해서 이중 슬래시 방지)
+        og_thumb = (a["thumb"] or OG_FALLBACK_IMAGE).lstrip("/")
         date = a["date"]
         url = f'articles/{a["slug"]}.html'
 
@@ -350,7 +354,7 @@ def build():
             excerpt_json=json.dumps(excerpt, ensure_ascii=False),
             canonical=f'{SITE_URL}/{url}',
             site_url=SITE_URL,
-            thumb=thumb,
+            thumb=og_thumb,
             date=date,
             category=esc(a["category"]),
             read_time=minutes,

@@ -76,6 +76,14 @@
       .stat{font-family:var(--mono)}
       .stat b{display:block;font-size:22px;color:var(--ink)}
       .stat span{font-size:12px;color:var(--muted)}
+      .maintabs{display:flex;gap:8px;margin-top:18px;border-bottom:1px solid var(--line)}
+      .maintab{padding:10px 16px;font-size:14px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;
+        cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;font-family:inherit}
+      .maintab.active{color:var(--navy);border-bottom-color:var(--blue)}
+      .page{display:none}
+      .page.active{display:block}
+      .upd-cat{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:5px;
+        background:var(--blue-soft);color:var(--blue-dark);white-space:nowrap}
       input[type="file"]{display:none}
       .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
         padding:12px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;
@@ -114,6 +122,7 @@
         <span class="badge-admin">Admin</span>
         <div class="admin__actions">
           <a class="btn btn-line btn-sm" href="index.html" target="_blank">홈 미리보기 ↗</a>
+          <a class="btn btn-line btn-sm" href="admin-subscribers.html">구독자 관리 ↗</a>
           <label class="btn btn-line btn-sm" for="import-file">JSON 불러오기</label>
           <input type="file" id="import-file" accept="application/json,.json" />
           <button class="btn btn-primary btn-sm" onclick="downloadJSON()">articles.json 저장 ↓</button>
@@ -128,6 +137,12 @@
         <span class="stat"><b id="stat-featured">0</b><span>레퍼런스</span></span>
       </div>
 
+      <div class="maintabs">
+        <button type="button" class="maintab active" id="tab-btn-articles" onclick="switchPage('articles')">게시글 관리</button>
+        <button type="button" class="maintab" id="tab-btn-updates" onclick="switchPage('updates')">업데이트 로그</button>
+      </div>
+
+      <div class="page active" id="page-articles">
       <div class="grid2">
         <!-- LEFT: form -->
         <div class="panel">
@@ -192,6 +207,66 @@
           </div>
         </div>
       </div>
+      </div><!-- /page-articles -->
+
+      <div class="page" id="page-updates">
+      <div class="grid2">
+        <!-- LEFT: form -->
+        <div class="panel">
+          <h2 id="upd-form-title">새 업데이트 기록</h2>
+          <p class="hint">홈페이지에 반영한 변경 사항을 날짜별로 기록해두는 내부 로그입니다. 방문자에게는 노출되지 않습니다.</p>
+          <form id="update-form" onsubmit="return saveUpdate(event)">
+            <input type="hidden" id="u-id" />
+            <div class="row2">
+              <div class="field">
+                <label for="u-date">날짜 <span class="req">*</span></label>
+                <input type="date" id="u-date" required />
+              </div>
+              <div class="field">
+                <label for="u-category">구분 <span class="req">*</span></label>
+                <select id="u-category" required>
+                  <option value="기능">기능</option>
+                  <option value="콘텐츠">콘텐츠</option>
+                  <option value="디자인">디자인</option>
+                  <option value="버그수정">버그수정</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="u-summary">요약 <span class="req">*</span></label>
+              <input type="text" id="u-summary" required maxlength="80" placeholder="예: 뉴스레터 명칭 변경 및 OG 이미지 적용" />
+            </div>
+            <div class="field">
+              <label for="u-detail">상세 내용 <span class="sub" style="display:inline">(선택)</span></label>
+              <textarea id="u-detail" maxlength="400" placeholder="구체적으로 무엇이 바뀌었는지 기록해두세요."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">저장</button>
+              <button type="button" class="btn btn-line" onclick="resetUpdateForm()">초기화</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIGHT: list -->
+        <div class="panel">
+          <h2>업데이트 로그 <span class="sub" style="display:inline" id="upd-list-count"></span></h2>
+          <p class="hint">최신순. 연필로 편집, 휴지통으로 삭제합니다.</p>
+          <div class="form-actions" style="margin:0 0 14px">
+            <label class="btn btn-line btn-sm" for="upd-import-file">JSON 불러오기</label>
+            <input type="file" id="upd-import-file" accept="application/json,.json" />
+            <button class="btn btn-primary btn-sm" onclick="downloadUpdatesJSON()">updates.json 저장 ↓</button>
+          </div>
+          <div class="list" id="upd-list"></div>
+          <div class="callout">
+            <b>📦 GitHub에 반영하는 법</b><br />
+            ① <code>updates.json 저장 ↓</code>으로 파일 내려받기 →
+            ② 내려받은 파일을 저장소의 <code>data/updates.json</code> 에 덮어쓰기 →
+            ③ commit &amp; push 하면 반영됩니다.
+          </div>
+        </div>
+      </div>
+      </div><!-- /page-updates -->
     </div>
 
     <div class="toast" id="toast"></div>
@@ -216,6 +291,7 @@
         document.getElementById("gate").style.display = "none";
         document.getElementById("admin-body").style.display = "";
         resetForm(); load();
+        resetUpdateForm(); loadUpdates();
       }
       async function checkGate(e) {
         e.preventDefault();
@@ -288,8 +364,8 @@
               <div class="item__meta">${c.name} · ${a.date}${tabLabels ? " · " + esc(tabLabels) : ""}</div>
             </div>
             <div class="item__btns">
-              <button class="icon-btn" title="편집" onclick="editArticle(${a.id})">✎</button>
-              <button class="icon-btn del" title="삭제" onclick="delArticle(${a.id})">🗑</button>
+              <button class="icon-btn" title="편집" onclick="editArticle('${a.id}')">✎</button>
+              <button class="icon-btn del" title="삭제" onclick="delArticle('${a.id}')">🗑</button>
             </div>
           </div>`;
         }).join("") : '<p class="hint" style="margin:0">아직 게시글이 없습니다. 왼쪽에서 작성해보세요.</p>';
@@ -346,13 +422,14 @@
       /* ---------- 저장(신규/수정) ---------- */
       function saveArticle(e) {
         e.preventDefault();
-        const id = $("f-id").value;
+        const id = $("f-id").value; // 문자열 슬러그 (예: "seoul-youngcareerians-recruitment") — 숫자 아님
         const tabs = Array.from(document.querySelectorAll(".tab-check:checked")).map((cb) => cb.value);
         if (!tabs.length) { toast("노출 탭을 하나 이상 선택하세요."); return false; }
         const category = $("f-category").value;
         const thumb = $("f-thumb").value.trim() || THUMB_DEFAULT[category] || THUMB_DEFAULT.case;
+        const existing = id ? DATA.articles.find((a) => a.id === id) : null;
         const obj = {
-          id: id ? Number(id) : nextId(),
+          id: id || nextId($("f-title").value.trim()),
           category,
           title: $("f-title").value.trim(),
           excerpt: $("f-excerpt").value.trim(),
@@ -360,12 +437,12 @@
           date: $("f-date").value,
           readTime: Number($("f-readtime").value) || 6,
           tabs,
-          tags: [],
+          tags: existing ? existing.tags || [] : [], // 이 폼엔 태그 입력이 없어 기존 값 보존, 신규는 빈 배열
         };
         if (id) {
-          const i = DATA.articles.findIndex((a) => a.id === Number(id));
-          if (i >= 0) DATA.articles[i] = obj;
-          toast("수정되었습니다.");
+          const i = DATA.articles.findIndex((a) => a.id === id);
+          if (i >= 0) { DATA.articles[i] = obj; toast("수정되었습니다."); }
+          else toast("수정 실패: 원본 게시글을 찾을 수 없습니다.");
         } else {
           DATA.articles.push(obj);
           toast("새 게시글이 추가되었습니다.");
@@ -373,8 +450,24 @@
         renderList(); resetForm();
         return false;
       }
-      function nextId() { return DATA.articles.reduce((m, a) => Math.max(m, a.id), 0) + 1; }
-
+      // 제목에서 URL 슬러그 생성 (한글 등 비ASCII는 제거되므로, 영문 제목이 아니면 임시 id가 됩니다 —
+      // 이 도구로 새로 만든 글은 실제 파일(content/articles/*.md)이 없어 다음 빌드 때 사라지니
+      // 정식 신규 게시글은 Decap CMS(/admin/)에서 작성해주세요.)
+      function slugify(title) {
+        const base = (title || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+        return base || ("article-" + Date.now());
+      }
+      function nextId(title) {
+        const existingIds = new Set(DATA.articles.map((a) => a.id));
+        let base = slugify(title), id = base, n = 2;
+        while (existingIds.has(id)) { id = base + "-" + n; n++; }
+        return id;
+      }
       function editArticle(id) {
         const a = DATA.articles.find((x) => x.id === id);
         if (!a) return;
@@ -389,7 +482,7 @@
         $("form-title").textContent = "게시글 편집 (#" + a.id + ")";
         updateCount();
         updateThumbPreview();
-        document.querySelectorAll(".item").forEach((el) => el.classList.toggle("editing", Number(el.dataset.id) === id));
+        document.querySelectorAll(".item").forEach((el) => el.classList.toggle("editing", el.dataset.id === id));
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
@@ -441,7 +534,119 @@
       function updateCount() { $("excerpt-count").textContent = ($("f-excerpt").value.length) + " / 200"; }
       $("f-excerpt").addEventListener("input", updateCount);
 
-      // init: 인증 후 showAdmin()에서 resetForm()/load() 호출됨
+      /* ================== 업데이트 로그 (일자별 홈페이지 변경 기록) ================== */
+      let UPD = { updates: [] };
+
+      function switchPage(name) {
+        document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
+        document.querySelectorAll(".maintab").forEach((el) => el.classList.remove("active"));
+        $("page-" + name).classList.add("active");
+        $("tab-btn-" + name).classList.add("active");
+      }
+
+      function loadUpdates() {
+        const draft = localStorage.getItem("gi_updates_preview");
+        if (draft) { try { UPD = JSON.parse(draft); renderUpdatesList(); return; } catch (e) {} }
+        fetch("data/updates.json")
+          .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then((d) => { UPD = d; renderUpdatesList(); })
+          .catch(() => { UPD = { updates: [] }; renderUpdatesList(); });
+      }
+
+      function renderUpdatesList() {
+        const list = [...UPD.updates].sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
+        $("upd-list").innerHTML = list.length ? list.map((u) => `
+          <div class="item" data-id="${esc(u.id)}">
+            <div class="item__body">
+              <div class="item__title"><span class="upd-cat">${esc(u.category || "기타")}</span> ${esc(u.summary)}</div>
+              <div class="item__meta">${u.date}</div>
+            </div>
+            <div class="item__btns">
+              <button class="icon-btn" title="편집" onclick="editUpdate('${u.id}')">✎</button>
+              <button class="icon-btn del" title="삭제" onclick="delUpdate('${u.id}')">🗑</button>
+            </div>
+          </div>`).join("") : '<p class="hint" style="margin:0">아직 기록된 업데이트가 없습니다.</p>';
+        $("upd-list-count").textContent = `(${UPD.updates.length})`;
+        localStorage.setItem("gi_updates_preview", JSON.stringify(UPD));
+      }
+
+      function saveUpdate(e) {
+        e.preventDefault();
+        const id = $("u-id").value;
+        const obj = {
+          id: id || ("u-" + $("u-date").value + "-" + Date.now()),
+          date: $("u-date").value,
+          category: $("u-category").value,
+          summary: $("u-summary").value.trim(),
+          detail: $("u-detail").value.trim(),
+        };
+        if (id) {
+          const i = UPD.updates.findIndex((u) => u.id === id);
+          if (i >= 0) { UPD.updates[i] = obj; toast("수정되었습니다."); }
+          else toast("수정 실패: 원본 기록을 찾을 수 없습니다.");
+        } else {
+          UPD.updates.push(obj);
+          toast("업데이트가 기록되었습니다.");
+        }
+        renderUpdatesList(); resetUpdateForm();
+        return false;
+      }
+
+      function editUpdate(id) {
+        const u = UPD.updates.find((x) => x.id === id);
+        if (!u) return;
+        $("u-id").value = u.id;
+        $("u-date").value = u.date;
+        $("u-category").value = u.category || "기타";
+        $("u-summary").value = u.summary;
+        $("u-detail").value = u.detail || "";
+        $("upd-form-title").textContent = "업데이트 편집";
+        document.querySelectorAll("#upd-list .item").forEach((el) => el.classList.toggle("editing", el.dataset.id === id));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function delUpdate(id) {
+        const u = UPD.updates.find((x) => x.id === id);
+        if (!u) return;
+        if (!confirm(`"${u.summary}"\n이 기록을 삭제할까요?`)) return;
+        UPD.updates = UPD.updates.filter((x) => x.id !== id);
+        renderUpdatesList();
+        if ($("u-id").value === id) resetUpdateForm();
+        toast("삭제되었습니다.");
+      }
+
+      function resetUpdateForm() {
+        $("update-form").reset();
+        $("u-id").value = "";
+        $("u-date").value = today();
+        $("u-category").value = "기능";
+        $("upd-form-title").textContent = "새 업데이트 기록";
+        document.querySelectorAll("#upd-list .item").forEach((el) => el.classList.remove("editing"));
+      }
+
+      function downloadUpdatesJSON() {
+        const blob = new Blob([JSON.stringify(UPD, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "updates.json"; a.click();
+        URL.revokeObjectURL(url);
+        toast("updates.json 을 내려받았습니다. data/ 폴더에 덮어쓰세요.");
+      }
+      $("upd-import-file").addEventListener("change", (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const d = JSON.parse(reader.result);
+            if (!d.updates) throw new Error("형식 오류");
+            UPD = d; renderUpdatesList(); resetUpdateForm(); toast("불러왔습니다.");
+          } catch (err) { toast("불러오기 실패: 올바른 updates.json이 아닙니다."); }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      });
+
+      // init: 인증 후 showAdmin()에서 resetForm()/load()/resetUpdateForm()/loadUpdates() 호출됨
     </script>
   </body>
 </html>

@@ -6,7 +6,7 @@ window.GI_CONFIG = {
   site: {
     name: "공인싸",
     nameEn: "GONGINSSA",
-    newsletter: "공인싸-이드",
+    newsletter: "인싸레터",
     company: "이음전략소",
     tagline: "공공기관 홍보 담당자가 일잘러가 되는 가장 빠른 길",
     description:

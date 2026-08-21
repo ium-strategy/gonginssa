@@ -6,7 +6,7 @@ reference: ''
 hook: “이 수상작, AI로 만들었다는 표시가 없는데요?” 유튜브 업로드를 앞둔 김 주무관의 손이 멈춥니다. 영상 어디에도 'AI 제작' 표시는
   없습니다. 그대로 올려도 될까요? 이제라도 수상자에게 수정을 요청해야 할까요?
 date: '2026-08-19'
-thumb: ''
+thumb: /assets/uploads/thumb-ai-contest-ai-disclosure.jpg
 ---
 
 2026년 1월 22일부터 [AI 기본법](https://news.sbs.co.kr/news/endPage.do?cooper=RSS&news_id=N1008414234&plink=ORI)과 시행령이 시행됐습니다. AI 생성물의 표시 기준이 마련되면서, AI 영상 공모전도 수상작을 어떻게 공개하고 활용할지 미리 정해야 합니다.

@@ -6,7 +6,7 @@ reference: ''
 hook: “인턴십 공고는 다 올렸는데, 지원자가 왜 이것밖에 안 될까요?” 홈페이지와 기관 SNS에도 올렸고, 보도자료까지 나갔습니다. 할 수 있는
   건 다 한 것 같은데, 왜 사람들은 이 프로그램을 모를까요?
 date: '2026-08-19'
-thumb: ''
+thumb: /assets/uploads/thumb-seoul-youngcareerians-recruitment.jpg
 ---
 
 [서울영커리언스](https://xn--oy2b19kw7abzfnkr0bp79a.kr/)는 서울시와 참여 대학이 연계한 대학생 인턴십 프로그램입니다. 참여자는 기업·공공기관에서 실무를 경험하며 급여를 받고, 대학에 따라 학점도 인정받을 수 있습니다.
