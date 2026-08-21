@@ -191,7 +191,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 
 <main id="top">
   <article class="a-wrap">
-    <nav class="a-breadcrumb"><a href="../index.html">홈</a><span>/</span><a href="../index.html#articles">{category}</a></nav>
+    <nav class="a-breadcrumb"><a href="../index.html">홈</a><span>/</span><a href="../articles.html?category={category_key}">{category}</a></nav>
     <p class="a-category">{category}</p>
     <h1 class="a-title">{title}</h1>
     <div class="a-meta"><span>{date}</span><span class="sep">|</span><span>{read_time}분 읽기</span></div>
@@ -327,11 +327,12 @@ def build():
         og_thumb = (a["thumb"] or OG_FALLBACK_IMAGE).lstrip("/")
         date = a["date"]
         url = f'articles/{a["slug"]}.html'
+        # config.js 의 기존 카테고리 배지 taxonomy(trend/case/practical/resource/data) 재사용
+        category_key = "practical" if a["category"] == "실무 꿀팁" else "case"
 
         entries.append({
             "id": a["slug"],
-            # config.js 의 기존 카테고리 배지 taxonomy(trend/case/practical/resource/data) 재사용
-            "category": "practical" if a["category"] == "실무 꿀팁" else "case",
+            "category": category_key,
             "title": a["title"],
             "excerpt": excerpt,
             "date": date,
@@ -363,6 +364,7 @@ def build():
             reference_html=reference_html,
             tags_html=tags_html,
             slug=a["slug"],
+            category_key=category_key,
         )
         with open(f'{OUT}/articles/{a["slug"]}.html', "w", encoding="utf-8") as f:
             f.write(html_out)
@@ -374,6 +376,7 @@ def build():
     today = entries[0]["date"] if entries else FALLBACK_DATE
     sitemap_urls = [
         (f"{SITE_URL}/", "1.0", "weekly", today),
+        (f"{SITE_URL}/articles.html", "0.8", "weekly", today),
         (f"{SITE_URL}/privacy.html", "0.3", "yearly", today),
     ] + [
         (f'{SITE_URL}/{e["url"]}', "0.7", "monthly", e["date"]) for e in entries

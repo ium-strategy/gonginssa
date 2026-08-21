@@ -58,9 +58,15 @@
 
   /* ---------- 데이터 로드 ---------- */
   function boot() {
-    const draft = localStorage.getItem("gi_articles_preview");
-    if (draft) {
-      try { render(JSON.parse(draft)); return; } catch (e) {}
+    // 관리자 페이지에서 저장 전 미리보기로 연 경우(?preview=1)에만 임시 초안을 사용한다.
+    // 그 외 일반 방문(홈 URL을 그대로 열었을 때)은 항상 서버의 최신 데이터를 불러온다 —
+    // 그렇지 않으면 관리자가 예전에 한 번이라도 미리보기를 열어본 브라우저에서
+    // 실제 배포된 최신 콘텐츠(예: 새 썸네일) 대신 오래된 초안이 계속 표시되는 문제가 있었다.
+    if (new URLSearchParams(location.search).get("preview") === "1") {
+      const draft = localStorage.getItem("gi_articles_preview");
+      if (draft) {
+        try { render(JSON.parse(draft)); return; } catch (e) {}
+      }
     }
     fetch("data/articles.json")
       .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })

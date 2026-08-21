@@ -84,6 +84,27 @@
       .page.active{display:block}
       .upd-cat{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:5px;
         background:var(--blue-soft);color:var(--blue-dark);white-space:nowrap}
+      .upd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-top:26px}
+      .upd-head h2{font-size:18px;font-weight:800;margin:0 0 4px}
+      .upd-head .hint{color:var(--muted);font-size:13.5px;margin:0;max-width:520px}
+      .upd-head__actions{display:flex;gap:8px;flex-wrap:wrap}
+      #upd-form-panel{margin-top:16px}
+      .upd-layout{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;margin-top:18px;align-items:start}
+      @media (max-width:900px){.upd-layout{grid-template-columns:1fr}}
+      .upd-timeline{max-height:640px;overflow-y:auto;padding-right:4px}
+      .upd-day{margin-bottom:20px}
+      .upd-day:last-child{margin-bottom:0}
+      .upd-day__date{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+      .upd-day__date b{font-family:var(--mono);font-size:14px;color:var(--ink)}
+      .upd-day__date span{font-size:12px;color:var(--muted)}
+      .upd-day__items{display:flex;flex-direction:column;gap:8px;padding-left:15px;border-left:2px solid var(--line)}
+      .upd-recent-panel{position:sticky;top:20px}
+      .upd-recent{display:flex;flex-direction:column;max-height:640px;overflow-y:auto}
+      .upd-recent-item{display:block;padding:11px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+      .upd-recent-item:last-child{border-bottom:0}
+      .upd-recent-item:hover .upd-recent-item__title{color:var(--blue-dark)}
+      .upd-recent-item__title{font-size:13.5px;font-weight:700;line-height:1.4}
+      .upd-recent-item__meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px}
       input[type="file"]{display:none}
       .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
         padding:12px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;
@@ -121,7 +142,7 @@
         <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt="">공인싸</a>
         <span class="badge-admin">Admin</span>
         <div class="admin__actions">
-          <a class="btn btn-line btn-sm" href="index.html" target="_blank">홈 미리보기 ↗</a>
+          <a class="btn btn-line btn-sm" href="index.html?preview=1" target="_blank">홈 미리보기 ↗</a>
           <a class="btn btn-line btn-sm" href="admin-subscribers.html">구독자 관리 ↗</a>
           <label class="btn btn-line btn-sm" for="import-file">JSON 불러오기</label>
           <input type="file" id="import-file" accept="application/json,.json" />
@@ -210,61 +231,72 @@
       </div><!-- /page-articles -->
 
       <div class="page" id="page-updates">
-      <div class="grid2">
-        <!-- LEFT: form -->
-        <div class="panel">
-          <h2 id="upd-form-title">새 업데이트 기록</h2>
-          <p class="hint">홈페이지에 반영한 변경 사항을 날짜별로 기록해두는 내부 로그입니다. 방문자에게는 노출되지 않습니다.</p>
-          <form id="update-form" onsubmit="return saveUpdate(event)">
-            <input type="hidden" id="u-id" />
-            <div class="row2">
-              <div class="field">
-                <label for="u-date">날짜 <span class="req">*</span></label>
-                <input type="date" id="u-date" required />
-              </div>
-              <div class="field">
-                <label for="u-category">구분 <span class="req">*</span></label>
-                <select id="u-category" required>
-                  <option value="기능">기능</option>
-                  <option value="콘텐츠">콘텐츠</option>
-                  <option value="디자인">디자인</option>
-                  <option value="버그수정">버그수정</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
-            </div>
-            <div class="field">
-              <label for="u-summary">요약 <span class="req">*</span></label>
-              <input type="text" id="u-summary" required maxlength="80" placeholder="예: 뉴스레터 명칭 변경 및 OG 이미지 적용" />
-            </div>
-            <div class="field">
-              <label for="u-detail">상세 내용 <span class="sub" style="display:inline">(선택)</span></label>
-              <textarea id="u-detail" maxlength="400" placeholder="구체적으로 무엇이 바뀌었는지 기록해두세요."></textarea>
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary">저장</button>
-              <button type="button" class="btn btn-line" onclick="resetUpdateForm()">초기화</button>
-            </div>
-          </form>
+      <div class="upd-head">
+        <div>
+          <h2>업데이트 로그 <span class="sub" style="display:inline;font-weight:600;color:var(--muted)" id="upd-list-count"></span></h2>
+          <p class="hint">공인싸를 통해 사이트를 개편할 때마다 자동으로 기록됩니다. 방문자에게는 노출되지 않으며, 직접 입력하지 않아도 됩니다.</p>
         </div>
+        <div class="upd-head__actions">
+          <label class="btn btn-line btn-sm" for="upd-import-file">JSON 불러오기</label>
+          <input type="file" id="upd-import-file" accept="application/json,.json" />
+          <button class="btn btn-primary btn-sm" onclick="downloadUpdatesJSON()">updates.json 저장 ↓</button>
+          <button type="button" class="btn btn-line btn-sm" id="upd-add-toggle" onclick="toggleUpdateForm()">+ 직접 기록 추가</button>
+        </div>
+      </div>
 
-        <!-- RIGHT: list -->
+      <div class="panel" id="upd-form-panel" hidden>
+        <h2 id="upd-form-title">새 업데이트 기록</h2>
+        <form id="update-form" onsubmit="return saveUpdate(event)">
+          <input type="hidden" id="u-id" />
+          <div class="row2">
+            <div class="field">
+              <label for="u-date">날짜 <span class="req">*</span></label>
+              <input type="date" id="u-date" required />
+            </div>
+            <div class="field">
+              <label for="u-category">구분 <span class="req">*</span></label>
+              <select id="u-category" required>
+                <option value="기능">기능</option>
+                <option value="콘텐츠">콘텐츠</option>
+                <option value="디자인">디자인</option>
+                <option value="버그수정">버그수정</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="u-summary">요약 <span class="req">*</span></label>
+            <input type="text" id="u-summary" required maxlength="80" placeholder="예: 뉴스레터 명칭 변경 및 OG 이미지 적용" />
+          </div>
+          <div class="field">
+            <label for="u-detail">상세 내용 <span class="sub" style="display:inline">(선택)</span></label>
+            <textarea id="u-detail" maxlength="400" placeholder="구체적으로 무엇이 바뀌었는지 기록해두세요."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">저장</button>
+            <button type="button" class="btn btn-line" onclick="resetUpdateForm(); toggleUpdateForm(false);">닫기</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="upd-layout">
         <div class="panel">
-          <h2>업데이트 로그 <span class="sub" style="display:inline" id="upd-list-count"></span></h2>
-          <p class="hint">최신순. 연필로 편집, 휴지통으로 삭제합니다.</p>
-          <div class="form-actions" style="margin:0 0 14px">
-            <label class="btn btn-line btn-sm" for="upd-import-file">JSON 불러오기</label>
-            <input type="file" id="upd-import-file" accept="application/json,.json" />
-            <button class="btn btn-primary btn-sm" onclick="downloadUpdatesJSON()">updates.json 저장 ↓</button>
-          </div>
-          <div class="list" id="upd-list"></div>
-          <div class="callout">
-            <b>📦 GitHub에 반영하는 법</b><br />
-            ① <code>updates.json 저장 ↓</code>으로 파일 내려받기 →
-            ② 내려받은 파일을 저장소의 <code>data/updates.json</code> 에 덮어쓰기 →
-            ③ commit &amp; push 하면 반영됩니다.
-          </div>
+          <h2 style="font-size:16px">일자별 변경 내역</h2>
+          <p class="hint">최근 날짜부터 순서대로 보여줍니다. 연필로 편집, 휴지통으로 삭제합니다.</p>
+          <div class="upd-timeline" id="upd-timeline"></div>
         </div>
+        <div class="panel upd-recent-panel">
+          <h2 style="font-size:16px">최신 업데이트</h2>
+          <p class="hint">전체 기록을 최신순으로 모아 보여줍니다.</p>
+          <div class="upd-recent" id="upd-recent"></div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <b>📦 GitHub에 반영하는 법</b><br />
+        ① <code>updates.json 저장 ↓</code>으로 파일 내려받기 →
+        ② 내려받은 파일을 저장소의 <code>data/updates.json</code> 에 덮어쓰기 →
+        ③ commit &amp; push 하면 반영됩니다.
       </div>
       </div><!-- /page-updates -->
     </div>
@@ -553,21 +585,59 @@
           .catch(() => { UPD = { updates: [] }; renderUpdatesList(); });
       }
 
+      function toggleUpdateForm(show) {
+        const panel = $("upd-form-panel");
+        const willShow = typeof show === "boolean" ? show : panel.hidden;
+        panel.hidden = !willShow;
+        if (willShow) setTimeout(() => window.scrollTo({ top: panel.offsetTop - 16, behavior: "smooth" }), 10);
+      }
+
       function renderUpdatesList() {
-        const list = [...UPD.updates].sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
-        $("upd-list").innerHTML = list.length ? list.map((u) => `
-          <div class="item" data-id="${esc(u.id)}">
-            <div class="item__body">
-              <div class="item__title"><span class="upd-cat">${esc(u.category || "기타")}</span> ${esc(u.summary)}</div>
-              <div class="item__meta">${u.date}</div>
-            </div>
-            <div class="item__btns">
-              <button class="icon-btn" title="편집" onclick="editUpdate('${u.id}')">✎</button>
-              <button class="icon-btn del" title="삭제" onclick="delUpdate('${u.id}')">🗑</button>
+        const idNum = (id) => { const m = String(id).match(/(\d+)$/); return m ? parseInt(m[1], 10) : 0; };
+        const list = [...UPD.updates].sort((a, b) => b.date.localeCompare(a.date) || idNum(b.id) - idNum(a.id));
+
+        // 좌측: 일자별 그룹핑
+        const groups = [];
+        let cur = null;
+        list.forEach((u) => {
+          if (!cur || cur.date !== u.date) { cur = { date: u.date, items: [] }; groups.push(cur); }
+          cur.items.push(u);
+        });
+        $("upd-timeline").innerHTML = groups.length ? groups.map((g) => `
+          <div class="upd-day">
+            <div class="upd-day__date"><b>${g.date}</b><span>${g.items.length}건</span></div>
+            <div class="upd-day__items">
+              ${g.items.map((u) => `
+                <div class="item" data-id="${esc(u.id)}" style="grid-template-columns:1fr auto">
+                  <div class="item__body">
+                    <div class="item__title" style="white-space:normal"><span class="upd-cat">${esc(u.category || "기타")}</span> ${esc(u.summary)}</div>
+                    ${u.detail ? `<div style="font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.55">${esc(u.detail)}</div>` : ""}
+                  </div>
+                  <div class="item__btns">
+                    <button class="icon-btn" title="편집" onclick="editUpdate('${u.id}')">✎</button>
+                    <button class="icon-btn del" title="삭제" onclick="delUpdate('${u.id}')">🗑</button>
+                  </div>
+                </div>`).join("")}
             </div>
           </div>`).join("") : '<p class="hint" style="margin:0">아직 기록된 업데이트가 없습니다.</p>';
+
+        // 우측: 최신순 전체 목록
+        $("upd-recent").innerHTML = list.length ? list.map((u) => `
+          <div class="upd-recent-item" onclick="focusUpdate('${u.id}')">
+            <div class="upd-recent-item__title"><span class="upd-cat">${esc(u.category || "기타")}</span> ${esc(u.summary)}</div>
+            <div class="upd-recent-item__meta">${u.date}</div>
+          </div>`).join("") : '<p class="hint" style="margin:0">아직 기록된 업데이트가 없습니다.</p>';
+
         $("upd-list-count").textContent = `(${UPD.updates.length})`;
         localStorage.setItem("gi_updates_preview", JSON.stringify(UPD));
+      }
+
+      function focusUpdate(id) {
+        const el = document.querySelector(`.upd-day__items .item[data-id="${CSS.escape(id)}"]`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("editing");
+        setTimeout(() => el.classList.remove("editing"), 1400);
       }
 
       function saveUpdate(e) {
@@ -588,21 +658,20 @@
           UPD.updates.push(obj);
           toast("업데이트가 기록되었습니다.");
         }
-        renderUpdatesList(); resetUpdateForm();
+        renderUpdatesList(); resetUpdateForm(); toggleUpdateForm(false);
         return false;
       }
 
       function editUpdate(id) {
         const u = UPD.updates.find((x) => x.id === id);
         if (!u) return;
+        toggleUpdateForm(true);
         $("u-id").value = u.id;
         $("u-date").value = u.date;
         $("u-category").value = u.category || "기타";
         $("u-summary").value = u.summary;
         $("u-detail").value = u.detail || "";
         $("upd-form-title").textContent = "업데이트 편집";
-        document.querySelectorAll("#upd-list .item").forEach((el) => el.classList.toggle("editing", el.dataset.id === id));
-        window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
       function delUpdate(id) {
@@ -611,7 +680,7 @@
         if (!confirm(`"${u.summary}"\n이 기록을 삭제할까요?`)) return;
         UPD.updates = UPD.updates.filter((x) => x.id !== id);
         renderUpdatesList();
-        if ($("u-id").value === id) resetUpdateForm();
+        if ($("u-id").value === id) { resetUpdateForm(); toggleUpdateForm(false); }
         toast("삭제되었습니다.");
       }
 
@@ -621,7 +690,7 @@
         $("u-date").value = today();
         $("u-category").value = "기능";
         $("upd-form-title").textContent = "새 업데이트 기록";
-        document.querySelectorAll("#upd-list .item").forEach((el) => el.classList.remove("editing"));
+        document.querySelectorAll(".upd-day__items .item").forEach((el) => el.classList.remove("editing"));
       }
 
       function downloadUpdatesJSON() {

@@ -94,11 +94,14 @@
   .hero-rings{transform-origin:50% 50%;animation:heroOrbitPulse 9s ease-in-out infinite}
   .hero-core{fill-opacity:.92;transform-origin:50% 50%;animation:heroOrbitPulse 9s ease-in-out infinite .3s}
   .hero-orbit-dots{transform-origin:50% 50%;animation:heroOrbitSpin 42s linear infinite}
+  /* 번개 아이콘 자체는 궤도를 따라 돌면서도 항상 똑바로 서 있도록 부모 회전만큼 반대로 되돌린다 */
+  .orbit-icon{transform-box:fill-box;transform-origin:center;animation:heroOrbitCounter 42s linear infinite}
   @keyframes heroOrbitPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
   @keyframes heroGlowPulse{0%,100%{fill-opacity:.9}50%{fill-opacity:.65}}
   @keyframes heroOrbitSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes heroOrbitCounter{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
   @media (prefers-reduced-motion: reduce){
-    .hero-glow,.hero-rings,.hero-core,.hero-orbit-dots{animation:none}
+    .hero-glow,.hero-rings,.hero-core,.hero-orbit-dots,.orbit-icon{animation:none}
   }
   .spark{position:absolute;border-radius:50%;background:var(--brand-300);z-index:1;animation:sparkFloat 6s ease-in-out infinite}
   .spark.s1{width:14px;height:14px;left:3%;top:56%}
