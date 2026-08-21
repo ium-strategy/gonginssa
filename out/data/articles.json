@@ -1,0 +1,193 @@
+{
+  "articles": [
+    {
+      "id": "ai-contest-ai-disclosure",
+      "category": "practical",
+      "title": "AI 공모전 수상작, 'AI 제작' 표시는 어디까지 해야 할까?",
+      "excerpt": "“이 수상작, AI로 만들었다는 표시가 없는데요?” 유튜브 업로드를 앞둔 김 주무관의 손이 멈춥니다.",
+      "date": "2026-08-19",
+      "readTime": 5,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/ai-contest-ai-disclosure.html"
+    },
+    {
+      "id": "ai-video-contest-good-cases",
+      "category": "case",
+      "title": "요즘 다 하는 AI 영상 공모전, 잘한 기관은 무엇이 달랐을까?",
+      "excerpt": "“요즘 AI 영상 공모전 많이 하던데, 우리도 한번 해보죠.” 회의 중 팀장님의 한마디에 김 주무관은 고민에 빠집니다.",
+      "date": "2026-08-19",
+      "readTime": 7,
+      "thumb": "assets/articles/thumb-reference.svg",
+      "tabs": [
+        "popular",
+        "featured"
+      ],
+      "tags": [
+        "공모전",
+        "홍보"
+      ],
+      "url": "articles/ai-video-contest-good-cases.html"
+    },
+    {
+      "id": "civil-complaint-bigdata-content",
+      "category": "practical",
+      "title": "이번 주 SNS에 올릴 게 없다면, '민원 빅데이터'를 열어보세요",
+      "excerpt": "“이번 주엔 뭘 올리지?” SNS 콘텐츠 일정을 들여다보던 김 주무관. 예정된 사업 홍보는 이미 끝났고, 새로 들어온 홍보 요청도 없는…",
+      "date": "2026-08-19",
+      "readTime": 5,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/civil-complaint-bigdata-content.html"
+    },
+    {
+      "id": "contest-low-entries-3-reasons",
+      "category": "practical",
+      "title": "홍보가 문제일까? 공모전 접수가 적은 3가지 이유",
+      "excerpt": "공모전 마감이 일주일 앞으로 다가왔습니다. 기관 홈페이지와 SNS에 공고를 올리고 관련 단체에도 협조를 요청했지만, 접수 건수는 여전히…",
+      "date": "2026-08-19",
+      "readTime": 6,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "공모전",
+        "홍보"
+      ],
+      "url": "articles/contest-low-entries-3-reasons.html"
+    },
+    {
+      "id": "event-photos-portrait-rights",
+      "category": "practical",
+      "title": "행사 사진, 시민 얼굴 그대로 SNS에 올려도 될까?",
+      "excerpt": "“이 사진, 그냥 올려도 되나?” 행사가 끝난 뒤 SNS에 올릴 사진을 고르는 김 주무관.",
+      "date": "2026-08-19",
+      "readTime": 4,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/event-photos-portrait-rights.html"
+    },
+    {
+      "id": "instagram-followers-vs-reach",
+      "category": "practical",
+      "title": "공공기관 인스타그램, 팔로워 수만 보면 성과를 놓칩니다",
+      "excerpt": "“이번 달 팔로워는 몇 명 늘었나요?” SNS 성과를 보고할 때 가장 먼저 확인하게 되는 숫자가 있습니다.",
+      "date": "2026-08-19",
+      "readTime": 6,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/instagram-followers-vs-reach.html"
+    },
+    {
+      "id": "last-year-press-release-reuse",
+      "category": "practical",
+      "title": "지난해 보도자료, 날짜만 바꿔서 쓰고 있나요?",
+      "excerpt": "“작년 보도자료 어디 있지?” 매년 열리는 행사를 앞두고 지난해 보도자료를 꺼낸 김 주무관.",
+      "date": "2026-08-19",
+      "readTime": 4,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/last-year-press-release-reuse.html"
+    },
+    {
+      "id": "one-video-many-contents",
+      "category": "practical",
+      "title": "유튜브에 한 번 올리고 끝? 영상 하나를 여러 콘텐츠로 만드는 법",
+      "excerpt": "“이 영상, 쇼츠로도 만들어주세요.” 지난달 만든 5분짜리 기관 홍보영상을 다시 꺼낸 김 주무관.",
+      "date": "2026-08-19",
+      "readTime": 4,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/one-video-many-contents.html"
+    },
+    {
+      "id": "press-release-title-3-cuts",
+      "category": "practical",
+      "title": "보도자료 제목이 안 읽힌다면? 3가지를 먼저 빼보세요",
+      "excerpt": "“제목이 왜 이렇게 길고 복잡해졌지?” 보도자료를 쓰다 보면 제목 한 줄에서 막힐 때가 있습니다.",
+      "date": "2026-08-19",
+      "readTime": 4,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "실무 꿀팁"
+      ],
+      "url": "articles/press-release-title-3-cuts.html"
+    },
+    {
+      "id": "seoul-youngcareerians-recruitment",
+      "category": "case",
+      "title": "경쟁률 10대 1, 서울영커리언스 홍보는 뭐가 달랐을까?",
+      "excerpt": "“인턴십 공고는 다 올렸는데, 지원자가 왜 이것밖에 안 될까요?” 홈페이지와 기관 SNS에도 올렸고, 보도자료까지 나갔습니다.",
+      "date": "2026-08-19",
+      "readTime": 6,
+      "thumb": "assets/articles/thumb-reference.svg",
+      "tabs": [
+        "popular",
+        "featured"
+      ],
+      "tags": [
+        "레퍼런스"
+      ],
+      "url": "articles/seoul-youngcareerians-recruitment.html"
+    },
+    {
+      "id": "waste-banner-upcycling",
+      "category": "case",
+      "title": "폐현수막 하나로 시민 편의와 기관 홍보를 잡는 법",
+      "excerpt": "“철거한 현수막, 재활용 업체 부를까요…?” 선거는 끝났지만 김 주무관의 업무는 끝나지 않았습니다.",
+      "date": "2026-08-19",
+      "readTime": 3,
+      "thumb": "assets/articles/thumb-reference.svg",
+      "tabs": [
+        "popular",
+        "featured"
+      ],
+      "tags": [
+        "레퍼런스"
+      ],
+      "url": "articles/waste-banner-upcycling.html"
+    }
+  ]
+}

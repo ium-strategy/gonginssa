@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>공인싸 관리자 — 게시글 관리</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUITE@2/fonts/static/woff2/SUITE.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+      :root{
+        /* 공인싸 브랜드 가이드 v1.0 토큰 별칭 (관리자 화면 전용 축약 네이밍) */
+        --navy:#281966; --blue:#6C5CDC; --blue-dark:#5F4FCC; --blue-soft:#E8E9FF;
+        --paper:#FFFFFF; --tint:#F5F6FF; --line:#E8E9FF; --ink:#1A1A23; --muted:#6D6D7A; --req:#E0483C;
+        --radius:16px; --mono:'IBM Plex Mono', ui-monospace, monospace;
+      }
+      *{box-sizing:border-box}
+      body{margin:0;background:var(--tint);color:var(--ink);font-family:'SUITE','Pretendard',-apple-system,sans-serif;line-height:1.6}
+      a{color:inherit;text-decoration:none}
+      .admin{max-width:1080px;margin:0 auto;padding:0 24px 80px}
+      .admin__top{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+      .brand{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+      .brand img{height:26px}
+      .badge-admin{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+        color:var(--blue);background:var(--blue-soft);padding:4px 10px;border-radius:6px}
+      .admin__actions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+      .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;padding:10px 16px;
+        font-size:14px;font-weight:700;border:1px solid transparent;white-space:nowrap;cursor:pointer;font-family:inherit}
+      .btn-primary{background:var(--blue);color:#fff}
+      .btn-primary:hover{background:var(--blue-dark)}
+      .btn-line{background:transparent;color:var(--navy);border-color:var(--line)}
+      .btn-line:hover{border-color:var(--navy)}
+      .btn-sm{padding:8px 12px;font-size:13px}
+      .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;margin-top:26px;align-items:start}
+      @media (max-width:900px){.grid2{grid-template-columns:1fr}}
+      .panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+      .panel h2{font-size:18px;font-weight:800;margin:0 0 4px}
+      .panel .hint{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+      .field{margin-bottom:16px}
+      .field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+      .field .req{color:var(--req)}
+      .field input,.field textarea,.field select{
+        width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;
+        background:var(--tint);color:var(--ink);font-family:inherit;font-size:15px}
+      .field textarea{resize:vertical;min-height:84px;line-height:1.6}
+      .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--blue)}
+      .field .sub{font-size:12px;color:var(--muted);margin-top:5px}
+      .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+      @media (max-width:520px){.row2{grid-template-columns:1fr}}
+      .tabchecks{display:flex;gap:14px;flex-wrap:wrap}
+      .check{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;cursor:pointer}
+      .check input{width:auto;accent-color:var(--blue)}
+      .form-actions{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+      .list{display:flex;flex-direction:column;gap:10px;max-height:620px;overflow-y:auto}
+      .item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 14px;
+        border:1px solid var(--line);border-radius:11px;background:var(--tint);transition:border-color .15s}
+      .item:hover{border-color:var(--blue)}
+      .item.editing{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+      .item__body{min-width:0}
+      .item__title{font-size:14.5px;font-weight:700;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .item__meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:2px}
+      .item__btns{display:flex;gap:6px}
+      .icon-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;
+        width:30px;height:30px;cursor:pointer;font-size:13px;display:grid;place-items:center}
+      .icon-btn:hover{border-color:var(--ink);color:var(--ink)}
+      .icon-btn.del:hover{border-color:var(--req);color:var(--req)}
+      .callout{border:1px dashed var(--line);border-radius:12px;padding:16px 18px;background:var(--tint);
+        font-size:13.5px;color:var(--muted);line-height:1.7;margin-top:20px}
+      .callout b{color:var(--ink)}
+      .callout code{font-family:var(--mono);font-size:12.5px;background:var(--paper);padding:1px 6px;border-radius:5px;border:1px solid var(--line)}
+      .stat-row{display:flex;gap:22px;margin-bottom:16px;flex-wrap:wrap}
+      .stat{font-family:var(--mono)}
+      .stat b{display:block;font-size:22px;color:var(--ink)}
+      .stat span{font-size:12px;color:var(--muted)}
+      input[type="file"]{display:none}
+      .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
+        padding:12px 20px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;
+        transition:opacity .25s,transform .25s;z-index:100}
+      .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+      .gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+      .gate__box{width:100%;max-width:360px;background:var(--paper);border:1px solid var(--line);border-radius:16px;
+        padding:32px 28px;text-align:center}
+      .gate__box h1{font-size:19px;margin:14px 0 6px}
+      .gate__box p{font-size:13.5px;color:var(--muted);margin:0 0 20px}
+      .gate__box form{display:flex;flex-direction:column;gap:10px}
+      .gate__box input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
+        background:var(--tint);color:var(--ink);font-family:inherit;font-size:15px;text-align:center}
+      .gate__box input:focus{outline:none;border-color:var(--blue)}
+      .gate__err{display:none;color:var(--req);font-size:12.5px;margin:2px 0 0}
+      .gate__err.show{display:block}
+    </style>
+  </head>
+  <body>
+    <div class="gate" id="gate">
+      <div class="gate__box">
+        <img src="assets/logo-mark.png" alt="" style="height:36px" />
+        <h1>관리자 로그인</h1>
+        <p>공인싸 관리자 페이지입니다. 접근 코드를 입력하세요.</p>
+        <form id="gate-form" onsubmit="return checkGate(event)">
+          <input type="password" id="gate-pw" placeholder="접근 코드" autocomplete="current-password" required />
+          <button type="submit" class="btn btn-primary" style="width:100%">입장</button>
+          <p class="gate__err" id="gate-err">접근 코드가 올바르지 않습니다.</p>
+        </form>
+      </div>
+    </div>
+
+    <div class="admin" id="admin-body" style="display:none">
+      <div class="admin__top">
+        <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt="">공인싸</a>
+        <span class="badge-admin">Admin</span>
+        <div class="admin__actions">
+          <a class="btn btn-line btn-sm" href="index.html" target="_blank">홈 미리보기 ↗</a>
+          <label class="btn btn-line btn-sm" for="import-file">JSON 불러오기</label>
+          <input type="file" id="import-file" accept="application/json,.json" />
+          <button class="btn btn-primary btn-sm" onclick="downloadJSON()">articles.json 저장 ↓</button>
+          <button class="btn btn-line btn-sm" onclick="logoutGate()">로그아웃</button>
+        </div>
+      </div>
+
+      <div class="stat-row" style="margin-top:22px">
+        <span class="stat"><b id="stat-total">0</b><span>전체 아티클</span></span>
+        <span class="stat"><b id="stat-popular">0</b><span>인기픽</span></span>
+        <span class="stat"><b id="stat-workbook">0</b><span>실무 꿀팁</span></span>
+        <span class="stat"><b id="stat-featured">0</b><span>레퍼런스</span></span>
+      </div>
+
+      <div class="grid2">
+        <!-- LEFT: form -->
+        <div class="panel">
+          <h2 id="form-title">새 게시글 작성</h2>
+          <p class="hint">작성하면 아래 목록과 홈 미리보기에 바로 반영됩니다. 완료 후 <b>articles.json 저장</b>으로 파일을 내려받아 GitHub에 올리세요.</p>
+          <form id="article-form" onsubmit="return saveArticle(event)">
+            <input type="hidden" id="f-id" />
+            <div class="field">
+              <label for="f-title">제목 <span class="req">*</span></label>
+              <input type="text" id="f-title" required maxlength="90" placeholder="예: 공공기관 보도자료 쓰는 법: 주무관이 자주 틀리는 5가지" />
+            </div>
+            <div class="field">
+              <label for="f-excerpt">요약 <span class="req">*</span></label>
+              <textarea id="f-excerpt" required maxlength="200" placeholder="해당 탭에서 첫 번째(대표) 카드로 노출될 때 보이는 요약. 80~120자 권장."></textarea>
+              <span class="sub" id="excerpt-count">0 / 200</span>
+            </div>
+            <div class="field">
+              <label for="f-thumb">썸네일 이미지 URL <span class="req">*</span></label>
+              <input type="url" id="f-thumb" required placeholder="https://images.unsplash.com/... 또는 자체 호스팅 이미지 URL" />
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="f-category">카테고리 <span class="req">*</span></label>
+                <select id="f-category" required></select>
+              </div>
+              <div class="field">
+                <label for="f-date">발행일 <span class="req">*</span></label>
+                <input type="date" id="f-date" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-readtime">읽기 시간(분)</label>
+              <input type="number" id="f-readtime" min="1" max="60" value="6" style="max-width:140px" />
+            </div>
+            <div class="field">
+              <label>노출 탭 <span class="req">*</span> <span class="sub" style="display:inline">(하나 이상 선택 — 각 탭에서 최신순 첫 글이 큰 카드로 노출)</span></label>
+              <div class="tabchecks" id="tab-checks"></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">저장</button>
+              <button type="button" class="btn btn-line" onclick="resetForm()">초기화</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIGHT: list -->
+        <div class="panel">
+          <h2>게시글 목록 <span class="sub" style="display:inline" id="list-count"></span></h2>
+          <p class="hint">최신순. 연필로 편집, 휴지통으로 삭제합니다.</p>
+          <div class="list" id="list"></div>
+          <div class="callout">
+            <b>📦 GitHub에 반영하는 법</b><br />
+            ① <code>articles.json 저장 ↓</code>으로 파일 내려받기 →
+            ② 내려받은 파일을 저장소의 <code>data/articles.json</code> 에 덮어쓰기 →
+            ③ commit &amp; push 하면 반영됩니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="data/config.js"></script>
+    <script>
+      /* ---------- 접근 게이트 (임시 보안 — 정식 인증 아님) ----------
+         이 페이지는 정적 사이트라 서버 인증이 없습니다.
+         아래 해시는 접근코드 "gonginssa2026!" 의 SHA-256 값입니다.
+         접근코드를 바꾸려면: 브라우저 콘솔에서
+           crypto.subtle.digest("SHA-256", new TextEncoder().encode("새 코드"))
+             .then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+         로 새 해시를 뽑아 GATE_HASH 값을 교체하세요.
+         ⚠️ 이 방식은 URL을 아는 사람의 접근을 막는 최소 방어선일 뿐, 진짜 로그인/권한 관리가
+         아닙니다. 실 운영 전 Netlify Identity 또는 Decap CMS 기반 인증으로 교체를 권장합니다. */
+      const GATE_HASH = "b33da5c1119e968cf39b28bbbfd1f2ae2515f52cb84afe20953c3ee432fed135";
+      async function sha256(text) {
+        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+        return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, "0")).join("");
+      }
+      function showAdmin() {
+        document.getElementById("gate").style.display = "none";
+        document.getElementById("admin-body").style.display = "";
+        resetForm(); load();
+      }
+      async function checkGate(e) {
+        e.preventDefault();
+        const pw = document.getElementById("gate-pw").value;
+        const hash = await sha256(pw);
+        if (hash === GATE_HASH) {
+          sessionStorage.setItem("gi_admin_auth", "1");
+          showAdmin();
+        } else {
+          document.getElementById("gate-err").classList.add("show");
+          document.getElementById("gate-pw").value = "";
+          document.getElementById("gate-pw").focus();
+        }
+        return false;
+      }
+      function logoutGate() {
+        sessionStorage.removeItem("gi_admin_auth");
+        location.reload();
+      }
+      if (sessionStorage.getItem("gi_admin_auth") === "1") {
+        showAdmin();
+      }
+      /* ---------- 게이트 끝 ---------- */
+
+      const CFG = window.GI_CONFIG;
+      const CAT = CFG.categories;
+      const CAT_ORDER = Object.keys(CAT);
+      const TABS = CFG.tabs; // [{key,label,title}]
+      let DATA = { articles: [] };
+
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+      let tt;
+      function toast(msg) {
+        const el = $("toast");
+        el.textContent = msg; el.classList.add("show");
+        clearTimeout(tt); tt = setTimeout(() => el.classList.remove("show"), 2200);
+      }
+
+      // 카테고리 셀렉트 채우기
+      $("f-category").innerHTML = CAT_ORDER.map((s) => `<option value="${s}">${CAT[s].name}</option>`).join("");
+
+      // 탭 체크박스 채우기
+      $("tab-checks").innerHTML = TABS.map((t) => `
+        <label class="check"><input type="checkbox" class="tab-check" value="${t.key}" /> ${esc(t.label)}</label>
+      `).join("");
+
+      /* ---------- 로드: 로컬초안 > articles.json ---------- */
+      function load() {
+        const draft = localStorage.getItem("gi_articles_preview");
+        if (draft) { try { DATA = JSON.parse(draft); afterLoad("[로컬 초안 복원됨]"); return; } catch (e) {} }
+        fetch("data/articles.json")
+          .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then((d) => { DATA = d; afterLoad(); })
+          .catch(() => { DATA = { articles: [] }; afterLoad("articles.json을 못 읽어 빈 상태로 시작합니다."); });
+      }
+      function afterLoad(msg) { renderList(); if (msg) toast(msg); }
+      function today() { return new Date().toISOString().slice(0, 10); }
+
+      /* ---------- 목록 렌더 ---------- */
+      function renderList() {
+        const list = [...DATA.articles].sort((a, b) => b.date.localeCompare(a.date));
+        $("list").innerHTML = list.length ? list.map((a) => {
+          const c = CAT[a.category] || { name: "?" };
+          const tabLabels = (a.tabs || []).map((k) => (TABS.find((t) => t.key === k) || {}).label || k).join(" · ");
+          return `<div class="item" data-id="${a.id}">
+            <div class="item__body">
+              <div class="item__title">${esc(a.title)}</div>
+              <div class="item__meta">${c.name} · ${a.date}${tabLabels ? " · " + esc(tabLabels) : ""}</div>
+            </div>
+            <div class="item__btns">
+              <button class="icon-btn" title="편집" onclick="editArticle(${a.id})">✎</button>
+              <button class="icon-btn del" title="삭제" onclick="delArticle(${a.id})">🗑</button>
+            </div>
+          </div>`;
+        }).join("") : '<p class="hint" style="margin:0">아직 게시글이 없습니다. 왼쪽에서 작성해보세요.</p>';
+
+        $("list-count").textContent = `(${DATA.articles.length})`;
+        $("stat-total").textContent = DATA.articles.length;
+        TABS.forEach((t) => {
+          const el = $("stat-" + t.key);
+          if (el) el.textContent = DATA.articles.filter((a) => (a.tabs || []).includes(t.key)).length;
+        });
+
+        // 미리보기 초안 저장 (홈에서 즉시 반영)
+        localStorage.setItem("gi_articles_preview", JSON.stringify(DATA));
+      }
+
+      /* ---------- 저장(신규/수정) ---------- */
+      function saveArticle(e) {
+        e.preventDefault();
+        const id = $("f-id").value;
+        const tabs = Array.from(document.querySelectorAll(".tab-check:checked")).map((cb) => cb.value);
+        if (!tabs.length) { toast("노출 탭을 하나 이상 선택하세요."); return false; }
+        const obj = {
+          id: id ? Number(id) : nextId(),
+          category: $("f-category").value,
+          title: $("f-title").value.trim(),
+          excerpt: $("f-excerpt").value.trim(),
+          thumb: $("f-thumb").value.trim(),
+          date: $("f-date").value,
+          readTime: Number($("f-readtime").value) || 6,
+          tabs,
+          tags: [],
+        };
+        if (id) {
+          const i = DATA.articles.findIndex((a) => a.id === Number(id));
+          if (i >= 0) DATA.articles[i] = obj;
+          toast("수정되었습니다.");
+        } else {
+          DATA.articles.push(obj);
+          toast("새 게시글이 추가되었습니다.");
+        }
+        renderList(); resetForm();
+        return false;
+      }
+      function nextId() { return DATA.articles.reduce((m, a) => Math.max(m, a.id), 0) + 1; }
+
+      function editArticle(id) {
+        const a = DATA.articles.find((x) => x.id === id);
+        if (!a) return;
+        $("f-id").value = a.id;
+        $("f-title").value = a.title;
+        $("f-excerpt").value = a.excerpt;
+        $("f-thumb").value = a.thumb || "";
+        $("f-category").value = a.category;
+        $("f-date").value = a.date;
+        $("f-readtime").value = a.readTime;
+        document.querySelectorAll(".tab-check").forEach((cb) => { cb.checked = (a.tabs || []).includes(cb.value); });
+        $("form-title").textContent = "게시글 편집 (#" + a.id + ")";
+        updateCount();
+        document.querySelectorAll(".item").forEach((el) => el.classList.toggle("editing", Number(el.dataset.id) === id));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function delArticle(id) {
+        const a = DATA.articles.find((x) => x.id === id);
+        if (!a) return;
+        if (!confirm(`"${a.title}"\n이 게시글을 삭제할까요?`)) return;
+        DATA.articles = DATA.articles.filter((x) => x.id !== id);
+        renderList();
+        if ($("f-id").value === String(id)) resetForm();
+        toast("삭제되었습니다.");
+      }
+
+      function resetForm() {
+        $("article-form").reset();
+        $("f-id").value = "";
+        $("f-date").value = today();
+        $("form-title").textContent = "새 게시글 작성";
+        document.querySelectorAll(".tab-check").forEach((cb) => (cb.checked = false));
+        document.querySelectorAll(".item").forEach((el) => el.classList.remove("editing"));
+        updateCount();
+      }
+
+      /* ---------- JSON 저장/불러오기 ---------- */
+      function downloadJSON() {
+        const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "articles.json"; a.click();
+        URL.revokeObjectURL(url);
+        toast("articles.json 을 내려받았습니다. data/ 폴더에 덮어쓰세요.");
+      }
+      $("import-file").addEventListener("change", (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const d = JSON.parse(reader.result);
+            if (!d.articles) throw new Error("형식 오류");
+            DATA = d; renderList(); resetForm(); toast("불러왔습니다.");
+          } catch (err) { toast("불러오기 실패: 올바른 articles.json이 아닙니다."); }
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      });
+
+      // 글자수 카운터
+      function updateCount() { $("excerpt-count").textContent = ($("f-excerpt").value.length) + " / 200"; }
+      $("f-excerpt").addEventListener("input", updateCount);
+
+      // init: 인증 후 showAdmin()에서 resetForm()/load() 호출됨
+    </script>
+  </body>
+</html>

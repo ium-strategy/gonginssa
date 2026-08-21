@@ -1,0 +1,65 @@
+/* ===========================================================
+ * 공인싸 (GONGINSSA) — 아티클 상세페이지 전용 스타일
+ * site.css 의 브랜드 토큰(:root)을 그대로 이어서 사용한다.
+ * =========================================================== */
+.a-wrap{max-width:720px;margin:0 auto;padding:48px 24px 64px}
+.a-breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);margin-bottom:22px}
+.a-breadcrumb a{color:var(--text-muted)}
+.a-breadcrumb a:hover{color:var(--text-brand)}
+.a-breadcrumb span{color:var(--border-control)}
+.a-category{font-size:13px;font-weight:600;color:var(--text-brand);margin-bottom:10px}
+.a-title{font-size:32px;line-height:1.35;letter-spacing:-.02em;font-weight:700;color:var(--text-body);margin-bottom:16px}
+.a-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.a-meta .sep{color:var(--border-control)}
+.a-hook{font-size:16px;line-height:1.75;color:var(--text-body);background:var(--bg-surface);border-radius:var(--radius);padding:20px 22px;margin-bottom:36px}
+
+.a-body{font-size:16px;line-height:1.85;color:var(--text-body)}
+.a-body p{margin:0 0 20px}
+.a-body h2{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:40px 0 16px;color:var(--text-body)}
+.a-body h3{font-size:18px;font-weight:700;margin:28px 0 12px;color:var(--text-body)}
+.a-body ul{margin:0 0 20px;padding-left:20px}
+.a-body li{margin-bottom:8px}
+.a-body a{color:var(--text-brand);text-decoration:underline;text-underline-offset:2px}
+.a-body code{background:var(--bg-accent);color:var(--text-brand);padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:14px}
+.a-body strong{font-weight:700}
+
+.a-quote{border-left:3px solid var(--brand);padding:4px 0 4px 18px;margin:0 0 20px;color:var(--text-brand);font-weight:600}
+
+.a-video{position:relative;width:100%;padding-top:56.25%;margin:8px 0 28px;border-radius:var(--radius);overflow:hidden;background:#0D0D14}
+.a-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+.a-figure{margin:8px 0 28px}
+.a-figure img{width:100%;height:auto;border-radius:var(--radius);display:block}
+.a-figure figcaption{margin-top:8px;font-size:13px;color:var(--text-muted);text-align:center;line-height:1.5}
+
+.a-pick{display:flex;flex-direction:column;gap:6px;background:var(--bg-accent);border-radius:var(--radius);padding:18px 20px;margin:0 0 24px}
+.a-pick-label{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-brand)}
+.a-pick p{margin:0;color:var(--text-body);font-size:15px;line-height:1.7}
+
+.a-checklist{background:var(--bg-surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:18px 20px;margin:0 0 24px}
+.a-checklist-title{font-weight:700;margin:0 0 10px;font-size:14.5px}
+.a-checklist ul{margin:0;padding-left:0;list-style:none}
+.a-checklist li{position:relative;padding-left:26px;margin-bottom:8px;font-size:14.5px;color:var(--text-body)}
+.a-checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border-radius:5px;border:1.5px solid var(--border-control)}
+
+.a-table-wrap{overflow-x:auto;margin:0 0 24px}
+.a-table-wrap table{width:100%;border-collapse:collapse;font-size:14px}
+.a-table-wrap td{border:1px solid var(--border-soft);padding:10px 12px;text-align:left;vertical-align:top}
+.a-table-wrap tr:first-child td{background:var(--bg-surface);font-weight:700}
+
+.a-ref{margin-top:32px;font-size:13px;color:var(--text-muted);word-break:break-all}
+.a-ref a{color:var(--text-brand)}
+.a-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.a-tag{font-size:12.5px;color:var(--text-muted);background:var(--bg-surface);border-radius:999px;padding:5px 12px}
+
+.a-related{padding-top:8px}
+
+.subscribe-compact{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;background:var(--bg-accent);border-radius:var(--radius);padding:28px 32px}
+.subscribe-compact h2{font-size:19px;line-height:1.5;font-weight:700;color:var(--text-body);margin-top:8px}
+.subscribe-compact .btn{white-space:nowrap}
+
+@media (max-width:680px){
+  .a-wrap{padding:32px 20px 48px}
+  .a-title{font-size:24px}
+  .subscribe-compact{flex-direction:column;align-items:stretch;text-align:left}
+}

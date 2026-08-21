@@ -1,0 +1,187 @@
+/* ===========================================================
+ * 공인싸 (GONGINSSA) — 공통 UI 인터랙션
+ * 아티클 탭 전환 · 헤더 스크롤 · 플로팅 구독 배너 · 구독 동의 ·
+ * 스크롤 리빌. 데이터와 무관한 정적 동작만 담당한다.
+ * =========================================================== */
+document.addEventListener("DOMContentLoaded", function () {
+  // article tabs (인기픽 / 실무 꿀팁 / 레퍼런스)
+  const articleTabs = document.getElementById("articleTabs");
+  const articlesTitle = document.getElementById("articlesTitle");
+  if (articleTabs) {
+    articleTabs.addEventListener("click", (e) => {
+      const btn = e.target.closest(".tab-btn");
+      if (!btn) return;
+      articleTabs.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (articlesTitle) articlesTitle.textContent = btn.dataset.title;
+      document.querySelectorAll(".tgrid[data-panel]").forEach((panel) => {
+        panel.hidden = panel.dataset.panel !== btn.dataset.panel;
+      });
+    });
+  }
+
+  // 구독 동의: "전체 동의"가 필수 체크박스 2개와 동기화되고,
+  // 각 항목은 상세 설명을 펼쳐볼 수 있다
+  const agreeAll = document.getElementById("agreeAll");
+  const agreeRequired = document.querySelectorAll(".agree-required");
+  if (agreeAll) {
+    agreeAll.addEventListener("change", () => {
+      agreeRequired.forEach((cb) => (cb.checked = agreeAll.checked));
+    });
+    agreeRequired.forEach((cb) => {
+      cb.addEventListener("change", () => {
+        agreeAll.checked = Array.from(agreeRequired).every((c) => c.checked);
+      });
+    });
+  }
+  document.querySelectorAll(".agree-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const detail = btn.closest(".agree-row").nextElementSibling;
+      const open = detail.hidden;
+      detail.hidden = !open;
+      btn.textContent = open ? "접기" : "더보기";
+      btn.setAttribute("aria-expanded", String(open));
+    });
+  });
+
+  // 구독 폼 — Netlify Forms로 전송(정적 호스팅에서도 서버 없이 제출을 수집).
+  // 다른 호스팅(GitHub Pages 등)에서 열리면 Netlify Forms 엔드포인트가 없어
+  // 전송이 실패할 수 있으니 그 경우에도 폼이 깨지지 않도록 처리한다.
+  const subForm = document.getElementById("subForm");
+  const subStatus = document.getElementById("subStatus");
+  if (subForm) {
+    subForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = new URLSearchParams(new FormData(subForm)).toString();
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: data,
+      })
+        .then(() => {
+          subStatus.style.display = "block";
+          subForm.reset();
+        })
+        .catch(() => {
+          // 전송 실패 시에도 사용자에게는 안내하되, 콘솔에 원인을 남긴다.
+          console.error("구독 폼 전송 실패 — 이 페이지가 Netlify에 배포된 상태인지 확인하세요.");
+          subStatus.style.display = "block";
+          subForm.reset();
+        });
+    });
+  }
+
+  // 상담 신청 모달 — 열기/닫기 + Netlify Forms 전송
+  const consultOverlay = document.getElementById("consultOverlay");
+  const consultOpenBtn = document.getElementById("consultOpenBtn");
+  const consultCloseBtn = document.getElementById("consultCloseBtn");
+  const consultForm = document.getElementById("consultForm");
+  const consultStatus = document.getElementById("consultStatus");
+  let consultLastFocus = null;
+
+  function openConsult() {
+    if (!consultOverlay) return;
+    consultLastFocus = document.activeElement;
+    consultOverlay.hidden = false;
+    document.body.style.overflow = "hidden";
+    const firstField = document.getElementById("f-consult-name");
+    if (firstField) firstField.focus();
+  }
+  function closeConsult() {
+    if (!consultOverlay) return;
+    consultOverlay.hidden = true;
+    document.body.style.overflow = "";
+    if (consultLastFocus) consultLastFocus.focus();
+  }
+  if (consultOpenBtn) consultOpenBtn.addEventListener("click", openConsult);
+  if (consultCloseBtn) consultCloseBtn.addEventListener("click", closeConsult);
+  if (consultOverlay) {
+    consultOverlay.addEventListener("click", (e) => {
+      if (e.target === consultOverlay) closeConsult();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !consultOverlay.hidden) closeConsult();
+    });
+  }
+  if (consultForm) {
+    consultForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = new URLSearchParams(new FormData(consultForm)).toString();
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: data,
+      })
+        .then(() => {
+          consultStatus.style.display = "block";
+          consultForm.reset();
+          setTimeout(closeConsult, 1800);
+        })
+        .catch(() => {
+          console.error("상담 신청 폼 전송 실패 — 이 페이지가 Netlify에 배포된 상태인지 확인하세요.");
+          consultStatus.style.display = "block";
+          consultForm.reset();
+          setTimeout(closeConsult, 1800);
+        });
+    });
+  }
+
+  // 헤더 — 히어로 위에서는 투명, 스크롤하면 불투명
+  const siteHeader = document.querySelector("header.site");
+  function updateHeader() {
+    if (siteHeader) siteHeader.classList.toggle("scrolled", window.scrollY > 8);
+  }
+  window.addEventListener("scroll", updateHeader, { passive: true });
+  updateHeader();
+
+  // 플로팅 구독 배너 — 히어로를 지나면 나타나고, 닫으면 세션 동안 다시 안 뜸
+  const floatBar = document.getElementById("floatBar");
+  const floatBarClose = document.getElementById("floatBarClose");
+  const heroEl = document.querySelector(".hero");
+  let floatBarDismissed = false;
+  try { floatBarDismissed = sessionStorage.getItem("gonginssaide_bar_dismissed") === "1"; } catch (e) {}
+
+  function syncFloatBarHeight() {
+    if (!floatBar) return;
+    document.documentElement.style.setProperty("--floatbar-h", floatBar.offsetHeight + "px");
+  }
+  function setBarVisible(visible) {
+    floatBar.classList.toggle("show", visible);
+    if (visible) syncFloatBarHeight();
+    document.body.classList.toggle("bar-visible", visible);
+  }
+  function updateFloatBar() {
+    if (!floatBar || floatBarDismissed || floatBar.dataset.shown === "1") return;
+    if (heroEl && heroEl.getBoundingClientRect().bottom < 0) {
+      floatBar.dataset.shown = "1";
+      setBarVisible(true);
+    }
+  }
+  if (floatBar) {
+    window.addEventListener("scroll", updateFloatBar, { passive: true });
+    window.addEventListener("resize", syncFloatBarHeight);
+    updateFloatBar();
+    window.addEventListener("load", updateFloatBar);
+    if (floatBarClose) {
+      floatBarClose.addEventListener("click", () => {
+        floatBarDismissed = true;
+        setBarVisible(false);
+        try { sessionStorage.setItem("gonginssaide_bar_dismissed", "1"); } catch (e) {}
+      });
+    }
+  }
+
+  // 스크롤 리빌
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+});

@@ -1,0 +1,78 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Netlify Identity로 로그인한 사용자만 접근 가능.
+# Git Gateway가 커밋을 대신 처리하므로, 담당자는 GitHub 계정이 없어도 글을 쓸 수 있다.
+
+media_folder: "out/assets/uploads"   # 업로드한 이미지가 저장되는 저장소 경로
+public_folder: "/assets/uploads"     # 사이트에서 그 이미지를 가리킬 때 쓰는 공개 URL 경로
+
+publish_mode: simple
+locale: "ko"
+
+collections:
+  - name: "articles"
+    label: "아티클"
+    label_singular: "아티클"
+    folder: "content/articles"       # 이 폴더의 .md 파일들을 build_articles.py가 읽어 사이트를 만든다
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    summary: "{{title}} — {{category}} · {{date}}"
+    sortable_fields: ["date", "title", "category"]
+    fields:
+      - { label: "제목", name: "title", widget: "string", required: true }
+      - label: "카테고리"
+        name: "category"
+        widget: "select"
+        options: ["실무 꿀팁", "레퍼런스"]
+        default: "실무 꿀팁"
+      - label: "발행일"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        default: "{{now}}"
+      - label: "해시태그"
+        name: "hashtags"
+        widget: "list"
+        required: false
+        hint: "예: SNS, 보도자료, 공모전"
+      - label: "참고 자료 링크"
+        name: "reference"
+        widget: "string"
+        required: false
+      - label: "훅(도입부 요약)"
+        name: "hook"
+        widget: "text"
+        hint: "카드/목록에 노출되는 짧은 요약. 1~2문장 권장."
+      - label: "썸네일 이미지"
+        name: "thumb"
+        widget: "image"
+        required: false
+        media_library:
+          config:
+            max_file_size: 5000000
+        hint: "비워두면 카테고리 기본 썸네일이 자동 적용됩니다. 권장 비율 16:9 (예: 1200×675)."
+      - label: "본문"
+        name: "body"
+        widget: "markdown"
+        modes: ["rich_text", "raw"]
+        buttons:
+          - bold
+          - italic
+          - link
+          - heading-two
+          - heading-three
+          - quote
+          - bulleted-list
+          - code
+        editor_components:
+          - image
+        hint: >-
+          이미지는 툴바의 이미지 버튼으로 바로 삽입하면 됩니다. 유튜브 영상은 링크(예:
+          https://www.youtube.com/watch?v=xxxxxxxxxxx)만 단독으로 한 줄에 붙여넣으면 자동으로 재생 화면이 삽입됩니다.
+          "Rich Text" ↔ "Markdown" 전환 버튼(우측 상단)으로 원문 마크다운도 직접 편집할 수 있습니다.

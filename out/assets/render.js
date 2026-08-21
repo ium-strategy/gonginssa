@@ -1,0 +1,83 @@
+/* ===========================================================
+ * 공인싸 (GONGINSSA) — 홈 렌더링
+ * data/config.js + data/articles.json 을 읽어 트렌딩 키워드와
+ * 탭별 아티클 그리드(인기픽/실무 꿀팁/레퍼런스)를 그린다.
+ * =========================================================== */
+(function () {
+  const CFG = window.GI_CONFIG;
+  const CAT = CFG.categories;
+  const TABS = CFG.tabs;
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const timeIcon =
+    '<svg viewBox="0 0 16 16" fill="none" style="color:var(--text-body)"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.3"/><path d="M8 4.6V8L10.2 9.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
+  function cardHTML(a, featured) {
+    const catLabel = (CAT[a.category] && CAT[a.category].name) || a.category;
+    const metaLine = `<span class="meta-line"><span>${esc(catLabel)}</span><span class="sep">|</span><span class="time">${timeIcon}${a.readTime}분</span></span>`;
+    const href = esc(a.url || "#");
+    if (featured) {
+      return `<a class="tcard-featured" href="${href}">
+        <div class="thumb"><img src="${esc(a.thumb)}" alt=""></div>
+        <div class="info"><h3>${esc(a.title)}</h3><p class="summary">${esc(a.excerpt)}</p>${metaLine}</div>
+      </a>`;
+    }
+    return `<a class="tcard" href="${href}">
+      <div class="thumb"><img src="${esc(a.thumb)}" alt=""></div>
+      <div class="info"><h4>${esc(a.title)}</h4>${metaLine}</div>
+    </a>`;
+  }
+
+  function renderTabPanel(tabKey, articles) {
+    const panel = document.querySelector(`.tgrid[data-panel="${tabKey}"]`);
+    if (!panel) return;
+    const list = articles.filter((a) => (a.tabs || []).includes(tabKey)).sort((a, b) => b.date.localeCompare(a.date));
+    if (!list.length) {
+      panel.innerHTML = '<p class="sec-sub" style="padding:20px 0">아직 이 탭에 담긴 아티클이 없습니다.</p>';
+      return;
+    }
+    panel.innerHTML = list.map((a, i) => cardHTML(a, i === 0)).join("");
+  }
+
+  function render(DATA) {
+    const A = DATA.articles || [];
+
+    // TRENDING KEYWORDS
+    const kws = CFG.trendingKeywords || [];
+    $("cloud") &&
+      ($("cloud").innerHTML = kws
+        .map((k) => `<a class="tag" href="#">${esc(k.name)}<span class="cnt">${k.count}</span></a>`)
+        .join(""));
+
+    // ARTICLE TABS
+    TABS.forEach((t) => renderTabPanel(t.key, A));
+  }
+
+  /* ---------- 데이터 로드 ---------- */
+  function boot() {
+    const draft = localStorage.getItem("gi_articles_preview");
+    if (draft) {
+      try { render(JSON.parse(draft)); return; } catch (e) {}
+    }
+    fetch("data/articles.json")
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(render)
+      .catch(() => {
+        if (window.GI_FALLBACK) { render(window.GI_FALLBACK); }
+        else {
+          const el = $("articles");
+          if (el) el.insertAdjacentHTML("beforeend",
+            '<p class="sec-sub" style="padding:20px 40px">데이터를 불러오지 못했습니다. 로컬 서버(예: <code>python -m http.server</code>)로 열어주세요.</p>');
+        }
+      });
+  }
+
+  window.GI = window.GI || {};
+  window.GI.render = render;
+  window.GI.cardHTML = cardHTML;
+  window.GI.CAT = CAT;
+  document.addEventListener("DOMContentLoaded", boot);
+})();

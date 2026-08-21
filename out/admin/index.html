@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공인싸 관리자 — 글쓰기</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../assets/logo-mark.png">
+</head>
+<body>
+  <!-- Netlify Identity: 로그인/초대 처리. 초대 메일의 확인 링크(#invite_token=...)로 들어오면 자동으로 로그인 위젯을 띄운다. -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", (user) => {
+        if (!user) {
+          window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; });
+        }
+      });
+    }
+  </script>
+  <!-- Decap CMS 본체 — 이 스크립트가 config.yml 을 읽어 관리자 UI 전체를 렌더링한다 -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+</body>
+</html>
