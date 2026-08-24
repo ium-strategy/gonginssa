@@ -52,19 +52,15 @@ document.addEventListener("DOMContentLoaded", function () {
   if (subForm) {
     subForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const data = new URLSearchParams(new FormData(subForm)).toString();
-      fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: data,
-      })
+      const data = new FormData(subForm);
+      fetch("/api/subscribe", { method: "POST", body: data })
         .then(() => {
           subStatus.style.display = "block";
           subForm.reset();
         })
         .catch(() => {
           // 전송 실패 시에도 사용자에게는 안내하되, 콘솔에 원인을 남긴다.
-          console.error("구독 폼 전송 실패 — 이 페이지가 Netlify에 배포된 상태인지 확인하세요.");
+          console.error("구독 폼 전송 실패 — /api/subscribe 엔드포인트를 확인하세요.");
           subStatus.style.display = "block";
           subForm.reset();
         });
@@ -131,19 +127,15 @@ document.addEventListener("DOMContentLoaded", function () {
   if (consultForm) {
     consultForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const data = new URLSearchParams(new FormData(consultForm)).toString();
-      fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: data,
-      })
+      const data = new FormData(consultForm);
+      fetch("/api/consult", { method: "POST", body: data })
         .then(() => {
           consultStatus.style.display = "block";
           consultForm.reset();
           setTimeout(closeConsult, 1800);
         })
         .catch(() => {
-          console.error("상담 신청 폼 전송 실패 — 이 페이지가 Netlify에 배포된 상태인지 확인하세요.");
+          console.error("상담 신청 폼 전송 실패 — /api/consult 엔드포인트를 확인하세요.");
           consultStatus.style.display = "block";
           consultForm.reset();
           setTimeout(closeConsult, 1800);

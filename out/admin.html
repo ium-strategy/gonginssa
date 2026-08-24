@@ -161,6 +161,7 @@
       <div class="maintabs">
         <button type="button" class="maintab active" id="tab-btn-articles" onclick="switchPage('articles')">게시글 관리</button>
         <button type="button" class="maintab" id="tab-btn-updates" onclick="switchPage('updates')">업데이트 로그</button>
+        <button type="button" class="maintab" id="tab-btn-leads" onclick="switchPage('leads')">상담 신청</button>
       </div>
 
       <div class="page active" id="page-articles">
@@ -299,6 +300,15 @@
         ③ commit &amp; push 하면 반영됩니다.
       </div>
       </div><!-- /page-updates -->
+
+      <div class="page" id="page-leads">
+        <div class="panel">
+          <h2>상담 신청 <span class="sub" style="display:inline" id="leads-count"></span></h2>
+          <p class="hint">사이트에서 접수된 상담 신청 목록입니다. 신청 즉시 슬랙으로도 알림이 갑니다.</p>
+          <button type="button" class="btn btn-line btn-sm" onclick="loadLeads()" style="margin-bottom:14px">새로고침</button>
+          <div id="leads-list"></div>
+        </div>
+      </div><!-- /page-leads -->
     </div>
 
     <div class="toast" id="toast"></div>
@@ -324,6 +334,7 @@
         document.getElementById("admin-body").style.display = "";
         resetForm(); load();
         resetUpdateForm(); loadUpdates();
+        loadLeads();
       }
       async function checkGate(e) {
         e.preventDefault();
@@ -331,6 +342,7 @@
         const hash = await sha256(pw);
         if (hash === GATE_HASH) {
           sessionStorage.setItem("gi_admin_auth", "1");
+          sessionStorage.setItem("gi_admin_hash", hash); // 상담 신청(leads) API 인증용 — 비밀번호 자체는 저장하지 않음
           showAdmin();
         } else {
           document.getElementById("gate-err").classList.add("show");
@@ -341,6 +353,7 @@
       }
       function logoutGate() {
         sessionStorage.removeItem("gi_admin_auth");
+        sessionStorage.removeItem("gi_admin_hash");
         location.reload();
       }
       if (sessionStorage.getItem("gi_admin_auth") === "1") {
@@ -584,6 +597,33 @@
         document.querySelectorAll(".maintab").forEach((el) => el.classList.remove("active"));
         $("page-" + name).classList.add("active");
         $("tab-btn-" + name).classList.add("active");
+      }
+
+      /* ================== 상담 신청(leads) ================== */
+      function loadLeads() {
+        const hash = sessionStorage.getItem("gi_admin_hash");
+        if (!hash) return;
+        fetch("/api/leads", { headers: { "X-Admin-Hash": hash } })
+          .then((r) => r.json())
+          .then((d) => {
+            if (!d.ok) { $("leads-list").innerHTML = `<p class="hint">불러오지 못했습니다 (${esc(d.error || "오류")}).</p>`; return; }
+            renderLeads(d.leads || []);
+          })
+          .catch(() => { $("leads-list").innerHTML = `<p class="hint">불러오지 못했습니다. 네트워크를 확인해주세요.</p>`; });
+      }
+      function renderLeads(leads) {
+        $("leads-count").textContent = `(${leads.length}건)`;
+        if (!leads.length) {
+          $("leads-list").innerHTML = `<p class="hint">아직 접수된 상담 신청이 없습니다.</p>`;
+          return;
+        }
+        $("leads-list").innerHTML = leads.map((l) => `
+          <div class="item">
+            <div class="item__meta">${esc(l.submitted_at || "")}</div>
+            <div><b>${esc(l.name || "-")}</b> · ${esc(l.email || "-")} · ${esc(l.phone || "-")}</div>
+            ${l.message ? `<p style="margin:6px 0 0;color:var(--muted);font-size:13.5px">${esc(l.message)}</p>` : ""}
+          </div>
+        `).join("");
       }
 
       function loadUpdates() {

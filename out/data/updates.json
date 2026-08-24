@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-08-24-2",
+      "date": "2026-08-24",
+      "category": "기능",
+      "summary": "Cloudflare Pages Functions로 폼 처리 전환 (상담·구독)",
+      "detail": "Netlify Forms를 대체하는 Cloudflare Pages Functions 신규 작성. 상담 신청은 슬랙 알림 + KV 저장(관리자 화면 '상담 신청' 탭에서 조회), 구독 신청은 스티비 API 등록 + 슬랙 알림으로 처리. admin.html에 '상담 신청' 탭 신설."
+    },
+    {
       "id": "u-2026-08-24-1",
       "date": "2026-08-24",
       "category": "기능",
