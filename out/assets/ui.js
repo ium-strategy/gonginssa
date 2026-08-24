@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 상담 신청 모달 — 열기/닫기 + Netlify Forms 전송
   const consultOverlay = document.getElementById("consultOverlay");
-  const consultOpenBtn = document.getElementById("consultOpenBtn");
+  const consultOpenBtns = document.querySelectorAll(".js-open-consult");
   const consultCloseBtn = document.getElementById("consultCloseBtn");
   const consultForm = document.getElementById("consultForm");
   const consultStatus = document.getElementById("consultStatus");
@@ -93,7 +93,32 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.style.overflow = "";
     if (consultLastFocus) consultLastFocus.focus();
   }
-  if (consultOpenBtn) consultOpenBtn.addEventListener("click", openConsult);
+  consultOpenBtns.forEach((btn) => btn.addEventListener("click", openConsult));
+
+  // 사업자정보 모달 — 열기/닫기 (footer 하단 텍스트 링크로 트리거)
+  const bizOverlay = document.getElementById("bizInfoOverlay");
+  const bizOpenBtns = document.querySelectorAll(".js-open-bizinfo");
+  const bizCloseBtn = document.getElementById("bizInfoCloseBtn");
+  function openBizInfo() {
+    if (!bizOverlay) return;
+    bizOverlay.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function closeBizInfo() {
+    if (!bizOverlay) return;
+    bizOverlay.hidden = true;
+    document.body.style.overflow = "";
+  }
+  bizOpenBtns.forEach((btn) => btn.addEventListener("click", openBizInfo));
+  if (bizCloseBtn) bizCloseBtn.addEventListener("click", closeBizInfo);
+  if (bizOverlay) {
+    bizOverlay.addEventListener("click", (e) => {
+      if (e.target === bizOverlay) closeBizInfo();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !bizOverlay.hidden) closeBizInfo();
+    });
+  }
   if (consultCloseBtn) consultCloseBtn.addEventListener("click", closeConsult);
   if (consultOverlay) {
     consultOverlay.addEventListener("click", (e) => {
@@ -170,6 +195,22 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   }
+
+  // 맨 위로 버튼 — 스크롤을 일정 이상 내리면 우측 하단에 나타남 (모든 공개 페이지 공통, JS로 생성)
+  const topBtn = document.createElement("button");
+  topBtn.type = "button";
+  topBtn.className = "back-to-top";
+  topBtn.setAttribute("aria-label", "맨 위로");
+  topBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M12 5L5 12M12 5l7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  document.body.appendChild(topBtn);
+  function updateTopBtn() {
+    topBtn.classList.toggle("show", window.scrollY > 480);
+  }
+  window.addEventListener("scroll", updateTopBtn, { passive: true });
+  updateTopBtn();
+  topBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 
   // 스크롤 리빌
   const observer = new IntersectionObserver(

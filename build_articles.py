@@ -237,7 +237,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
       <span class="eb-light">공공 홍보·광고 전략 파트너, 이음전략소</span>
       <h2><span class="lead">실무 부담은 덜고 성과는 분명하게.</span><span class="sub">정책 기반의 전략과 실행으로 공공 홍보 전반을 설계합니다.</span></h2>
       <div class="closing-cta-group">
-        <a class="btn btn-primary" href="https://www.iumist.com/home?anchor=RCGQV" target="_blank" rel="noopener">무료 상담 신청 →</a>
+        <button type="button" class="btn btn-primary js-open-consult">무료 상담 신청 →</button>
         <a class="btn btn-ghost-dark" href="https://www.iumist.com/RT1kT" target="_blank" rel="noopener">포트폴리오 보기</a>
       </div>
     </div>
@@ -252,15 +252,15 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
     </div>
     <div class="foot-col">
       <h5>문의</h5>
-      <button type="button" class="foot-link-btn" id="consultOpenBtn">상담 신청 →</button>
+      <button type="button" class="foot-link-btn js-open-consult">상담 신청 →</button>
       <a href="../privacy.html">개인정보처리방침</a>
       <a href="mailto:contact@iumist.com">광고·협찬 문의</a>
       <a href="../admin.html">관리자</a>
     </div>
   </div>
   <div class="wrap foot-bottom">
-    <span>© 2026 이음전략소. All rights reserved.</span>
-    <span>담당 이메일 catchinmarketing@gmail.com · 영업일 기준 1~2일 이내 응답</span>
+    <span>© 2026 이음전략소. All rights reserved. <button type="button" class="foot-bottom-link js-open-bizinfo">사업자정보</button></span>
+    <span>담당 이메일 letter@gonginssa.kr · 영업일 기준 1~2일 이내 응답</span>
   </div>
 </footer>
 
@@ -292,6 +292,20 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
   </div>
 </div>
 
+<div class="modal-overlay" id="bizInfoOverlay" hidden>
+  <div class="modal-box biz-info-box" role="dialog" aria-modal="true" aria-labelledby="bizInfoTitle">
+    <button type="button" class="modal-close" id="bizInfoCloseBtn" aria-label="닫기">✕</button>
+    <h2 id="bizInfoTitle">사업자정보</h2>
+    <dl class="biz-info-list">
+      <div><dt>상호명</dt><dd>주식회사 이음전략소</dd></div>
+      <div><dt>대표자</dt><dd>한주은</dd></div>
+      <div><dt>사업자등록번호</dt><dd>546-88-03350</dd></div>
+      <div><dt>주소</dt><dd>서울특별시 서초구 바우뫼로7길 8, 801호</dd></div>
+      <div><dt>이메일</dt><dd><a href="mailto:contact@iumist.co.kr">contact@iumist.co.kr</a></dd></div>
+    </dl>
+  </div>
+</div>
+
 <div class="float-bar" id="floatBar">
   <div class="inner">
     <span class="mark"><img src="../assets/logo-mark.png" alt=""></span>
@@ -320,6 +334,9 @@ def build():
         tags = list(a["hashtags"])
         if not tags:
             tags = [a["category"]]
+        for brand_tag in ("이음전략소", "공인싸"):  # 모든 아티클 공통 브랜드 해시태그
+            if brand_tag not in tags:
+                tags.append(brand_tag)
         tabs = TAB_MAP.get(a["category"], ["popular"])
         thumb = a["thumb"] or THUMB_MAP.get(a["category"], THUMB_MAP["실무 꿀팁"])
         # 실제 사진(thumb)이 있으면 그걸, 없으면(SVG 기본 썸네일) 소셜 공유용 대표 이미지로 대체
