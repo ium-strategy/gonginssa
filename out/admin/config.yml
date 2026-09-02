@@ -1,9 +1,14 @@
-backend:
-  name: git-gateway
-  branch: main
+site_url: https://gonginssa.kr
 
-# Netlify Identity로 로그인한 사용자만 접근 가능.
-# Git Gateway가 커밋을 대신 처리하므로, 담당자는 GitHub 계정이 없어도 글을 쓸 수 있다.
+backend:
+  name: github
+  repo: ium-strategy/gonginssa
+  branch: main
+  base_url: https://gonginssa.kr      # OAuth 처리를 맡는 도메인 (functions/oauth/*)
+  auth_endpoint: oauth/auth           # 로그인 팝업이 여는 경로
+
+# GitHub 계정으로 로그인하며, 해당 저장소에 쓰기 권한이 있는 사용자만 접근 가능하다.
+# 담당자 추가는 GitHub 저장소 Settings > Collaborators 에서 초대하면 된다.
 
 media_folder: "out/assets/uploads"   # 업로드한 이미지가 저장되는 저장소 경로
 public_folder: "/assets/uploads"     # 사이트에서 그 이미지를 가리킬 때 쓰는 공개 URL 경로

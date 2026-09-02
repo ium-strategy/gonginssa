@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /admin/
-Disallow: /admin-subscribers.html
 
 Sitemap: https://gonginssa.kr/sitemap.xml

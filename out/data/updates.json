@@ -1,6 +1,20 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-02-2",
+      "date": "2026-09-02",
+      "category": "개선",
+      "summary": "사이트 푸터에서 관리자 페이지 링크 제거",
+      "detail": "전 페이지(홈·아티클 목록·아티클 상세·개인정보처리방침) 푸터의 '관리자' 링크 15곳을 삭제하고 build_articles.py 템플릿도 동기화. 관리자 화면은 주소를 직접 입력해야 접근할 수 있다. 링크를 지운 만큼 robots.txt에서 관리자 경로를 나열하던 Disallow 항목도 함께 삭제했고, 색인 차단은 각 화면의 noindex 메타 태그가 담당한다."
+    },
+    {
+      "id": "u-2026-09-02-1",
+      "date": "2026-09-02",
+      "category": "기능",
+      "summary": "관리자 CMS 로그인 방식을 GitHub OAuth로 교체",
+      "detail": "Netlify Identity·Git Gateway에 묶여 있던 Decap CMS 백엔드를 GitHub OAuth로 전환. Cloudflare Pages Functions에 /oauth/auth·/oauth/callback 엔드포인트를 추가해 별도 Worker 없이 현재 프로젝트 안에서 인증을 처리한다. 저장소 쓰기 권한이 있는 GitHub 계정만 글쓰기 화면에 접근할 수 있다."
+    },
+    {
       "id": "u-2026-08-24-2",
       "date": "2026-08-24",
       "category": "기능",
