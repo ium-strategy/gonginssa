@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-04-1",
+      "date": "2026-09-04",
+      "category": "기능",
+      "summary": "Google Analytics 4(GA4) 추적 코드 설치",
+      "detail": "홈·아티클 모아보기·개인정보처리방침·전체 아티클 템플릿(build_articles.py)에 gtag.js(G-3X8H586RWT) 삽입. 관리자 화면(admin.html·admin-subscribers.html·admin/)은 noindex 내부 페이지이므로 방문자 통계 왜곡 방지를 위해 제외."
+    },
+    {
       "id": "u-2026-09-02-2",
       "date": "2026-09-02",
       "category": "개선",
