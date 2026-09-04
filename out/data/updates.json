@@ -3,9 +3,51 @@
     {
       "id": "u-2026-09-04-1",
       "date": "2026-09-04",
+      "category": "개선",
+      "summary": "GA4 측정 ID 정정 및 Netlify 잔재 제거",
+      "detail": "9/2 적용된 GA4 측정 ID(G-D55JPQM9VF)가 잘못된 값으로 확인되어 정식 ID(G-3X8H586RWT)로 전 페이지(홈·아티클 목록·아티클 상세 11편·개인정보처리방침)와 빌드 템플릿에서 교체. 전환 퍼널 이벤트 6종(subscribe_submit·consult_open·consult_submit·article_read·tag_click·article_click·cta_click)은 그대로 유지. 더 이상 쓰이지 않는 netlify.toml, netlify/functions/(subscribers.js·submission-created.js) 삭제 — Cloudflare Pages 전환 이후 읽히지 않던 레거시 설정."
+    },
+    {
+      "id": "u-2026-09-02-8",
+      "date": "2026-09-02",
+      "category": "개선",
+      "summary": "브랜드 태그 복원 및 검색 귀속 정보 보강",
+      "detail": "#이음전략소 #공인싸를 전 아티클 하단에 다시 노출한다. 다만 주제 태그와 층을 분리해, 브랜드 태그는 홈 주제 클라우드에 잡히지 않고 클릭 시 전체 아티클 목록으로 이동한다. 함께 Article 구조화 데이터에 keywords·dateModified·inLanguage·image·mainEntityOfPage를 추가하고, publisher에 로고와 상위 조직(이음전략소)을 명시했다. 홈·목록 페이지 Organization 스키마에도 대체명을 넣어 브랜드 검색 대응을 강화했다."
+    },
+    {
+      "id": "u-2026-09-02-7",
+      "date": "2026-09-02",
+      "category": "개선",
+      "summary": "이메일 주소 체계 정리",
+      "detail": "사이트 전반에 혼재하던 contact@iumist.com 14곳을 정리했다. 공인싸 공식·담당·광고협찬 문의는 letter@gonginssa.kr, 상담 문의와 사업자정보는 이음전략소 contact@iumist.co.kr로 통일했다. 개인정보처리방침 푸터의 빈 링크(href=#)도 메일 링크로 교체했다."
+    },
+    {
+      "id": "u-2026-09-02-6",
+      "date": "2026-09-02",
       "category": "기능",
-      "summary": "Google Analytics 4(GA4) 추적 코드 설치",
-      "detail": "홈·아티클 모아보기·개인정보처리방침·전체 아티클 템플릿(build_articles.py)에 gtag.js(G-3X8H586RWT) 삽입. 관리자 화면(admin.html·admin-subscribers.html·admin/)은 noindex 내부 페이지이므로 방문자 통계 왜곡 방지를 위해 제외."
+      "summary": "해시태그 체계 정비 및 주제 필터 연결",
+      "detail": "고정 태그 사전 8종(SNS·캠페인·공모전·보도자료·영상·데이터·저작권·AI)을 정하고 아티클 11편에 재부여했다. 카테고리명·브랜드명을 태그로 자동 부착하던 로직을 제거했다. 홈의 수동 입력 키워드 12종은 실제 아티클 집계로 대체했고, 클릭하면 해당 주제의 아티클 목록으로 이동한다. 아티클 하단 해시태그도 링크로 바뀌었다. 격주 1편 발행 구조를 감안해 노출 임계값은 두지 않고 편수 내림차순 정렬만 적용했다. 섹션 명칭은 '지금 뜨는 키워드'에서 '주제로 골라 읽기'로 변경했다."
+    },
+    {
+      "id": "u-2026-09-02-4",
+      "date": "2026-09-02",
+      "category": "기능",
+      "summary": "GA4 연동 및 전환 퍼널 이벤트 5종 적용",
+      "detail": "측정 ID G-D55JPQM9VF를 전 페이지(홈·아티클 목록·아티클 상세·개인정보처리방침)와 빌드 템플릿에 반영. subscribe_submit, consult_open, consult_submit, article_read(본문 75% 스크롤), cta_click 5종을 심어 구독→상담 전환 경로를 측정한다. 관리자 화면은 측정에서 제외했다. 함께 남아 있던 Netlify Identity 위젯 스크립트도 제거했다."
+    },
+    {
+      "id": "u-2026-09-02-5",
+      "date": "2026-09-02",
+      "category": "개선",
+      "summary": "관리자 화면 소스에서 평문 접근코드 제거",
+      "detail": "admin.html 주석에 그대로 적혀 있던 접근코드를 삭제하고 해시만 남겼다. 해시는 공개 소스에 남아 대입 공격을 막지 못하므로 임시 조치이며, 정식 조치인 Cloudflare Access 적용 파일 일습을 _pending/access/ 에 준비해뒀다."
+    },
+    {
+      "id": "u-2026-09-02-3",
+      "date": "2026-09-02",
+      "category": "개선",
+      "summary": "관리자 화면 인증을 Cloudflare Access로 교체",
+      "detail": "admin.html의 클라이언트 접근코드 게이트를 삭제하고 Cloudflare Access(Zero Trust) 인증으로 전환. 소스에 남아 있던 평문 접근코드와 해시를 제거했다. /api/leads는 Access가 발급한 JWT를 서버에서 서명까지 검증하며, 환경변수나 토큰이 없으면 무조건 거부한다. Netlify Identity에 의존해 동작하지 않던 구독자 관리 화면은 스티비 안내 페이지로 대체했다."
     },
     {
       "id": "u-2026-09-02-2",

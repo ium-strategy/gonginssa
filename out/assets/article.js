@@ -47,3 +47,28 @@
       if (el) el.closest(".a-related").style.display = "none";
     });
 })();
+
+/* ================== GA4 — 아티클 실질 읽음 ==================
+   본문 75% 지점을 지나면 1회만 발생. 콘텐츠가 신뢰를 만드는지 보는 지표. */
+(function () {
+  let fired = false;
+  function check() {
+    if (fired) return;
+    const doc = document.documentElement;
+    const total = doc.scrollHeight - window.innerHeight;
+    if (total <= 0) return;
+    if ((window.scrollY || doc.scrollTop) / total < 0.75) return;
+    fired = true;
+    window.removeEventListener("scroll", check);
+    if (typeof gtag !== "function") return;
+    const t = document.querySelector("h1");
+    try {
+      gtag("event", "article_read", {
+        article_slug: location.pathname.split("/").pop().replace(".html", ""),
+        article_title: t ? t.textContent.trim().slice(0, 80) : "",
+      });
+    } catch (e) {}
+  }
+  window.addEventListener("scroll", check, { passive: true });
+})();
+

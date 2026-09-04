@@ -124,20 +124,7 @@
     </style>
   </head>
   <body>
-    <div class="gate" id="gate">
-      <div class="gate__box">
-        <img src="assets/logo-mark.png" alt="" style="height:36px" />
-        <h1>관리자 로그인</h1>
-        <p>공인싸 관리자 페이지입니다. 접근 코드를 입력하세요.</p>
-        <form id="gate-form" onsubmit="return checkGate(event)">
-          <input type="password" id="gate-pw" placeholder="접근 코드" autocomplete="current-password" required />
-          <button type="submit" class="btn btn-primary" style="width:100%">입장</button>
-          <p class="gate__err" id="gate-err">접근 코드가 올바르지 않습니다.</p>
-        </form>
-      </div>
-    </div>
-
-    <div class="admin" id="admin-body" style="display:none">
+    <div class="admin" id="admin-body">
       <div class="admin__top">
         <a class="brand" href="index.html"><img src="assets/logo-mark.png" alt="">공인싸</a>
         <span class="badge-admin">Admin</span>
@@ -147,7 +134,7 @@
           <label class="btn btn-line btn-sm" for="import-file">JSON 불러오기</label>
           <input type="file" id="import-file" accept="application/json,.json" />
           <button class="btn btn-primary btn-sm" onclick="downloadJSON()">articles.json 저장 ↓</button>
-          <button class="btn btn-line btn-sm" onclick="logoutGate()">로그아웃</button>
+          <a class="btn btn-line btn-sm" href="/cdn-cgi/access/logout">로그아웃</a>
         </div>
       </div>
 
@@ -315,52 +302,18 @@
 
     <script src="data/config.js"></script>
     <script>
-      /* ---------- 접근 게이트 (임시 보안 — 정식 인증 아님) ----------
-         이 페이지는 정적 사이트라 서버 인증이 없습니다.
-         아래는 접근코드의 SHA-256 해시입니다. 접근코드 자체는 소스에 두지 않습니다.
-         접근코드를 바꾸려면: 브라우저 콘솔에서
-           crypto.subtle.digest("SHA-256", new TextEncoder().encode("새 코드"))
-             .then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
-         로 새 해시를 뽑아 GATE_HASH 값을 교체하세요.
-         ⚠️ 이 방식은 URL을 아는 사람의 접근을 늦추는 최소 방어선일 뿐, 진짜 권한 관리가 아닙니다.
-         해시는 공개 소스에 남으므로 대입 공격을 막지 못합니다. 짧거나 흔한 코드는 쓰지 마세요.
-         정식 조치는 Cloudflare Access 적용이며, 준비된 파일이 _pending/access/ 에 있습니다. */
-      const GATE_HASH = "b33da5c1119e968cf39b28bbbfd1f2ae2515f52cb84afe20953c3ee432fed135";
-      async function sha256(text) {
-        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-        return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, "0")).join("");
-      }
+      /* ---------- 접근 통제 ----------
+         이 화면은 Cloudflare Access(Zero Trust)로 보호된다.
+         허용된 이메일로 인증하지 않으면 Cloudflare 단계에서 차단되어
+         이 HTML 자체가 브라우저에 내려오지 않는다.
+         상담 리드 조회(/api/leads)도 Access가 발급한 JWT를 서버에서 검증한다. */
       function showAdmin() {
-        document.getElementById("gate").style.display = "none";
-        document.getElementById("admin-body").style.display = "";
         resetForm(); load();
         resetUpdateForm(); loadUpdates();
         loadLeads();
       }
-      async function checkGate(e) {
-        e.preventDefault();
-        const pw = document.getElementById("gate-pw").value;
-        const hash = await sha256(pw);
-        if (hash === GATE_HASH) {
-          sessionStorage.setItem("gi_admin_auth", "1");
-          sessionStorage.setItem("gi_admin_hash", hash); // 상담 신청(leads) API 인증용 — 비밀번호 자체는 저장하지 않음
-          showAdmin();
-        } else {
-          document.getElementById("gate-err").classList.add("show");
-          document.getElementById("gate-pw").value = "";
-          document.getElementById("gate-pw").focus();
-        }
-        return false;
-      }
-      function logoutGate() {
-        sessionStorage.removeItem("gi_admin_auth");
-        sessionStorage.removeItem("gi_admin_hash");
-        location.reload();
-      }
-      if (sessionStorage.getItem("gi_admin_auth") === "1") {
-        showAdmin();
-      }
-      /* ---------- 게이트 끝 ---------- */
+      document.addEventListener("DOMContentLoaded", showAdmin);
+      /* ---------- 접근 통제 끝 ---------- */
 
       const CFG = window.GI_CONFIG;
       const CAT = CFG.categories;
@@ -602,9 +555,7 @@
 
       /* ================== 상담 신청(leads) ================== */
       function loadLeads() {
-        const hash = sessionStorage.getItem("gi_admin_hash");
-        if (!hash) return;
-        fetch("/api/leads", { headers: { "X-Admin-Hash": hash } })
+        fetch("/api/leads", { credentials: "same-origin" })
           .then((r) => r.json())
           .then((d) => {
             if (!d.ok) { $("leads-list").innerHTML = `<p class="hint">불러오지 못했습니다 (${esc(d.error || "오류")}).</p>`; return; }

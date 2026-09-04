@@ -1,7 +1,9 @@
 ---
 title: 공공기관 인스타그램, 팔로워 수만 보면 성과를 놓칩니다
 category: 실무 꿀팁
-hashtags: []
+hashtags:
+  - SNS
+  - 데이터
 reference: https://blog.naver.com/ium_strategy/224362716855
 hook: “이번 달 팔로워는 몇 명 늘었나요?” SNS 성과를 보고할 때 가장 먼저 확인하게 되는 숫자가 있습니다. 바로 팔로워 수입니다. 그런데
   팔로워가 많이 늘어야 정말 잘 운영한 걸까요?

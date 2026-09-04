@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-3X8H586RWT');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>공인싸 — 공공기관 홍보 담당자가 일잘러가 되는 가장 빠른 길</title>
@@ -39,10 +31,18 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"공인싸","url":"https://gonginssa.kr/","logo":"https://gonginssa.kr/assets/og-image.jpg","parentOrganization":{"@type":"Organization","name":"이음전략소"}}
+{"@context":"https://schema.org","@type":"Organization","name":"공인싸","alternateName":["GONGINSSA","공인싸 인싸레터"],"url":"https://gonginssa.kr/","logo":"https://gonginssa.kr/assets/logo-mark.png","parentOrganization":{"@type":"Organization","name":"이음전략소","alternateName":"IUM Strategy","url":"https://www.iumist.com/"}}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"공인싸","url":"https://gonginssa.kr/","inLanguage":"ko-KR","description":"공공기관·지자체 홍보 실무자를 위한 트렌드, 우수사례, 실무 노하우를 격주로 정리합니다."}
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3X8H586RWT');
 </script>
 </head>
 <body>
@@ -102,13 +102,13 @@
     </div>
   </section>
 
-  <!-- TRENDING KEYWORDS -->
+  <!-- TOPICS -->
   <section class="block reveal">
     <div class="wrap">
       <div class="head">
         <div>
-          <span class="eb">Trending</span>
-          <h2>지금 뜨는 키워드</h2>
+          <span class="eb">Topics</span>
+          <h2>주제로 골라 읽기</h2>
         </div>
       </div>
       <div class="tagcloud" id="cloud"></div>
@@ -249,7 +249,7 @@
       <h5>문의</h5>
       <button type="button" class="foot-link-btn js-open-consult">상담 신청 →</button>
       <a href="privacy.html">개인정보처리방침</a>
-      <a href="mailto:contact@iumist.com">광고·협찬 문의</a>
+      <a href="mailto:letter@gonginssa.kr">광고·협찬 문의</a>
     </div>
   </div>
   <div class="wrap foot-bottom">
@@ -303,17 +303,5 @@
 <script src="data/config.js"></script>
 <script src="assets/render.js"></script>
 <script src="assets/ui.js"></script>
-<!-- Netlify Identity: 관리자 초대/비밀번호 재설정 메일의 링크(#invite_token=... 등)가
-     이 홈페이지로 도착하면 로그인 위젯을 띄운 뒤 관리자 화면(/admin/)으로 이동시킨다. -->
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", (user) => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; });
-      }
-    });
-  }
-</script>
 </body>
 </html>

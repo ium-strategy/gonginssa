@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-3X8H586RWT');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>전체 아티클 모아보기 — 공인싸</title>
@@ -48,7 +40,15 @@
   .archive-empty{padding:60px 0;text-align:center;color:var(--text-muted);font-size:14.5px}
 </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"CollectionPage","name":"전체 아티클 모아보기","description":"공인싸가 발행한 공공기관 홍보 실무 아티클 모음","url":"https://gonginssa.kr/articles.html","isPartOf":{"@type":"WebSite","name":"공인싸","url":"https://gonginssa.kr/"}}
+{"@context":"https://schema.org","@type":"CollectionPage","name":"전체 아티클 모아보기","description":"이음전략소가 운영하는 공인싸가 발행한 공공기관 홍보 실무 아티클 모음","url":"https://gonginssa.kr/articles.html","inLanguage":"ko-KR","isPartOf":{"@type":"WebSite","name":"공인싸","alternateName":["GONGINSSA","공인싸 인싸레터"],"url":"https://gonginssa.kr/","publisher":{"@type":"Organization","name":"이음전략소","alternateName":"IUM Strategy","url":"https://www.iumist.com/"}}}
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3X8H586RWT');
 </script>
 </head>
 <body>
@@ -77,8 +77,9 @@
         <div><span class="eb">Filter</span></div>
         <div class="tabs" id="categoryTabs"></div>
       </div>
+      <p class="tag-filter" id="tagFilter" hidden></p>
       <div class="tgrid" id="archiveGrid"></div>
-      <p class="archive-empty" id="emptyMsg" hidden>해당 카테고리의 아티클이 아직 없습니다.</p>
+      <p class="archive-empty" id="emptyMsg" hidden>조건에 맞는 아티클이 아직 없습니다.</p>
     </div>
   </section>
 
@@ -150,7 +151,7 @@
       <h5>문의</h5>
       <button type="button" class="foot-link-btn js-open-consult">상담 신청 →</button>
       <a href="privacy.html">개인정보처리방침</a>
-      <a href="mailto:contact@iumist.com">광고·협찬 문의</a>
+      <a href="mailto:letter@gonginssa.kr">광고·협찬 문의</a>
     </div>
   </div>
   <div class="wrap foot-bottom">
@@ -205,15 +206,6 @@
 <script src="assets/render.js"></script>
 <script src="assets/archive.js"></script>
 <script src="assets/ui.js"></script>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", (user) => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; });
-      }
-    });
-  }
-</script>
+
 </body>
 </html>

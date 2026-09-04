@@ -12,6 +12,7 @@ import re
 import html as htmlmod
 
 import yaml
+from urllib.parse import quote
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(BASE, "content", "articles")
@@ -20,6 +21,7 @@ SITE_URL = "https://gonginssa.kr"  # 2026-08-19 Netlify+가비아 도메인 연�
 FALLBACK_DATE = "2026-08-19"  # frontmatter에 date가 비어 있을 때만 사용하는 안전장치
 
 TAB_MAP = {"실무 꿀팁": ["popular", "workbook"], "레퍼런스": ["popular", "featured"]}
+BRAND_TAGS = ["이음전략소", "공인싸"]  # 전 아티클 공통 노출 — 주제 태그와 별개
 THUMB_MAP = {"실무 꿀팁": "assets/articles/thumb-tips.svg", "레퍼런스": "assets/articles/thumb-reference.svg"}
 OG_FALLBACK_IMAGE = "assets/og-image.jpg"  # SVG 썸네일은 카카오톡·페이스북 등에서 og:image로 잘 안 뜨므로 소셜 공유용은 별도 처리
 
@@ -151,14 +153,6 @@ def make_excerpt(hook):
 ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', 'G-3X8H586RWT');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title} — 공인싸</title>
@@ -184,7 +178,15 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/article.css">
 <script type="application/ld+json">
-{{"@context":"https://schema.org","@type":"Article","headline":{title_json},"description":{excerpt_json},"datePublished":"{date}","author":{{"@type":"Organization","name":"이음전략소"}},"publisher":{{"@type":"Organization","name":"공인싸"}}}}
+{{"@context":"https://schema.org","@type":"Article","headline":{title_json},"description":{excerpt_json},"datePublished":"{date}","dateModified":"{date}","inLanguage":"ko-KR","keywords":{keywords_json},"image":"{site_url}/{thumb}","mainEntityOfPage":{{"@type":"WebPage","@id":"{site_url}/articles/{slug}.html"}},"author":{{"@type":"Organization","name":"이음전략소","url":"https://www.iumist.com/"}},"publisher":{{"@type":"Organization","name":"공인싸","url":"{site_url}/","logo":{{"@type":"ImageObject","url":"{site_url}/assets/logo-mark.png"}},"parentOrganization":{{"@type":"Organization","name":"이음전략소"}}}}}}
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', 'G-3X8H586RWT');
 </script>
 </head>
 <body data-article-id="{slug}">
@@ -262,7 +264,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
       <h5>문의</h5>
       <button type="button" class="foot-link-btn js-open-consult">상담 신청 →</button>
       <a href="../privacy.html">개인정보처리방침</a>
-      <a href="mailto:contact@iumist.com">광고·협찬 문의</a>
+      <a href="mailto:letter@gonginssa.kr">광고·협찬 문의</a>
     </div>
   </div>
   <div class="wrap foot-bottom">
@@ -338,12 +340,11 @@ def build():
         excerpt = make_excerpt(a["hook"])
         body_html = render_body(a["body"])
         minutes = read_minutes(a["hook"], a["body"])
+        # 주제 태그: 마크다운 frontmatter 값만. 분류·필터·홈 클라우드에 쓰인다.
+        # 카테고리명을 자동으로 붙이면 모든 글에 같은 태그가 달려 분류 기능을 잃으므로 넣지 않는다.
         tags = list(a["hashtags"])
-        if not tags:
-            tags = [a["category"]]
-        for brand_tag in ("이음전략소", "공인싸"):  # 모든 아티클 공통 브랜드 해시태그
-            if brand_tag not in tags:
-                tags.append(brand_tag)
+        # 브랜드 태그: 전 아티클에 항상 노출. 검색 귀속용이며 주제 분류에는 쓰지 않는다.
+        brand_tags = list(BRAND_TAGS)
         tabs = TAB_MAP.get(a["category"], ["popular"])
         thumb = a["thumb"] or THUMB_MAP.get(a["category"], THUMB_MAP["실무 꿀팁"])
         # 실제 사진(thumb)이 있으면 그걸, 없으면(SVG 기본 썸네일) 소셜 공유용 대표 이미지로 대체
@@ -370,7 +371,12 @@ def build():
         reference_html = ""
         if a["reference"]:
             reference_html = f'<p class="a-ref">참고 자료: <a href="{esc(a["reference"])}" target="_blank" rel="noopener">{esc(a["reference"])}</a></p>'
-        tags_html = "".join(f'<span class="a-tag">#{esc(t)}</span>' for t in tags)
+        tags_html = "".join(
+            f'<a class="a-tag" href="../articles.html?tag={quote(t)}">#{esc(t)}</a>' for t in tags
+        ) + "".join(
+            # 브랜드 태그는 전체 아티클 목록으로 — 모든 글이 해당하므로 빈 결과가 나오지 않는다
+            f'<a class="a-tag a-tag-brand" href="../articles.html">#{esc(t)}</a>' for t in brand_tags
+        )
 
         html_out = ARTICLE_TEMPLATE.format(
             title=esc(a["title"]),
@@ -387,6 +393,7 @@ def build():
             body_html=body_html,
             reference_html=reference_html,
             tags_html=tags_html,
+            keywords_json=json.dumps(", ".join(tags + brand_tags), ensure_ascii=False),
             slug=a["slug"],
             category_key=category_key,
         )

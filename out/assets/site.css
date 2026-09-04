@@ -323,3 +323,17 @@
 @media (max-width:480px){
   .modal-box{padding:26px 20px 22px;border-radius:16px}
 }
+
+/* ===== 태그 필터 (아티클 전체보기) ===== */
+.tag-filter{display:flex;align-items:center;gap:10px;margin:0 0 18px;font-size:14px;color:var(--text-muted)}
+.tag-filter b{color:var(--brand);font-weight:700}
+.tag-filter .clear{border:1px solid var(--line);background:none;color:var(--text-muted);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer}
+.tag-filter .clear:hover{border-color:var(--brand);color:var(--brand)}
+/* 아티클 하단 해시태그를 링크로 쓸 때의 상태 */
+a.a-tag{text-decoration:none;transition:color .15s,border-color .15s}
+a.a-tag:hover{color:var(--brand);border-color:var(--brand)}
+
+/* 브랜드 태그 — 전 아티클 공통. 주제 태그보다 한 단계 낮은 위계로 표시 */
+a.a-tag-brand{opacity:.62}
+a.a-tag-brand:hover{opacity:1}
+

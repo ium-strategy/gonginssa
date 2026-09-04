@@ -45,12 +45,30 @@
   function render(DATA) {
     const A = DATA.articles || [];
 
-    // TRENDING KEYWORDS
-    const kws = CFG.trendingKeywords || [];
-    $("cloud") &&
-      ($("cloud").innerHTML = kws
-        .map((k) => `<a class="tag" href="#">${esc(k.name)}<span class="cnt">${k.count}</span></a>`)
-        .join(""));
+    // TOPICS — 실제 아티클 해시태그를 집계해 그린다.
+    // 격주 1편 발행 구조라 노출 임계값은 두지 않는다. 0편이면 자동으로 사라지고,
+    // 편수 내림차순으로 정렬되므로 글이 쌓이면 순서가 저절로 바뀐다.
+    const counts = {};
+    A.forEach((a) => (a.tags || []).forEach((t) => (counts[t] = (counts[t] || 0) + 1)));
+    const dict = CFG.tagDictionary || Object.keys(counts);
+    const topics = dict
+      .filter((t) => counts[t])
+      .sort((a, b) => counts[b] - counts[a] || a.localeCompare(b, "ko"));
+    if ($("cloud")) {
+      $("cloud").innerHTML = topics
+        .map(
+          (t) =>
+            `<a class="tag" href="articles.html?tag=${encodeURIComponent(t)}" data-tag="${esc(t)}">` +
+            `${esc(t)}<span class="cnt">${counts[t]}</span></a>`
+        )
+        .join("");
+      $("cloud").addEventListener("click", (e) => {
+        const el = e.target.closest("a.tag");
+        if (el && typeof gtag === "function") {
+          try { gtag("event", "tag_click", { tag_name: el.dataset.tag, page_ref: "home" }); } catch (err) {}
+        }
+      });
+    }
 
     // ARTICLE TABS
     TABS.forEach((t) => renderTabPanel(t.key, A));

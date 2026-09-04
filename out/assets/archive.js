@@ -16,10 +16,40 @@
 
     let ARTICLES = [];
     let activeCategory = new URLSearchParams(location.search).get("category") || "all";
+    let activeTag = new URLSearchParams(location.search).get("tag") || "";
+    const tagEl = $("tagFilter");
 
     function categoryLabel(key) {
       if (key === "all") return "전체보기";
       return (CFG.categories[key] && CFG.categories[key].name) || key;
+    }
+
+    function matches(a) {
+      const okCat = activeCategory === "all" || a.category === activeCategory;
+      const okTag = !activeTag || (a.tags || []).includes(activeTag);
+      return okCat && okTag;
+    }
+
+    function renderTagFilter() {
+      if (!tagEl) return;
+      tagEl.hidden = !activeTag;
+      if (!activeTag) return;
+      tagEl.innerHTML =
+        `<span>주제 <b>#${activeTag.replace(/[<>&]/g, "")}</b> 로 골라봤어요</span>` +
+        `<button type="button" class="clear" id="clearTag">필터 해제</button>`;
+      const btn = document.getElementById("clearTag");
+      if (btn) btn.addEventListener("click", () => setTag(""));
+    }
+
+    function setTag(tag) {
+      activeTag = tag;
+      const url = new URL(location.href);
+      if (tag) url.searchParams.set("tag", tag);
+      else url.searchParams.delete("tag");
+      history.replaceState(null, "", url);
+      renderTagFilter();
+      renderTabs();
+      renderGrid();
     }
 
     function renderTabs() {
@@ -27,16 +57,15 @@
       const keys = ["all", ...present];
       tabsEl.innerHTML = keys
         .map((k) => {
-          const count = k === "all" ? ARTICLES.length : ARTICLES.filter((a) => a.category === k).length;
+          const pool = ARTICLES.filter((a) => !activeTag || (a.tags || []).includes(activeTag));
+          const count = k === "all" ? pool.length : pool.filter((a) => a.category === k).length;
           return `<button type="button" class="tab-btn${k === activeCategory ? " active" : ""}" data-cat="${k}">${categoryLabel(k)} · ${count}</button>`;
         })
         .join("");
     }
 
     function renderGrid() {
-      const list = ARTICLES.filter((a) => activeCategory === "all" || a.category === activeCategory).sort((a, b) =>
-        b.date.localeCompare(a.date)
-      );
+      const list = ARTICLES.filter(matches).sort((a, b) => b.date.localeCompare(a.date));
       gridEl.innerHTML = list.map((a) => window.GI.cardHTML(a, false)).join("");
       if (emptyEl) emptyEl.hidden = list.length > 0;
     }
@@ -68,6 +97,11 @@
         if (activeCategory !== "all" && !ARTICLES.some((a) => a.category === activeCategory)) {
           activeCategory = "all";
         }
+        // URL의 tag 값이 실제 존재하지 않으면 필터를 해제한다
+        if (activeTag && !ARTICLES.some((a) => (a.tags || []).includes(activeTag))) {
+          activeTag = "";
+        }
+        renderTagFilter();
         renderTabs();
         renderGrid();
       })

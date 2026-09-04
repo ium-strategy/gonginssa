@@ -47,6 +47,18 @@ document.addEventListener("DOMContentLoaded", function () {
   // 구독 폼 — Netlify Forms로 전송(정적 호스팅에서도 서버 없이 제출을 수집).
   // 다른 호스팅(GitHub Pages 등)에서 열리면 Netlify Forms 엔드포인트가 없어
   // 전송이 실패할 수 있으니 그 경우에도 폼이 깨지지 않도록 처리한다.
+  /* ================== GA4 이벤트 ==================
+     퍼널만 측정한다: 구독 → 상담 → 계약. 이벤트를 늘리면 아무도 안 본다.
+     gtag이 아직 로드되지 않았거나 광고차단으로 없을 수도 있으므로 항상 존재 확인. */
+  function giTrack(name, params) {
+    if (typeof gtag !== "function") return;
+    try { gtag("event", name, params || {}); } catch (e) {}
+  }
+  function giPageRef() {
+    // 어느 아티클에서 발생한 전환인지 구분하기 위한 경로
+    return location.pathname.replace(/^\//, "") || "home";
+  }
+
   const subForm = document.getElementById("subForm");
   const subStatus = document.getElementById("subStatus");
   if (subForm) {
@@ -55,6 +67,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = new FormData(subForm);
       fetch("/api/subscribe", { method: "POST", body: data })
         .then(() => {
+          giTrack("subscribe_submit", {
+            referral: data.get("referral") || "",
+            page_ref: giPageRef(),
+          });
           subStatus.style.display = "block";
           subForm.reset();
         })
@@ -89,6 +105,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.style.overflow = "";
     if (consultLastFocus) consultLastFocus.focus();
   }
+  consultOpenBtns.forEach((btn) =>
+    btn.addEventListener("click", () => {
+      giTrack("consult_open", { page_ref: giPageRef() });
+    })
+  );
   consultOpenBtns.forEach((btn) => btn.addEventListener("click", openConsult));
 
   // 사업자정보 모달 — 열기/닫기 (footer 하단 텍스트 링크로 트리거)
@@ -130,6 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = new FormData(consultForm);
       fetch("/api/consult", { method: "POST", body: data })
         .then(() => {
+          giTrack("consult_submit", { page_ref: giPageRef() });
           consultStatus.style.display = "block";
           consultForm.reset();
           setTimeout(closeConsult, 1800);
@@ -218,3 +240,24 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 });
+  /* 주요 CTA 클릭 — 어떤 버튼이 실제로 눌리는지 확인용 */
+  document.addEventListener("click", (e) => {
+    const tagEl = e.target.closest("a.a-tag");
+    if (tagEl) {
+      giTrack("tag_click", {
+        tag_name: (tagEl.textContent || "").replace("#", "").trim(),
+        page_ref: giPageRef(),
+      });
+    }
+    const cardEl = e.target.closest("a.tcard, a.tcard-featured");
+    if (cardEl) {
+      const slug = (cardEl.getAttribute("href") || "").split("/").pop().replace(".html", "");
+      giTrack("article_click", { article_slug: slug, page_ref: giPageRef() });
+    }
+    const el = e.target.closest(".btn-primary, .more-link, .head .more");
+    if (!el) return;
+    const label = (el.textContent || "").trim().slice(0, 40);
+    if (!label) return;
+    giTrack("cta_click", { cta_label: label, page_ref: giPageRef() });
+  });
+
