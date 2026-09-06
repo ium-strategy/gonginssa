@@ -1,5 +1,5 @@
 // functions/api/subscribe.js — Cloudflare Pages Function
-// 구독 신청 폼 제출 처리: ① 스팸(허니팟) 필터 ② 스티비 구독자 등록(더블 옵트인) ③ 슬랙 알림
+// 구독 신청 폼 제출 처리: ① 스팸(허니팟) 필터 ② 스티비 구독자 등록(단일 옵트인, 260906 참고) ③ 슬랙 알림
 //
 // 필요한 환경변수 (Cloudflare 대시보드 > Pages 프로젝트 > Settings > Environment variables):
 //   SLACK_WEBHOOK_URL     — 슬랙 Incoming Webhook URL
@@ -35,6 +35,18 @@
 //     뜻 — 스티비 공식 도움말의 "배열로 감싸라"는 예시와 반대로, 실제로는 순수
 //     객체를 기대한다(v2와 동일한 형태). 두 가지를 모두 고쳤다: v1 바디를
 //     배열 없이 객체로, 응답의 Ok 필드를 실제 성공 판정 기준으로 사용.
+// (3) 위 수정 후 실제로 "Ok":true + success 배열까지 확인됐는데도 주소록엔
+//     여전히 안 늘었다 — 원인은 버그가 아니라 confirmEmailYN:"Y"(더블 옵트인)의
+//     정상 동작이었다. 스티비가 "기본 주소록 구독을 신청하셨습니다 · 구독하기"
+//     확인 메일을 보내고(실사용 테스트에서 스팸함으로 분류돼 늦게 발견됨), 그
+//     메일의 "구독하기" 버튼을 눌러야 최종 등록된다. 사이트의 실제 동의 UI는
+//     "[필수] 광고성 정보 수신에 동의합니다" 체크박스 하나로 "무료 구독하기"
+//     버튼을 누르면 바로 끝나는 것처럼 보이는데, 실제로는 이메일을 한 번 더
+//     열어 확인 버튼을 눌러야 해서 이탈 요인이 된다는 판단 하에 단일
+//     옵트인(confirmEmailYN:"N")으로 되돌렸다. 정보통신망법은 광고성 정보 전송
+//     전 "명시적 사전 동의"만 요구하고 더블 옵트인(수신자의 확인 메일 재클릭)을
+//     법적으로 의무화하지 않으므로, 폼의 필수 동의 체크박스만으로 법적 요건은
+//     충족된다(정보통신망 이용촉진 및 정보보호 등에 관한 법률 제50조).
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -171,7 +183,7 @@ async function registerViaV1(env, { email, name, referral }) {
       },
       body: JSON.stringify({
         eventOccuredBy: "SUBSCRIBER",
-        confirmEmailYN: "Y",
+        confirmEmailYN: "N",
         subscribers: [{ email, name, 구독경로: referral }],
       }),
     });
@@ -192,7 +204,7 @@ async function registerViaV2(env, { email, name, referral }) {
       },
       body: JSON.stringify({
         eventOccuredBy: "SUBSCRIBER",
-        confirmEmailYN: "Y",
+        confirmEmailYN: "N",
         subscribers: [{ email, name, 구독경로: referral }],
       }),
     });
