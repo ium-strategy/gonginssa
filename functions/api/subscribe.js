@@ -20,8 +20,18 @@
 //    알림과는 별도로 "⚠️ 스티비 등록 실패" 알림을 보낸다. 담당자가 수동으로
 //    주소록에 추가할 수 있도록 이메일·이름을 그대로 남긴다.
 //
-// ⚠️ v1 형식도 실제 발급받은 키로 한 번은 테스트 호출을 해봐야 한다(9/8 예정
-// "스티비 API 실호출 검증" 작업). 실패 로그가 남으면 그 내용을 보고 조정한다.
+// 260908 디버깅
+// ------------------------------------------------------------
+// 실사용 테스트에서 스티비 주소록에 안 쌓이는데 슬랙 알림도 전혀 안 왔다는 게
+// 확인됨 — 슬랙은 이 함수가 실행되기만 하면 성공/실패 여부와 무관하게 항상
+// 오게 돼 있으므로(아래 참고), 알림 자체가 없었다는 건 이 함수가 애초에
+// 실행되지 않았다는 뜻이다. 가장 유력한 원인으로 <form id="subForm">에
+// action 속성이 없던 것을 찾아 추가했다 — JS의 fetch가 어떤 이유로든(확장
+// 프로그램 차단, 스크립트 오류 등) 안 걸리면 브라우저가 현재 페이지로 그냥
+// POST해버려서 이 함수 자체에 요청이 안 왔을 가능성이 높다. 그 경우에도
+// 최소한 이 엔드포인트로는 도달하게 만들어 자연 요청도 처리는 되도록 했다.
+// 예상 못한 예외로 죽어도 흔적이 남게 try/catch도 추가했다(아래
+// handleSubscribe 감싸는 부분).
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -38,6 +48,18 @@ export async function onRequestPost(context) {
     return json({ ok: true });
   }
 
+  // 여기서부터 예상 못 한 예외가 나도 슬랙에 흔적을 남기고 500을 돌려준다 —
+  // 이전에는 여기서 죽으면 아무 알림도 안 남아서 "왜 안 쌓이는지" 추적이 안 됐다.
+  try {
+    return await handleSubscribe(env, data);
+  } catch (e) {
+    console.error("구독 처리 중 예기치 못한 오류:", e);
+    await notifySlack(env, `*🔴 구독 처리 중 서버 오류*\n\`\`\`${String(e && e.stack || e)}\`\`\``);
+    return json({ ok: false, error: "internal error" }, 500);
+  }
+}
+
+async function handleSubscribe(env, data) {
   const email = data.email || "";
   const name = data.name || "";
   const referral = data.referral || "";

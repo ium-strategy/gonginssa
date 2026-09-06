@@ -60,24 +60,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const subForm = document.getElementById("subForm");
   const subStatus = document.getElementById("subStatus");
+  const subStatusOkText = subStatus ? subStatus.textContent : "";
   if (subForm) {
     subForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const data = new FormData(subForm);
       fetch("/api/subscribe", { method: "POST", body: data })
-        .then(() => {
+        .then((res) => {
+          // fetch는 500 같은 에러 응답에도 reject하지 않으므로 res.ok를 직접 확인해야
+          // 한다 — 이전에는 이 확인이 없어서 서버가 실패해도 항상 "성공" 문구가 떴다.
+          if (!res.ok) {
+            return res.text().then((body) => {
+              throw new Error(`HTTP ${res.status}: ${body}`);
+            });
+          }
           giTrack("subscribe_submit", {
             referral: data.get("referral") || "",
             page_ref: giPageRef(),
           });
-          subStatus.style.display = "block";
+          if (subStatus) {
+            subStatus.textContent = subStatusOkText;
+            subStatus.style.color = "";
+            subStatus.style.display = "block";
+          }
           subForm.reset();
         })
-        .catch(() => {
-          // 전송 실패 시에도 사용자에게는 안내하되, 콘솔에 원인을 남긴다.
-          console.error("구독 폼 전송 실패 — /api/subscribe 엔드포인트를 확인하세요.");
-          subStatus.style.display = "block";
-          subForm.reset();
+        .catch((err) => {
+          console.error("구독 폼 전송 실패 — /api/subscribe 엔드포인트를 확인하세요.", err);
+          if (subStatus) {
+            subStatus.textContent = "잠시 후 다시 시도해주세요. 문제가 계속되면 letter@gonginssa.kr로 알려주세요.";
+            subStatus.style.color = "var(--req)";
+            subStatus.style.display = "block";
+          }
         });
     });
   }
@@ -144,22 +158,34 @@ document.addEventListener("DOMContentLoaded", function () {
       if (e.key === "Escape" && !consultOverlay.hidden) closeConsult();
     });
   }
+  const consultStatusOkText = consultStatus ? consultStatus.textContent : "";
   if (consultForm) {
     consultForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const data = new FormData(consultForm);
       fetch("/api/consult", { method: "POST", body: data })
-        .then(() => {
+        .then((res) => {
+          if (!res.ok) {
+            return res.text().then((body) => {
+              throw new Error(`HTTP ${res.status}: ${body}`);
+            });
+          }
           giTrack("consult_submit", { page_ref: giPageRef() });
-          consultStatus.style.display = "block";
+          if (consultStatus) {
+            consultStatus.textContent = consultStatusOkText;
+            consultStatus.style.color = "";
+            consultStatus.style.display = "block";
+          }
           consultForm.reset();
           setTimeout(closeConsult, 1800);
         })
-        .catch(() => {
-          console.error("상담 신청 폼 전송 실패 — /api/consult 엔드포인트를 확인하세요.");
-          consultStatus.style.display = "block";
-          consultForm.reset();
-          setTimeout(closeConsult, 1800);
+        .catch((err) => {
+          console.error("상담 신청 폼 전송 실패 — /api/consult 엔드포인트를 확인하세요.", err);
+          if (consultStatus) {
+            consultStatus.textContent = "잠시 후 다시 시도해주세요. 문제가 계속되면 letter@gonginssa.kr로 알려주세요.";
+            consultStatus.style.color = "var(--req)";
+            consultStatus.style.display = "block";
+          }
         });
     });
   }
