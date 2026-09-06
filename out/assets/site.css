@@ -375,6 +375,16 @@
    (기존 .tgrid[hidden] · .modal-overlay[hidden] 과 같은 방식) */
 .query-filter[hidden]{display:none}
 
+/* ---------- 폼 검증 경고 ----------
+   브라우저 기본 말풍선(주황색, 시스템 폰트)을 껐다(각 <form novalidate>) 대신
+   같은 자리에 사이트 폰트·브랜드 색으로 뜨는 카드. 필드 바로 아래에 얹힌다. */
+.field-warn{
+  display:flex;align-items:flex-start;gap:8px;margin-top:6px;padding:9px 12px;
+  border:1px solid var(--req);border-radius:10px;background:color-mix(in srgb, var(--req) 8%, var(--bg-page));
+  color:var(--req);font-size:13px;font-weight:600;line-height:1.5}
+.field-warn::before{content:"!";flex-shrink:0;width:16px;height:16px;border-radius:50%;background:var(--req);color:#fff;
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+
 /* 아티클 목록 페이지의 태그 클라우드 — 홈 .tag와 같은 모양에 선택 상태만 추가
    (버튼으로 만들어 클릭 시 페이지 이동 없이 목록만 다시 그린다) */
 .tagcloud .tag{border:1px solid var(--border-control);background:var(--bg-page);cursor:pointer;font:inherit}
