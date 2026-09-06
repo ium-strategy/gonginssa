@@ -20,7 +20,7 @@
     let activeCategory = new URLSearchParams(location.search).get("category") || "all";
     let activeTag = new URLSearchParams(location.search).get("tag") || "";
     let activeQuery = (new URLSearchParams(location.search).get("q") || "").trim();
-    const tagEl = $("tagFilter");
+    const cloudEl = $("topicCloud");
     const queryEl = $("queryFilter");
     let searchTracked = false;
 
@@ -48,15 +48,26 @@
       return okCat && okTag && matchesQuery(a);
     }
 
-    function renderTagFilter() {
-      if (!tagEl) return;
-      tagEl.hidden = !activeTag;
-      if (!activeTag) return;
-      tagEl.innerHTML =
-        `<span>주제 <b>#${activeTag.replace(/[<>&]/g, "")}</b> 로 골라봤어요</span>` +
-        `<button type="button" class="clear" id="clearTag">필터 해제</button>`;
-      const btn = document.getElementById("clearTag");
-      if (btn) btn.addEventListener("click", () => setTag(""));
+    // 태그로 이동해 들어온 경우에도(예: 홈 #보도자료 클릭) 다른 태그로 바로 갈아탈 수 있도록
+    // 태그 하나만 보여주고 끝내지 않고, 항상 전체 태그 목록을 띄워둔다.
+    // 카운트는 카테고리·검색어는 반영하고 태그 자체는 무시한 풀 기준 — "이 태그를 고르면 몇 건" 을 보여준다.
+    function renderTopicCloud() {
+      if (!cloudEl) return;
+      const pool = ARTICLES.filter(
+        (a) => (activeCategory === "all" || a.category === activeCategory) && matchesQuery(a)
+      );
+      const counts = {};
+      pool.forEach((a) => (a.tags || []).forEach((t) => (counts[t] = (counts[t] || 0) + 1)));
+      const dict = (CFG.tagDictionary || Object.keys(counts)).filter((t) => counts[t]);
+      const topics = dict.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b, "ko"));
+      const allChip = `<button type="button" class="tag${activeTag ? "" : " active"}" data-tag="">전체보기<span class="cnt">${pool.length}</span></button>`;
+      const tagChips = topics
+        .map(
+          (t) =>
+            `<button type="button" class="tag${t === activeTag ? " active" : ""}" data-tag="${esc(t)}">#${esc(t)}<span class="cnt">${counts[t]}</span></button>`
+        )
+        .join("");
+      cloudEl.innerHTML = allChip + tagChips;
     }
 
     function renderQueryFilter() {
@@ -79,6 +90,7 @@
       const input = document.getElementById("site-search-input");
       if (input) input.value = q;
       renderQueryFilter();
+      renderTopicCloud();
       renderTabs();
       renderGrid();
     }
@@ -89,7 +101,7 @@
       if (tag) url.searchParams.set("tag", tag);
       else url.searchParams.delete("tag");
       history.replaceState(null, "", url);
-      renderTagFilter();
+      renderTopicCloud();
       renderTabs();
       renderGrid();
     }
@@ -146,6 +158,18 @@
       setActive(btn.dataset.cat);
     });
 
+    if (cloudEl) {
+      cloudEl.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tag");
+        if (!btn) return;
+        const tag = btn.dataset.tag || "";
+        setTag(tag);
+        if (tag && typeof gtag === "function") {
+          try { gtag("event", "tag_click", { tag_name: tag, page_ref: "articles" }); } catch (err) {}
+        }
+      });
+    }
+
     fetch("data/articles.json")
       .then((r) => {
         if (!r.ok) throw new Error(r.status);
@@ -161,7 +185,7 @@
         if (activeTag && !ARTICLES.some((a) => (a.tags || []).includes(activeTag))) {
           activeTag = "";
         }
-        renderTagFilter();
+        renderTopicCloud();
         renderQueryFilter();
         renderTabs();
         renderGrid();
