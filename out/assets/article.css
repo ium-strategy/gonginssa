@@ -43,9 +43,11 @@
 .a-checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border-radius:5px;border:1.5px solid var(--border-control)}
 
 .a-table-wrap{overflow-x:auto;margin:0 0 24px}
-.a-table-wrap table{width:100%;border-collapse:collapse;font-size:14px}
+/* 열이 많은 표(예: 개인정보 국외이전 6열)가 좁은 본문 폭(720px)에 눌려
+   "이/전/국가"처럼 한 글자씩 줄바꿈되는 걸 막는다 — 대신 옆으로 스크롤되게 */
+.a-table-wrap table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}
 .a-table-wrap td{border:1px solid var(--border-soft);padding:10px 12px;text-align:left;vertical-align:top}
-.a-table-wrap tr:first-child td{background:var(--bg-surface);font-weight:700}
+.a-table-wrap tr:first-child td{background:var(--bg-surface);font-weight:700;white-space:nowrap}
 
 .a-ref{margin-top:32px;font-size:13px;color:var(--text-muted);word-break:break-all}
 .a-ref a{color:var(--text-brand)}
