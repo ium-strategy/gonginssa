@@ -190,7 +190,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   function updateFloatBar() {
     if (!floatBar || floatBarDismissed || floatBar.dataset.shown === "1") return;
-    if (heroEl && heroEl.getBoundingClientRect().bottom < 0) {
+    // 홈(.hero 있음)은 히어로를 다 지나가면 노출. .hero가 없는 페이지(아티클 상세,
+    // 아티클 목록 등)는 이 조건이 항상 false라 배너가 영영 안 뜨던 버그가 있었다 —
+    // 그런 페이지는 400px 스크롤을 기준으로 대신 노출한다.
+    const pastThreshold = heroEl ? heroEl.getBoundingClientRect().bottom < 0 : window.scrollY > 400;
+    if (pastThreshold) {
       floatBar.dataset.shown = "1";
       setBarVisible(true);
     }
