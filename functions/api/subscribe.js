@@ -15,27 +15,26 @@
 // ------------------------------------------------------------
 // 1) 더블 옵트인 ON: confirmEmailYN을 "N" → "Y"로 변경. 방침(광고성 정보 수신 동의는
 //    구독 확인까지 마쳐야 유효)과 실제 코드를 일치시켰다.
-// 2) v1 API를 1차로 사용: 스티비 공식 도움말(주소록 API 사용하기)에 명시된
-//    "POST /v1/lists/{listId}/subscribers" 형식은 예제까지 확인된 반면, v2의
-//    "POST /v2/lists/{listId}/subscribers" 요청 바디 스펙은 공개 문서에서 정확히
-//    확인하지 못했다. 신뢰도가 확인된 v1을 1차로 쓰고, v1이 실패할 때만 v2를
-//    보정 시도로 한 번 더 호출한다(계정에 따라 v1이 막혀 있는 경우 대비).
+// 2) v1 API를 1차로 사용, 실패 시 v2를 보정 시도로 호출한다.
 // 3) 슬랙 실패 알림 추가: 스티비 등록이 v1·v2 모두 실패하면, 평소의 "새 구독 신청"
-//    알림과는 별도로 "⚠️ 스티비 등록 실패" 알림을 보낸다. 담당자가 수동으로
-//    주소록에 추가할 수 있도록 이메일·이름을 그대로 남긴다.
+//    알림과는 별도로 "⚠️ 스티비 등록 실패" 알림을 보낸다.
 //
-// 260908 디버깅
+// 260908 디버깅 — 실제 원인 확정
 // ------------------------------------------------------------
-// 실사용 테스트에서 스티비 주소록에 안 쌓이는데 슬랙 알림도 전혀 안 왔다는 게
-// 확인됨 — 슬랙은 이 함수가 실행되기만 하면 성공/실패 여부와 무관하게 항상
-// 오게 돼 있으므로(아래 참고), 알림 자체가 없었다는 건 이 함수가 애초에
-// 실행되지 않았다는 뜻이다. 가장 유력한 원인으로 <form id="subForm">에
-// action 속성이 없던 것을 찾아 추가했다 — JS의 fetch가 어떤 이유로든(확장
-// 프로그램 차단, 스크립트 오류 등) 안 걸리면 브라우저가 현재 페이지로 그냥
-// POST해버려서 이 함수 자체에 요청이 안 왔을 가능성이 높다. 그 경우에도
-// 최소한 이 엔드포인트로는 도달하게 만들어 자연 요청도 처리는 되도록 했다.
-// 예상 못한 예외로 죽어도 흔적이 남게 try/catch도 추가했다(아래
-// handleSubscribe 감싸는 부분).
+// (1) 처음엔 슬랙 알림 자체가 안 왔다 → <form id="subForm">에 action 속성이 없어
+//     JS가 어떤 이유로든 안 걸리면 브라우저가 현재 페이지로 그냥 POST해버려
+//     API에 아예 도달을 못 했던 것으로 확인·수정.
+// (2) 그다음엔 admin에 "스티비 등록 성공"으로 찍히는데 실제 주소록엔 없었다 →
+//     실사용 테스트로 받은 스티비의 실제 응답이 원인을 그대로 알려줬다:
+//       { "Ok": false, "Error": { "code": "UNKNOWN", "httpStatusCode": 200,
+//         "message": "...json: cannot unmarshal array into Go value of
+//         type request.AddSubscriberRequest" } }
+//     즉 ① v1 API는 HTTP 200을 주더라도 본문의 "Ok" 필드로 실제 성공 여부를
+//     알려주는데 이 필드를 안 보고 res.ok(HTTP 상태)만 확인해서 실패를 성공으로
+//     오판했다. ② "cannot unmarshal array"는 v1이 배열로 감싼 바디를 거부한다는
+//     뜻 — 스티비 공식 도움말의 "배열로 감싸라"는 예시와 반대로, 실제로는 순수
+//     객체를 기대한다(v2와 동일한 형태). 두 가지를 모두 고쳤다: v1 바디를
+//     배열 없이 객체로, 응답의 Ok 필드를 실제 성공 판정 기준으로 사용.
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -161,7 +160,8 @@ async function handleSubscribe(env, data) {
 }
 
 async function registerViaV1(env, { email, name, referral }) {
-  // 공식 도움말(주소록 API 사용하기)에 명시된 형식: 배열로 감싼 단일 객체, subscribers 배열.
+  // v1은 배열로 감싼 바디를 주면 "cannot unmarshal array into ... AddSubscriberRequest"
+  // 로 실패한다(260908 실사용으로 확인) — v2와 동일하게 순수 객체로 보낸다.
   try {
     const res = await fetch(`https://api.stibee.com/v1/lists/${env.STIBEE_LIST_ID}/subscribers`, {
       method: "POST",
@@ -169,30 +169,19 @@ async function registerViaV1(env, { email, name, referral }) {
         "Content-Type": "application/json",
         AccessToken: env.STIBEE_ACCESS_TOKEN,
       },
-      body: JSON.stringify([
-        {
-          eventOccuredBy: "SUBSCRIBER",
-          confirmEmailYN: "Y",
-          subscribers: [{ email, name, 구독경로: referral }],
-        },
-      ]),
+      body: JSON.stringify({
+        eventOccuredBy: "SUBSCRIBER",
+        confirmEmailYN: "Y",
+        subscribers: [{ email, name, 구독경로: referral }],
+      }),
     });
-    const bodyText = await res.text();
-    if (!res.ok) {
-      return { ok: false, error: `HTTP ${res.status}: ${bodyText}`, isDuplicate: looksLikeDuplicateEmail(bodyText) };
-    }
-    // ⚠️ 260908 확인: HTTP 200(res.ok)이 실제 구독자 등록을 보장하지 않는 것으로
-    // 실사용에서 재현됨(등록 "성공"으로 찍혔는데 스티비 주소록엔 안 쌓임). 정확한
-    // 성공 판별 스키마를 아직 모르므로, 우선 응답 바디를 그대로 반환해 호출부가
-    // 슬랙에 남기게 한다 — 다음 실제 테스트에서 이 값을 보고 진짜 조건을 찾는다.
-    return { ok: true, rawResponse: bodyText };
+    return await interpretStibeeResponse(res);
   } catch (e) {
     return { ok: false, error: String(e) };
   }
 }
 
 async function registerViaV2(env, { email, name, referral }) {
-  // v2 요청 바디는 공개 문서에서 정확한 스펙을 확인하지 못해 공개 사용 사례를 참고해 작성.
   // v1이 성공하면 이 함수는 호출되지 않는다 — 실패 시의 보정 시도용.
   try {
     const res = await fetch(`https://api.stibee.com/v2/lists/${env.STIBEE_LIST_ID}/subscribers`, {
@@ -207,21 +196,36 @@ async function registerViaV2(env, { email, name, referral }) {
         subscribers: [{ email, name, 구독경로: referral }],
       }),
     });
-    const bodyText = await res.text();
-    if (!res.ok) {
-      return { ok: false, error: `HTTP ${res.status}: ${bodyText}`, isDuplicate: looksLikeDuplicateEmail(bodyText) };
-    }
-    return { ok: true, rawResponse: bodyText };
+    return await interpretStibeeResponse(res);
   } catch (e) {
     return { ok: false, error: String(e) };
   }
 }
 
-// ⚠️ 스티비가 중복 이메일을 실제로 어떤 문구·상태코드로 알려주는지 공식 문서에
-// 명시돼 있지 않고, 아직 실사용으로 재현해본 적도 없다. 흔한 표현을 넓게
-// 잡아둔 임시 휴리스틱이니, 첫 실제 중복 신청 로그를 보면 정확한 문구로
-// 좁혀야 한다(현재 이 함수가 오탐/누락돼도 사용자에게는 정상 흐름으로
-// 처리되므로 — 위 stibeeOk = true — 최악의 경우 문구만 틀리게 나간다).
+// 260908 확인: 스티비는 요청이 형식적으로 잘못돼도 HTTP 200을 주고, 대신 응답
+// 본문의 "Ok" 필드로 실제 성공 여부를 알려준다. res.ok(HTTP 상태)만 보면 이런
+// 실패를 성공으로 오판한다 — 실제로 그렇게 오판했던 걸 실사용 테스트로 확인했다.
+//   실패 예시: {"Ok":false,"Error":{"code":"UNKNOWN","httpStatusCode":200,"message":"..."},"Value":null}
+// "Ok" 필드가 아예 없는 응답(다른 성공 형태일 가능성)까지 실패로 오판하지 않도록,
+// JSON 파싱에 실패하거나 Ok 필드가 없으면 HTTP 상태만으로 성공 처리한다.
+async function interpretStibeeResponse(res) {
+  const bodyText = await res.text();
+  if (!res.ok) {
+    return { ok: false, error: `HTTP ${res.status}: ${bodyText}`, isDuplicate: looksLikeDuplicateEmail(bodyText) };
+  }
+  let parsed;
+  try { parsed = JSON.parse(bodyText); } catch (e) { parsed = null; }
+  if (parsed && parsed.Ok === false) {
+    const msg = (parsed.Error && parsed.Error.message) || bodyText;
+    return { ok: false, error: `HTTP 200이지만 Ok:false — ${msg}`, isDuplicate: looksLikeDuplicateEmail(msg) };
+  }
+  return { ok: true, rawResponse: bodyText };
+}
+
+// ⚠️ 스티비가 중복 이메일을 실제로 어떤 문구로 알려주는지는 아직 실사용으로
+// 재현해본 적이 없다. 흔한 표현을 넓게 잡아둔 임시 휴리스틱이니, 첫 실제 중복
+// 신청 로그를 보면 정확한 문구로 좁혀야 한다(오탐/누락돼도 등록 자체엔 영향
+// 없고 슬랙·admin에 뜨는 문구만 달라진다).
 function looksLikeDuplicateEmail(errorBody) {
   return /이미|중복|already|duplicate|exist/i.test(errorBody || "");
 }
