@@ -2,7 +2,7 @@
 // 상담 신청 폼 제출 처리: ① 스팸(허니팟) 필터 ② 슬랙 알림 ③ KV 저장(관리자 화면 "상담 신청" 탭 조회용)
 //
 // 필요한 환경변수 (Cloudflare 대시보드 > Pages 프로젝트 > Settings > Environment variables):
-//   SLACK_WEBHOOK_URL  — 기존 Netlify에서 쓰던 것과 동일한 슬랙 Incoming Webhook URL
+//   SLACK_WEBHOOK_URL  — 슬랙 Incoming Webhook URL
 // 필요한 바인딩 (Settings > Functions > KV namespace bindings):
 //   LEADS_KV — 상담 신청 데이터를 저장할 KV 네임스페이스 (변수명 정확히 이렇게)
 

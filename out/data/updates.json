@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-06-1",
+      "date": "2026-09-06",
+      "category": "개선",
+      "summary": "스티비 구독 API 재작성 및 Netlify 잔재 완전 제거 (260904c)",
+      "detail": "구독 폼(/api/subscribe) 스티비 연동을 재작성했다. ① 더블 옵트인 ON — confirmEmailYN을 N에서 Y로 변경해 광고성 정보 수신 동의 방침과 실제 동작을 일치시켰다. ② API 우선순위 변경 — 스티비 공식 도움말에 정확한 요청 예시가 있는 v1(/v1/lists/{id}/subscribers)을 1차로 쓰고, 실패할 때만 v2를 보정 시도로 호출하도록 바꿨다(기존에는 스펙이 불확실한 v2만 사용). ③ 슬랙 실패 알림 추가 — 스티비 등록이 끝내 실패하면 평소의 '새 구독 신청' 알림과 별도로 '스티비 등록 실패' 알림을 보내 담당자가 수동으로 주소록에 추가할 수 있게 했다. 또한 지난 버전에서 놓쳤던 Netlify Forms 잔재(폼 태그의 data-netlify·netlify-honeypot 속성, 숨은 form-name 필드, ui.js·README.md·build_articles.py의 관련 주석)를 전 페이지(홈·아티클 목록·아티클 상세 11편)와 빌드 템플릿에서 제거했다. 실제 폼 제출은 이전부터 Cloudflare Pages Functions(/api/subscribe, /api/consult)로만 처리되고 있어 기능 변화는 없고, 죽은 마크업과 설명 불일치만 정리했다. ⚠️ v1 API 형식은 실제 발급받은 키로 테스트 호출을 한 번 해봐야 한다(9/8 예정 '스티비 API 실호출 검증')."
+    },
+    {
       "id": "u-2026-09-04-1",
       "date": "2026-09-04",
       "category": "개선",
