@@ -35,6 +35,37 @@ export async function onRequestGet(context) {
   }
 }
 
+// admin.html "상담 신청" 탭의 체크박스 선택 삭제에서 쓴다.
+// body: { ids: ["lead_...", ...] } — lead_ 접두사가 아닌 값은 무시해서
+// 실수로 다른 종류의 데이터(sub_ 등)를 지우는 걸 막는다.
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+
+  const providedHash = request.headers.get("X-Admin-Hash") || "";
+  if (!env.ADMIN_PW_HASH || providedHash !== env.ADMIN_PW_HASH) {
+    return json({ ok: false, error: "unauthorized" }, 401);
+  }
+  if (!env.LEADS_KV) {
+    return json({ ok: false, error: "LEADS_KV not bound" }, 500);
+  }
+
+  let ids;
+  try {
+    const body = await request.json();
+    ids = Array.isArray(body.ids) ? body.ids : [];
+  } catch (e) {
+    return json({ ok: false, error: "invalid body" }, 400);
+  }
+  const targets = ids.filter((id) => typeof id === "string" && id.startsWith("lead_"));
+
+  try {
+    await Promise.all(targets.map((id) => env.LEADS_KV.delete(id)));
+    return json({ ok: true, deleted: targets.length });
+  } catch (e) {
+    return json({ ok: false, error: String(e) }, 500);
+  }
+}
+
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
