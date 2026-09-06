@@ -12,7 +12,7 @@
       :root{
         /* 공인싸 브랜드 가이드 v1.0 토큰 별칭 (관리자 화면 전용 축약 네이밍) */
         --navy:#281966; --blue:#6C5CDC; --blue-dark:#5F4FCC; --blue-soft:#E8E9FF;
-        --paper:#FFFFFF; --tint:#F5F6FF; --line:#E8E9FF; --ink:#1A1A23; --muted:#6D6D7A; --req:#E0483C;
+        --paper:#FFFFFF; --tint:#F5F6FF; --line:#E8E9FF; --ink:#1A1A23; --muted:#6D6D7A; --req:#E0483C; --success:#059669;
         --radius:16px; --mono:'IBM Plex Mono', ui-monospace, monospace;
       }
       *{box-sizing:border-box}
@@ -162,6 +162,7 @@
         <button type="button" class="maintab active" id="tab-btn-articles" onclick="switchPage('articles')">게시글 관리</button>
         <button type="button" class="maintab" id="tab-btn-updates" onclick="switchPage('updates')">업데이트 로그</button>
         <button type="button" class="maintab" id="tab-btn-leads" onclick="switchPage('leads')">상담 신청</button>
+        <button type="button" class="maintab" id="tab-btn-subscribers" onclick="switchPage('subscribers')">구독 신청</button>
       </div>
 
       <div class="page active" id="page-articles">
@@ -309,6 +310,15 @@
           <div id="leads-list"></div>
         </div>
       </div><!-- /page-leads -->
+
+      <div class="page" id="page-subscribers">
+        <div class="panel">
+          <h2>구독 신청 <span class="sub" style="display:inline" id="subscribers-count"></span></h2>
+          <p class="hint">사이트에서 접수된 뉴스레터 구독 신청 목록입니다. 스티비·슬랙이 실패해도 여기엔 항상 남습니다.</p>
+          <button type="button" class="btn btn-line btn-sm" onclick="loadSubscribers()" style="margin-bottom:14px">새로고침</button>
+          <div id="subscribers-list"></div>
+        </div>
+      </div><!-- /page-subscribers -->
     </div>
 
     <div class="toast" id="toast"></div>
@@ -336,6 +346,7 @@
         resetForm(); load();
         resetUpdateForm(); loadUpdates();
         loadLeads();
+        loadSubscribers();
       }
       async function checkGate(e) {
         e.preventDefault();
@@ -623,6 +634,36 @@
             <div class="item__meta">${esc(l.submitted_at || "")}</div>
             <div><b>${esc(l.name || "-")}</b> · ${esc(l.email || "-")} · ${esc(l.phone || "-")}</div>
             ${l.message ? `<p style="margin:6px 0 0;color:var(--muted);font-size:13.5px">${esc(l.message)}</p>` : ""}
+          </div>
+        `).join("");
+      }
+
+      /* ================== 구독 신청(subscribers) ================== */
+      function loadSubscribers() {
+        const hash = sessionStorage.getItem("gi_admin_hash");
+        if (!hash) return;
+        fetch("/api/subscribers", { headers: { "X-Admin-Hash": hash } })
+          .then((r) => r.json())
+          .then((d) => {
+            if (!d.ok) { $("subscribers-list").innerHTML = `<p class="hint">불러오지 못했습니다 (${esc(d.error || "오류")}).</p>`; return; }
+            renderSubscribers(d.subscribers || []);
+          })
+          .catch(() => { $("subscribers-list").innerHTML = `<p class="hint">불러오지 못했습니다. 네트워크를 확인해주세요.</p>`; });
+      }
+      function renderSubscribers(subscribers) {
+        $("subscribers-count").textContent = `(${subscribers.length}건)`;
+        if (!subscribers.length) {
+          $("subscribers-list").innerHTML = `<p class="hint">아직 접수된 구독 신청이 없습니다.</p>`;
+          return;
+        }
+        $("subscribers-list").innerHTML = subscribers.map((s) => `
+          <div class="item">
+            <div class="item__meta">${esc(s.submitted_at || "")}</div>
+            <div><b>${esc(s.name || "-")}</b> · ${esc(s.email || "-")} · ${esc(s.referral || "-")}
+              ${s.stibeeOk
+                ? `<span style="color:var(--success)">· 스티비 등록 성공</span>`
+                : `<span style="color:var(--req)">· 스티비 등록 실패(수동 확인 필요)</span>`}
+            </div>
           </div>
         `).join("");
       }

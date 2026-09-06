@@ -4,6 +4,34 @@
  * 스크롤 리빌. 데이터와 무관한 정적 동작만 담당한다.
  * =========================================================== */
 document.addEventListener("DOMContentLoaded", function () {
+  // 폼 검증 — 브라우저 기본 말풍선(주황색, 시스템 폰트, 사이트 톤앤매너와 안 맞음) 대신
+  // 같은 문구를 사이트 스타일 카드(.field-warn)로 필드 바로 아래에 띄운다.
+  // 각 <form>에 novalidate를 줘서 브라우저 말풍선 자체를 끄고, checkValidity()로 직접
+  // 검사한다 — field.validationMessage는 브라우저가 이미 한국어로 만들어주므로 그대로 쓴다.
+  function showFieldWarning(field) {
+    const msg = field.validationMessage || "입력값을 확인해주세요.";
+    const anchor = field.closest(".agree-row") || field;
+    const el = document.createElement("p");
+    el.className = "field-warn";
+    el.setAttribute("role", "alert");
+    el.textContent = msg;
+    anchor.insertAdjacentElement("afterend", el);
+    const clear = () => el.remove();
+    field.addEventListener("input", clear, { once: true });
+    field.addEventListener("change", clear, { once: true });
+  }
+  function validateForm(form) {
+    form.querySelectorAll(".field-warn").forEach((el) => el.remove());
+    const firstInvalid = Array.from(form.querySelectorAll("[required]")).find((f) => !f.checkValidity());
+    if (firstInvalid) {
+      showFieldWarning(firstInvalid);
+      firstInvalid.focus();
+      firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+    return true;
+  }
+
   // article tabs (인기픽 / 실무 꿀팁 / 레퍼런스)
   const articleTabs = document.getElementById("articleTabs");
   const articlesTitle = document.getElementById("articlesTitle");
@@ -64,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (subForm) {
     subForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      if (!validateForm(subForm)) return;
       const data = new FormData(subForm);
       fetch("/api/subscribe", { method: "POST", body: data })
         .then((res) => {
@@ -74,13 +103,21 @@ document.addEventListener("DOMContentLoaded", function () {
               throw new Error(`HTTP ${res.status}: ${body}`);
             });
           }
+          return res.json().catch(() => ({}));
+        })
+        .then((body) => {
           giTrack("subscribe_submit", {
             referral: data.get("referral") || "",
             page_ref: giPageRef(),
           });
           if (subStatus) {
-            subStatus.textContent = subStatusOkText;
-            subStatus.style.color = "";
+            if (body && body.duplicate) {
+              subStatus.textContent = "이미 등록된 메일주소입니다. 다음 발행을 기다려주세요!";
+              subStatus.style.color = "var(--text-muted)";
+            } else {
+              subStatus.textContent = subStatusOkText;
+              subStatus.style.color = "";
+            }
             subStatus.style.display = "block";
           }
           subForm.reset();
@@ -162,6 +199,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (consultForm) {
     consultForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      if (!validateForm(consultForm)) return;
       const data = new FormData(consultForm);
       fetch("/api/consult", { method: "POST", body: data })
         .then((res) => {

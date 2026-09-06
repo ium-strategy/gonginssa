@@ -6,6 +6,10 @@
 //   STIBEE_ACCESS_TOKEN   — 스티비 워크스페이스 설정 > API 키에서 발급 (Standard 이상 플랜 필요)
 //   STIBEE_LIST_ID        — 스티비 주소록 화면 URL의 숫자 (stibee.com/lists/123456)
 // 위 스티비 값 두 개가 없으면 스티비 등록은 건너뛰고 슬랙 알림만 보냅니다(사이트는 정상 동작).
+// 필요한 바인딩 (Settings > Functions > KV namespace bindings):
+//   LEADS_KV — consult.js와 같은 네임스페이스. 스티비·슬랙이 둘 다 실패해도
+//              신청 자체는 admin.html "구독 신청" 탭에서 확인할 수 있도록
+//              모든 제출을 여기에도 기록한다(성공 여부와 무관, sub_ 접두사).
 //
 // 260904c 변경 사항
 // ------------------------------------------------------------
@@ -66,16 +70,24 @@ async function handleSubscribe(env, data) {
 
   let stibeeOk = false;
   let stibeeErrorDetail = "";
+  let isDuplicate = false;
 
   if (env.STIBEE_ACCESS_TOKEN && env.STIBEE_LIST_ID) {
     const v1 = await registerViaV1(env, { email, name, referral });
     if (v1.ok) {
       stibeeOk = true;
+    } else if (v1.isDuplicate) {
+      // 이미 등록된 이메일 — v2로 재시도해도 결과가 같을 것이므로 바로 확정한다.
+      stibeeOk = true;
+      isDuplicate = true;
     } else {
       console.error("스티비 v1 등록 실패, v2로 재시도:", v1.error);
       const v2 = await registerViaV2(env, { email, name, referral });
       if (v2.ok) {
         stibeeOk = true;
+      } else if (v2.isDuplicate) {
+        stibeeOk = true;
+        isDuplicate = true;
       } else {
         console.error("스티비 v2 등록도 실패:", v2.error);
         stibeeErrorDetail = `v1: ${v1.error} / v2: ${v2.error}`;
@@ -86,17 +98,47 @@ async function handleSubscribe(env, data) {
     console.error(stibeeErrorDetail + " — 스티비 등록을 건너뜁니다.");
   }
 
-  // 평소 알림 — 제출 자체는 항상 슬랙에 남긴다 (스티비 성공 여부와 무관)
-  await notifySlack(env, [
-    `*🟣 새 구독 신청*`,
-    `• *이름*: ${name || "-"}`,
-    `• *이메일*: ${email || "-"}`,
-    `• *구독 경로*: ${referral || "-"}`,
-    `• *스티비 등록*: ${stibeeOk ? "성공" : "실패(아래 참고)"}`,
-    `_${nowKST()}_`,
-  ].join("\n"));
+  // KV 저장 — 슬랙·스티비가 둘 다 실패해도 신청 자체는 admin에서 확인 가능하게 남긴다.
+  // consult.js의 리드 저장과 같은 네임스페이스를 sub_ 접두사로 구분해서 쓴다.
+  if (env.LEADS_KV) {
+    const entry = {
+      id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      email,
+      name,
+      referral,
+      stibeeOk,
+      duplicate: isDuplicate,
+      submitted_at: new Date().toISOString(),
+    };
+    try {
+      await env.LEADS_KV.put(entry.id, JSON.stringify(entry));
+    } catch (e) {
+      console.error("구독 신청 KV 저장 실패:", e);
+    }
+  } else {
+    console.error("LEADS_KV 바인딩이 설정되지 않아 구독 신청 기록을 건너뜁니다.");
+  }
 
-  // 실패 알림 — 스티비 등록이 끝내 안 됐을 때만 별도로 한 번 더 남긴다
+  // 평소 알림 — 제출 자체는 항상 슬랙에 남긴다 (스티비 성공 여부와 무관).
+  // 이미 등록된 이메일이면 "새 구독"이 아니므로 문구를 구분한다.
+  await notifySlack(env, isDuplicate
+    ? [
+        `*🔁 이미 등록된 이메일로 재신청*`,
+        `• *이름*: ${name || "-"}`,
+        `• *이메일*: ${email || "-"}`,
+        `• *구독 경로*: ${referral || "-"}`,
+        `_${nowKST()}_`,
+      ].join("\n")
+    : [
+        `*🟣 새 구독 신청*`,
+        `• *이름*: ${name || "-"}`,
+        `• *이메일*: ${email || "-"}`,
+        `• *구독 경로*: ${referral || "-"}`,
+        `• *스티비 등록*: ${stibeeOk ? "성공" : "실패(아래 참고)"}`,
+        `_${nowKST()}_`,
+      ].join("\n"));
+
+  // 실패 알림 — 스티비 등록이 끝내 안 됐을 때만 별도로 한 번 더 남긴다 (중복은 실패가 아니므로 제외)
   if (!stibeeOk) {
     await notifySlack(env, [
       `*⚠️ 스티비 등록 실패 — 수동 확인 필요*`,
@@ -107,7 +149,7 @@ async function handleSubscribe(env, data) {
     ].join("\n"));
   }
 
-  return json({ ok: true });
+  return json({ ok: true, duplicate: isDuplicate });
 }
 
 async function registerViaV1(env, { email, name, referral }) {
@@ -127,7 +169,10 @@ async function registerViaV1(env, { email, name, referral }) {
         },
       ]),
     });
-    if (!res.ok) return { ok: false, error: `HTTP ${res.status}: ${await res.text()}` };
+    if (!res.ok) {
+      const body = await res.text();
+      return { ok: false, error: `HTTP ${res.status}: ${body}`, isDuplicate: looksLikeDuplicateEmail(body) };
+    }
     return { ok: true };
   } catch (e) {
     return { ok: false, error: String(e) };
@@ -150,11 +195,23 @@ async function registerViaV2(env, { email, name, referral }) {
         subscribers: [{ email, name, 구독경로: referral }],
       }),
     });
-    if (!res.ok) return { ok: false, error: `HTTP ${res.status}: ${await res.text()}` };
+    if (!res.ok) {
+      const body = await res.text();
+      return { ok: false, error: `HTTP ${res.status}: ${body}`, isDuplicate: looksLikeDuplicateEmail(body) };
+    }
     return { ok: true };
   } catch (e) {
     return { ok: false, error: String(e) };
   }
+}
+
+// ⚠️ 스티비가 중복 이메일을 실제로 어떤 문구·상태코드로 알려주는지 공식 문서에
+// 명시돼 있지 않고, 아직 실사용으로 재현해본 적도 없다. 흔한 표현을 넓게
+// 잡아둔 임시 휴리스틱이니, 첫 실제 중복 신청 로그를 보면 정확한 문구로
+// 좁혀야 한다(현재 이 함수가 오탐/누락돼도 사용자에게는 정상 흐름으로
+// 처리되므로 — 위 stibeeOk = true — 최악의 경우 문구만 틀리게 나간다).
+function looksLikeDuplicateEmail(errorBody) {
+  return /이미|중복|already|duplicate|exist/i.test(errorBody || "");
 }
 
 async function notifySlack(env, text) {
