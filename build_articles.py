@@ -2,7 +2,7 @@
 """content/articles/*.md (YAML frontmatter + 마크다운 본문) 을 (1) data/articles.json 엔트리와
 (2) out/articles/<slug>.html 상세페이지로 빌드한다.
 Decap CMS(/admin/)가 바로 이 content/articles/*.md 파일들을 커밋하므로,
-담당자가 관리자 화면에서 글을 쓰고 저장하면 Netlify가 이 스크립트를 다시 실행해 사이트에 반영한다.
+담당자가 관리자 화면에서 글을 쓰고 저장하면(GitHub 커밋) Cloudflare Pages 빌드가 이 스크립트를 다시 실행해 사이트에 반영한다.
 (과거 notion_articles.py 기반 방식은 migrate_to_md.py 로 최초 1회 이 폴더로 이관 완료.)"""
 import glob
 import json
@@ -196,6 +196,10 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <header class="site">
   <nav class="nav nav-minimal">
     <a class="brand" href="../index.html"><img src="../assets/logo.png" alt="공인싸 — PUBLIC PR INSIGHTS" class="brand-logo"></a>
+    <form class="nav-search" id="site-search-form" role="search" action="../articles.html" method="get">
+      <label class="sr-only" for="site-search-input">아티클 검색</label>
+      <input id="site-search-input" type="search" name="q" placeholder="궁금한 주제를 검색해보세요" aria-label="아티클 검색" autocomplete="off">
+    </form>
   </nav>
 </header>
 
@@ -278,8 +282,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
     <button type="button" class="modal-close" id="consultCloseBtn" aria-label="닫기">✕</button>
     <h2 id="consultTitle">상담 신청</h2>
     <p class="modal-sub">공공 홍보 실무 고민, 이음전략소가 함께 풀어드립니다. 연락처를 남기시면 영업일 기준 1~2일 이내 답변드려요.</p>
-    <form id="consultForm" name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-      <input type="hidden" name="form-name" value="consult">
+    <form id="consultForm" method="POST">
       <p class="hidden" hidden><label>이 필드는 비워두세요: <input name="bot-field"></label></p>
       <div class="modal-fields">
         <label class="sr-only" for="f-consult-name">이름 / 소속</label>
@@ -327,6 +330,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <script src="../data/config.js"></script>
 <script src="../assets/article.js"></script>
 <script src="../assets/ui.js"></script>
+<script src="../assets/search.js" defer></script>
 </body>
 </html>
 """

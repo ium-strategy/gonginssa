@@ -6,6 +6,8 @@
  * =========================================================== */
 (function () {
   const $ = (id) => document.getElementById(id);
+  const esc = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   function boot() {
     const CFG = window.GI_CONFIG;
@@ -17,28 +19,80 @@
     let ARTICLES = [];
     let activeCategory = new URLSearchParams(location.search).get("category") || "all";
     let activeTag = new URLSearchParams(location.search).get("tag") || "";
-    const tagEl = $("tagFilter");
+    let activeQuery = (new URLSearchParams(location.search).get("q") || "").trim();
+    const cloudEl = $("topicCloud");
+    const queryEl = $("queryFilter");
+    let searchTracked = false;
 
     function categoryLabel(key) {
       if (key === "all") return "전체보기";
       return (CFG.categories[key] && CFG.categories[key].name) || key;
     }
 
+    function matchesQuery(a) {
+      if (!activeQuery) return true;
+      const haystack = [
+        a.title,
+        a.excerpt,
+        (a.tags || []).join(" "),
+        categoryLabel(a.category),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(activeQuery.toLowerCase());
+    }
+
     function matches(a) {
       const okCat = activeCategory === "all" || a.category === activeCategory;
       const okTag = !activeTag || (a.tags || []).includes(activeTag);
-      return okCat && okTag;
+      return okCat && okTag && matchesQuery(a);
     }
 
-    function renderTagFilter() {
-      if (!tagEl) return;
-      tagEl.hidden = !activeTag;
-      if (!activeTag) return;
-      tagEl.innerHTML =
-        `<span>주제 <b>#${activeTag.replace(/[<>&]/g, "")}</b> 로 골라봤어요</span>` +
-        `<button type="button" class="clear" id="clearTag">필터 해제</button>`;
-      const btn = document.getElementById("clearTag");
-      if (btn) btn.addEventListener("click", () => setTag(""));
+    // 태그로 이동해 들어온 경우에도(예: 홈 #보도자료 클릭) 다른 태그로 바로 갈아탈 수 있도록
+    // 태그 하나만 보여주고 끝내지 않고, 항상 전체 태그 목록을 띄워둔다.
+    // 카운트는 카테고리·검색어는 반영하고 태그 자체는 무시한 풀 기준 — "이 태그를 고르면 몇 건" 을 보여준다.
+    function renderTopicCloud() {
+      if (!cloudEl) return;
+      const pool = ARTICLES.filter(
+        (a) => (activeCategory === "all" || a.category === activeCategory) && matchesQuery(a)
+      );
+      const counts = {};
+      pool.forEach((a) => (a.tags || []).forEach((t) => (counts[t] = (counts[t] || 0) + 1)));
+      const dict = (CFG.tagDictionary || Object.keys(counts)).filter((t) => counts[t]);
+      const topics = dict.sort((a, b) => counts[b] - counts[a] || a.localeCompare(b, "ko"));
+      const allChip = `<button type="button" class="tag${activeTag ? "" : " active"}" data-tag="">전체보기<span class="cnt">${pool.length}</span></button>`;
+      const tagChips = topics
+        .map(
+          (t) =>
+            `<button type="button" class="tag${t === activeTag ? " active" : ""}" data-tag="${esc(t)}">#${esc(t)}<span class="cnt">${counts[t]}</span></button>`
+        )
+        .join("");
+      cloudEl.innerHTML = allChip + tagChips;
+    }
+
+    function renderQueryFilter() {
+      if (!queryEl) return;
+      queryEl.hidden = !activeQuery;
+      if (!activeQuery) return;
+      queryEl.innerHTML =
+        `<span>\u2018<b>${esc(activeQuery)}</b>\u2019 검색 결과</span>` +
+        `<button type="button" class="clear" id="clearQuery">검색 해제</button>`;
+      const btn = document.getElementById("clearQuery");
+      if (btn) btn.addEventListener("click", () => setQuery(""));
+    }
+
+    function setQuery(q) {
+      activeQuery = q;
+      const url = new URL(location.href);
+      if (q) url.searchParams.set("q", q);
+      else url.searchParams.delete("q");
+      history.replaceState(null, "", url);
+      const input = document.getElementById("site-search-input");
+      if (input) input.value = q;
+      renderQueryFilter();
+      renderTopicCloud();
+      renderTabs();
+      renderGrid();
     }
 
     function setTag(tag) {
@@ -47,7 +101,7 @@
       if (tag) url.searchParams.set("tag", tag);
       else url.searchParams.delete("tag");
       history.replaceState(null, "", url);
-      renderTagFilter();
+      renderTopicCloud();
       renderTabs();
       renderGrid();
     }
@@ -57,7 +111,9 @@
       const keys = ["all", ...present];
       tabsEl.innerHTML = keys
         .map((k) => {
-          const pool = ARTICLES.filter((a) => !activeTag || (a.tags || []).includes(activeTag));
+          const pool = ARTICLES.filter(
+            (a) => (!activeTag || (a.tags || []).includes(activeTag)) && matchesQuery(a)
+          );
           const count = k === "all" ? pool.length : pool.filter((a) => a.category === k).length;
           return `<button type="button" class="tab-btn${k === activeCategory ? " active" : ""}" data-cat="${k}">${categoryLabel(k)} · ${count}</button>`;
         })
@@ -67,7 +123,23 @@
     function renderGrid() {
       const list = ARTICLES.filter(matches).sort((a, b) => b.date.localeCompare(a.date));
       gridEl.innerHTML = list.map((a) => window.GI.cardHTML(a, false)).join("");
-      if (emptyEl) emptyEl.hidden = list.length > 0;
+      if (emptyEl) {
+        emptyEl.hidden = list.length > 0;
+        emptyEl.textContent = activeQuery
+          ? "검색 결과가 없습니다. 다른 키워드로 찾아보세요."
+          : "조건에 맞는 아티클이 아직 없습니다.";
+      }
+      // GA4 — 검색으로 페이지에 들어온 경우 결과 수와 함께 1회만 집계한다.
+      // (탭 전환 때마다 중복 발생하지 않도록 플래그로 막는다)
+      if (activeQuery && !searchTracked && typeof gtag === "function") {
+        searchTracked = true;
+        try {
+          gtag("event", "article_search", {
+            search_term: activeQuery,
+            result_count: list.length,
+          });
+        } catch (e) {}
+      }
     }
 
     function setActive(cat) {
@@ -86,6 +158,18 @@
       setActive(btn.dataset.cat);
     });
 
+    if (cloudEl) {
+      cloudEl.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tag");
+        if (!btn) return;
+        const tag = btn.dataset.tag || "";
+        setTag(tag);
+        if (tag && typeof gtag === "function") {
+          try { gtag("event", "tag_click", { tag_name: tag, page_ref: "articles" }); } catch (err) {}
+        }
+      });
+    }
+
     fetch("data/articles.json")
       .then((r) => {
         if (!r.ok) throw new Error(r.status);
@@ -101,7 +185,8 @@
         if (activeTag && !ARTICLES.some((a) => (a.tags || []).includes(activeTag))) {
           activeTag = "";
         }
-        renderTagFilter();
+        renderTopicCloud();
+        renderQueryFilter();
         renderTabs();
         renderGrid();
       })

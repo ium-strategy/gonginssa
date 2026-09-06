@@ -44,9 +44,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // 구독 폼 — Netlify Forms로 전송(정적 호스팅에서도 서버 없이 제출을 수집).
-  // 다른 호스팅(GitHub Pages 등)에서 열리면 Netlify Forms 엔드포인트가 없어
-  // 전송이 실패할 수 있으니 그 경우에도 폼이 깨지지 않도록 처리한다.
+  // 구독 폼 — Cloudflare Pages Functions(/api/subscribe)로 전송.
+  // 엔드포인트가 없거나 오류가 나도 사용자 경험이 끊기지 않도록 처리한다.
   /* ================== GA4 이벤트 ==================
      퍼널만 측정한다: 구독 → 상담 → 계약. 이벤트를 늘리면 아무도 안 본다.
      gtag이 아직 로드되지 않았거나 광고차단으로 없을 수도 있으므로 항상 존재 확인. */
@@ -83,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // 상담 신청 모달 — 열기/닫기 + Netlify Forms 전송
+  // 상담 신청 모달 — 열기/닫기 + Cloudflare Pages Functions(/api/consult)로 전송
   const consultOverlay = document.getElementById("consultOverlay");
   const consultOpenBtns = document.querySelectorAll(".js-open-consult");
   const consultCloseBtn = document.getElementById("consultCloseBtn");
