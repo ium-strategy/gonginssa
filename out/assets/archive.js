@@ -6,6 +6,8 @@
  * =========================================================== */
 (function () {
   const $ = (id) => document.getElementById(id);
+  const esc = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   function boot() {
     const CFG = window.GI_CONFIG;
@@ -17,17 +19,33 @@
     let ARTICLES = [];
     let activeCategory = new URLSearchParams(location.search).get("category") || "all";
     let activeTag = new URLSearchParams(location.search).get("tag") || "";
+    let activeQuery = (new URLSearchParams(location.search).get("q") || "").trim();
     const tagEl = $("tagFilter");
+    const queryEl = $("queryFilter");
+    let searchTracked = false;
 
     function categoryLabel(key) {
       if (key === "all") return "전체보기";
       return (CFG.categories[key] && CFG.categories[key].name) || key;
     }
 
+    function matchesQuery(a) {
+      if (!activeQuery) return true;
+      const haystack = [
+        a.title,
+        a.excerpt,
+        (a.tags || []).join(" "),
+        categoryLabel(a.category),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(activeQuery.toLowerCase());
+    }
+
     function matches(a) {
       const okCat = activeCategory === "all" || a.category === activeCategory;
       const okTag = !activeTag || (a.tags || []).includes(activeTag);
-      return okCat && okTag;
+      return okCat && okTag && matchesQuery(a);
     }
 
     function renderTagFilter() {
@@ -39,6 +57,30 @@
         `<button type="button" class="clear" id="clearTag">필터 해제</button>`;
       const btn = document.getElementById("clearTag");
       if (btn) btn.addEventListener("click", () => setTag(""));
+    }
+
+    function renderQueryFilter() {
+      if (!queryEl) return;
+      queryEl.hidden = !activeQuery;
+      if (!activeQuery) return;
+      queryEl.innerHTML =
+        `<span>\u2018<b>${esc(activeQuery)}</b>\u2019 검색 결과</span>` +
+        `<button type="button" class="clear" id="clearQuery">검색 해제</button>`;
+      const btn = document.getElementById("clearQuery");
+      if (btn) btn.addEventListener("click", () => setQuery(""));
+    }
+
+    function setQuery(q) {
+      activeQuery = q;
+      const url = new URL(location.href);
+      if (q) url.searchParams.set("q", q);
+      else url.searchParams.delete("q");
+      history.replaceState(null, "", url);
+      const input = document.getElementById("site-search-input");
+      if (input) input.value = q;
+      renderQueryFilter();
+      renderTabs();
+      renderGrid();
     }
 
     function setTag(tag) {
@@ -57,7 +99,9 @@
       const keys = ["all", ...present];
       tabsEl.innerHTML = keys
         .map((k) => {
-          const pool = ARTICLES.filter((a) => !activeTag || (a.tags || []).includes(activeTag));
+          const pool = ARTICLES.filter(
+            (a) => (!activeTag || (a.tags || []).includes(activeTag)) && matchesQuery(a)
+          );
           const count = k === "all" ? pool.length : pool.filter((a) => a.category === k).length;
           return `<button type="button" class="tab-btn${k === activeCategory ? " active" : ""}" data-cat="${k}">${categoryLabel(k)} · ${count}</button>`;
         })
@@ -67,7 +111,23 @@
     function renderGrid() {
       const list = ARTICLES.filter(matches).sort((a, b) => b.date.localeCompare(a.date));
       gridEl.innerHTML = list.map((a) => window.GI.cardHTML(a, false)).join("");
-      if (emptyEl) emptyEl.hidden = list.length > 0;
+      if (emptyEl) {
+        emptyEl.hidden = list.length > 0;
+        emptyEl.textContent = activeQuery
+          ? "검색 결과가 없습니다. 다른 키워드로 찾아보세요."
+          : "조건에 맞는 아티클이 아직 없습니다.";
+      }
+      // GA4 — 검색으로 페이지에 들어온 경우 결과 수와 함께 1회만 집계한다.
+      // (탭 전환 때마다 중복 발생하지 않도록 플래그로 막는다)
+      if (activeQuery && !searchTracked && typeof gtag === "function") {
+        searchTracked = true;
+        try {
+          gtag("event", "article_search", {
+            search_term: activeQuery,
+            result_count: list.length,
+          });
+        } catch (e) {}
+      }
     }
 
     function setActive(cat) {
@@ -102,6 +162,7 @@
           activeTag = "";
         }
         renderTagFilter();
+        renderQueryFilter();
         renderTabs();
         renderGrid();
       })

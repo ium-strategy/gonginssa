@@ -196,6 +196,10 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <header class="site">
   <nav class="nav nav-minimal">
     <a class="brand" href="../index.html"><img src="../assets/logo.png" alt="공인싸 — PUBLIC PR INSIGHTS" class="brand-logo"></a>
+    <form class="nav-search" id="site-search-form" role="search" action="../articles.html" method="get">
+      <label class="sr-only" for="site-search-input">아티클 검색</label>
+      <input id="site-search-input" type="search" name="q" placeholder="아티클 검색" aria-label="아티클 검색" autocomplete="off">
+    </form>
   </nav>
 </header>
 
@@ -326,6 +330,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <script src="../data/config.js"></script>
 <script src="../assets/article.js"></script>
 <script src="../assets/ui.js"></script>
+<script src="../assets/search.js" defer></script>
 </body>
 </html>
 """
