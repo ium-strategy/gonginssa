@@ -110,16 +110,11 @@ document.addEventListener("DOMContentLoaded", function () {
             referral: data.get("referral") || "",
             page_ref: giPageRef(),
           });
-          if (subStatus) {
-            if (body && body.duplicate) {
-              subStatus.textContent = "이미 등록된 메일주소입니다. 다음 발행을 기다려주세요!";
-              subStatus.style.color = "var(--text-muted)";
-            } else {
-              subStatus.textContent = subStatusOkText;
-              subStatus.style.color = "";
-            }
-            subStatus.style.display = "block";
-          }
+          // 성공 안내는 알림창으로 띄우고, 닫히면 그때 폼을 처음 상태로 되돌린다
+          // (알림창은 동기적으로 멈춰 있다가 닫혀야 다음 줄이 실행되므로 순서가 보장됨).
+          alert(body && body.duplicate
+            ? "이미 등록된 메일주소입니다. 다음 발행을 기다려주세요!"
+            : subStatusOkText);
           subForm.reset();
         })
         .catch((err) => {
@@ -209,13 +204,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
           }
           giTrack("consult_submit", { page_ref: giPageRef() });
-          if (consultStatus) {
-            consultStatus.textContent = consultStatusOkText;
-            consultStatus.style.color = "";
-            consultStatus.style.display = "block";
-          }
+          // 구독 폼과 동일하게 알림창으로 안내하고, 닫히면 폼을 처음 상태로 되돌린다.
+          alert(consultStatusOkText);
           consultForm.reset();
-          setTimeout(closeConsult, 1800);
+          closeConsult();
         })
         .catch((err) => {
           console.error("상담 신청 폼 전송 실패 — /api/consult 엔드포인트를 확인하세요.", err);

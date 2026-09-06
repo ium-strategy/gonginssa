@@ -71,11 +71,13 @@ async function handleSubscribe(env, data) {
   let stibeeOk = false;
   let stibeeErrorDetail = "";
   let isDuplicate = false;
+  let stibeeRawResponse = "";
 
   if (env.STIBEE_ACCESS_TOKEN && env.STIBEE_LIST_ID) {
     const v1 = await registerViaV1(env, { email, name, referral });
     if (v1.ok) {
       stibeeOk = true;
+      stibeeRawResponse = v1.rawResponse || "";
     } else if (v1.isDuplicate) {
       // 이미 등록된 이메일 — v2로 재시도해도 결과가 같을 것이므로 바로 확정한다.
       stibeeOk = true;
@@ -85,6 +87,7 @@ async function handleSubscribe(env, data) {
       const v2 = await registerViaV2(env, { email, name, referral });
       if (v2.ok) {
         stibeeOk = true;
+        stibeeRawResponse = v2.rawResponse || "";
       } else if (v2.isDuplicate) {
         stibeeOk = true;
         isDuplicate = true;
@@ -97,6 +100,7 @@ async function handleSubscribe(env, data) {
     stibeeErrorDetail = "STIBEE_ACCESS_TOKEN / STIBEE_LIST_ID 환경변수 미설정";
     console.error(stibeeErrorDetail + " — 스티비 등록을 건너뜁니다.");
   }
+  if (stibeeRawResponse) console.error("스티비 등록 응답(200 OK):", stibeeRawResponse);
 
   // KV 저장 — 슬랙·스티비가 둘 다 실패해도 신청 자체는 admin에서 확인 가능하게 남긴다.
   // consult.js의 리드 저장과 같은 네임스페이스를 sub_ 접두사로 구분해서 쓴다.
@@ -108,6 +112,7 @@ async function handleSubscribe(env, data) {
       referral,
       stibeeOk,
       duplicate: isDuplicate,
+      stibeeRawResponse: stibeeRawResponse ? stibeeRawResponse.slice(0, 500) : "",
       submitted_at: new Date().toISOString(),
     };
     try {
@@ -134,9 +139,12 @@ async function handleSubscribe(env, data) {
         `• *이름*: ${name || "-"}`,
         `• *이메일*: ${email || "-"}`,
         `• *구독 경로*: ${referral || "-"}`,
-        `• *스티비 등록*: ${stibeeOk ? "성공" : "실패(아래 참고)"}`,
+        `• *스티비 등록*: ${stibeeOk ? "성공(200 OK)" : "실패(아래 참고)"}`,
+        stibeeRawResponse
+          ? `• *스티비 응답*: \`\`\`${stibeeRawResponse.slice(0, 400)}\`\`\` (200이어도 실제 등록 안 될 수 있음 — 주소록에서 직접 확인해주세요)`
+          : "",
         `_${nowKST()}_`,
-      ].join("\n"));
+      ].filter(Boolean).join("\n"));
 
   // 실패 알림 — 스티비 등록이 끝내 안 됐을 때만 별도로 한 번 더 남긴다 (중복은 실패가 아니므로 제외)
   if (!stibeeOk) {
@@ -169,11 +177,15 @@ async function registerViaV1(env, { email, name, referral }) {
         },
       ]),
     });
+    const bodyText = await res.text();
     if (!res.ok) {
-      const body = await res.text();
-      return { ok: false, error: `HTTP ${res.status}: ${body}`, isDuplicate: looksLikeDuplicateEmail(body) };
+      return { ok: false, error: `HTTP ${res.status}: ${bodyText}`, isDuplicate: looksLikeDuplicateEmail(bodyText) };
     }
-    return { ok: true };
+    // ⚠️ 260908 확인: HTTP 200(res.ok)이 실제 구독자 등록을 보장하지 않는 것으로
+    // 실사용에서 재현됨(등록 "성공"으로 찍혔는데 스티비 주소록엔 안 쌓임). 정확한
+    // 성공 판별 스키마를 아직 모르므로, 우선 응답 바디를 그대로 반환해 호출부가
+    // 슬랙에 남기게 한다 — 다음 실제 테스트에서 이 값을 보고 진짜 조건을 찾는다.
+    return { ok: true, rawResponse: bodyText };
   } catch (e) {
     return { ok: false, error: String(e) };
   }
@@ -195,11 +207,11 @@ async function registerViaV2(env, { email, name, referral }) {
         subscribers: [{ email, name, 구독경로: referral }],
       }),
     });
+    const bodyText = await res.text();
     if (!res.ok) {
-      const body = await res.text();
-      return { ok: false, error: `HTTP ${res.status}: ${body}`, isDuplicate: looksLikeDuplicateEmail(body) };
+      return { ok: false, error: `HTTP ${res.status}: ${bodyText}`, isDuplicate: looksLikeDuplicateEmail(bodyText) };
     }
-    return { ok: true };
+    return { ok: true, rawResponse: bodyText };
   } catch (e) {
     return { ok: false, error: String(e) };
   }
