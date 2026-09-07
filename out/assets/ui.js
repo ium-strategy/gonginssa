@@ -298,8 +298,13 @@ document.addEventListener("DOMContentLoaded", function () {
     { threshold: 0.12 }
   );
   document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-});
-  /* 주요 CTA 클릭 — 어떤 버튼이 실제로 눌리는지 확인용 */
+
+  /* 주요 CTA 클릭 — 어떤 버튼이 실제로 눌리는지 확인용
+     ⚠️ 260907: 이 리스너가 원래 DOMContentLoaded 콜백 밖(스크립트 최상위)에
+     따로 등록되어 있어서, giTrack/giPageRef가 정의된 스코프 밖이라 클릭할
+     때마다 "giTrack is not defined"로 조용히 실패하고 있었다(tag_click,
+     article_click, cta_click 전부 한 번도 안 찍혔던 것으로 보임). giTrack이
+     정의된 이 스코프 안으로 옮겨서 수정. */
   document.addEventListener("click", (e) => {
     const tagEl = e.target.closest("a.a-tag");
     if (tagEl) {
@@ -313,10 +318,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const slug = (cardEl.getAttribute("href") || "").split("/").pop().replace(".html", "");
       giTrack("article_click", { article_slug: slug, page_ref: giPageRef() });
     }
+    // 이음전략소로 이동하는 외부 링크 클릭 — GA4 크로스 도메인 기여도 측정용
+    const outboundEl = e.target.closest('a[href*="iumist.com"]');
+    if (outboundEl) {
+      giTrack("outbound_click", { link_url: outboundEl.href, page_ref: giPageRef() });
+    }
     const el = e.target.closest(".btn-primary, .more-link, .head .more");
     if (!el) return;
     const label = (el.textContent || "").trim().slice(0, 40);
     if (!label) return;
     giTrack("cta_click", { cta_label: label, page_ref: giPageRef() });
   });
+});
 

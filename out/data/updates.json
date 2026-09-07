@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-07-1",
+      "date": "2026-09-07",
+      "category": "기능",
+      "summary": "포트폴리오 링크 12곳 UTM 부착 + outbound_click 이벤트 구현, GA4 이벤트 무동작 버그 수정",
+      "detail": "홈(out/index.html)과 아티클 11개(build_articles.py 템플릿 경유) 총 12곳의 '포트폴리오 보기' 링크(iumist.com/RT1kT)에 utm_source=gonginssa, utm_medium=home|article, utm_campaign=portfolio를 부착했다(Notion 작업목록엔 13곳으로 기재돼 있었으나 실제 out/ 디렉터리에서 확인한 링크는 12곳). 이음전략소로 이동하는 링크 클릭 시 outbound_click 이벤트(link_url, page_ref)가 발생하도록 ui.js에 구현. 이 과정에서 발견한 중요한 기존 버그: tag_click·article_click·cta_click을 쏘는 클릭 위임 리스너가 giTrack/giPageRef가 정의된 DOMContentLoaded 콜백 스코프 밖에 등록돼 있어서, 클릭할 때마다 'giTrack is not defined'로 조용히 실패하며 이 세 이벤트가 실제로는 한 번도 GA4에 안 찍히고 있었다 — 리스너를 올바른 스코프 안으로 옮겨 수정. 참고: out/ 전체가 실제로는 GA4 측정 ID G-3X8H586RWT를 쓰고 있는데(이음전략소와 공유하는 크로스 도메인용 ID로 보임), Notion 작업 메모엔 G-D55JPQM9VF를 적용했다고 기록돼 있어 문서가 실제 코드와 어긋나 있다 — 확인 필요."
+    },
+    {
       "id": "u-2026-09-06-7",
       "date": "2026-09-06",
       "category": "콘텐츠",
