@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-07-9",
+      "date": "2026-09-07",
+      "category": "기능",
+      "summary": "admin.html 게시글 저장 시 GitHub에 즉시 자동 커밋",
+      "detail": "새 Cloudflare Function functions/api/save-article.js 추가. admin.html에서 기존 게시글을 수정하고 저장을 누르면, content/articles/<slug>.md의 frontmatter 중 admin.html 폼이 다루는 필드(제목·카테고리·발행일·썸네일·요약·읽기시간·노출탭)만 GitHub Contents API로 즉시 커밋한다 — Decap CMS가 커밋하는 것과 같은 파일이라 이후 Cloudflare Pages 자동 빌드가 out/data/articles.json·out/articles/*.html을 알아서 재생성한다. 본문·해시태그·hook·참고링크는 이 폼에 없는 값이라 손대지 않고 원본 그대로 보존(정규식으로 해당 필드만 치환/삽입, 나머지 줄은 그대로 통과). 새 게시글(본문 없음)은 이 방식으로 못 만들며 시도 시 Decap CMS(/admin/) 안내 문구를 반환한다. GitHub Fine-grained PAT를 GITHUB_TOKEN 환경변수로 등록해야 동작(Contents: Read and write, 이 저장소 한정). 실제 기존 아티클 frontmatter로 패치 로직을 검증하고, PyYAML로 파싱해 build_articles.py 전체 파이프라인까지 통과하는 것까지 확인. admin.html의 인증·요청 페이로드·에러 표시까지 로컬 wrangler pages dev + Playwright로 종단 검증(실제 GitHub 쓰기는 운영 환경의 진짜 토큰으로만 가능해 여기까진 확인 못 함)."
+    },
+    {
       "id": "u-2026-09-07-8",
       "date": "2026-09-07",
       "category": "기능",
