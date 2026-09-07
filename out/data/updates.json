@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-07-8",
+      "date": "2026-09-07",
+      "category": "기능",
+      "summary": "아티클 요약/읽기시간/노출탭을 frontmatter로 직접 지정 가능하게 변경",
+      "detail": "이전까지 excerpt(요약)는 hook 앞부분에서, readTime(읽기시간)은 글자 수에서, tabs(노출 탭)는 카테고리에서 항상 자동 계산됐다 — admin.html 화면엔 이 값들을 입력하는 칸이 있었지만 실제 빌드에는 반영되지 않는 상태였다. content/articles/*.md의 frontmatter에 excerpt/readTime/tabs 값을 직접 넣으면 그 값을 우선 사용하고, 비워두면 기존처럼 자동 계산되도록 build_articles.py를 수정했다. 기존 14개 아티클은 전부 이 필드가 비어있어 자동 계산 결과가 그대로 유지됨(회귀 없음, 빌드 결과물 diff 없음으로 확인). admin.html에서 값을 저장해 커밋하면(자동 커밋 기능 준비 중) 이제 진짜로 반영된다."
+    },
+    {
       "id": "u-2026-09-07-7",
       "date": "2026-09-07",
       "category": "버그수정",
