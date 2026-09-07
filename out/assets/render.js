@@ -64,8 +64,9 @@
         .join("");
       $("cloud").addEventListener("click", (e) => {
         const el = e.target.closest("a.tag");
-        if (el && typeof gtag === "function") {
-          try { gtag("event", "tag_click", { tag_name: el.dataset.tag, page_ref: "home" }); } catch (err) {}
+        if (el) {
+          // 260907: GTM 맞춤 이벤트 트리거가 잡는 dataLayer.push({event:...}) 형태로 통일
+          try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "tag_click", tag_name: el.dataset.tag, page_ref: "home" }); } catch (err) {}
         }
       });
     }
