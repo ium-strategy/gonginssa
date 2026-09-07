@@ -1,6 +1,62 @@
 {
   "articles": [
     {
+      "id": "chatgpt-public-content-checklist",
+      "category": "practical",
+      "title": "챗GPT로 공공기관 콘텐츠 만들어도 될까? 담당자 체크리스트",
+      "excerpt": "보도자료 초안을 챗GPT로 먼저 써본 박 주무관은 문득 멈칫합니다. \"이거, 나중에 감사에서 문제되지 않을까.\" 명확한 답을 주는 사람이…",
+      "date": "2026-09-08",
+      "readTime": 4,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "AI",
+        "보도자료"
+      ],
+      "url": "articles/chatgpt-public-content-checklist.html"
+    },
+    {
+      "id": "digital-pr-cases-top-10",
+      "category": "practical",
+      "title": "다른 공공기관은 어떻게 홍보할까? 잘 만든 디지털 홍보 사례 10선",
+      "excerpt": "이 주무관은 이번 주도 SNS에 올릴 콘텐츠를 찾아 헤맵니다. \"다른 기관은 대체 뭘 어떻게 하길래 화제가 될까.\" 검색해봐도 단편적인…",
+      "date": "2026-09-08",
+      "readTime": 6,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "SNS",
+        "캠페인",
+        "영상"
+      ],
+      "url": "articles/digital-pr-cases-top-10.html"
+    },
+    {
+      "id": "pr-trends-2027-seven-changes",
+      "category": "practical",
+      "title": "2027 공공기관 홍보 트렌드, 지금 준비해야 할 7가지 변화",
+      "excerpt": "예산 편성 시즌마다 박 주무관은 같은 질문을 받습니다. \"내년엔 뭘 준비해야 하나요?\" 트렌드 자료를 찾아봐도 민간 마케팅 이야기뿐, 공…",
+      "date": "2026-09-08",
+      "readTime": 5,
+      "thumb": "assets/articles/thumb-tips.svg",
+      "tabs": [
+        "popular",
+        "workbook"
+      ],
+      "tags": [
+        "AI",
+        "데이터",
+        "캠페인"
+      ],
+      "url": "articles/pr-trends-2027-seven-changes.html"
+    },
+    {
       "id": "ai-contest-ai-disclosure",
       "category": "practical",
       "title": "AI 공모전 수상작, 'AI 제작' 표시는 어디까지 해야 할까?",
