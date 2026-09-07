@@ -5,11 +5,11 @@ hashtags:
   - SNS
   - 캠페인
   - 영상
-reference: 'https://www.dxentric.co.kr/post/2025-award-winning-local-govermnet-sns'
+reference: ''
 hook: 이 주무관은 이번 주도 SNS에 올릴 콘텐츠를 찾아 헤맵니다. "다른 기관은 대체 뭘 어떻게 하길래 화제가 될까." 검색해봐도 단편적인
   소식만 나올 뿐, 무엇이 그 콘텐츠를 특별하게 만들었는지는 알기 어렵습니다.
 date: '2026-09-08'
-thumb: ''
+thumb: /assets/uploads/thumb-digital-pr-cases-top-10.png
 ---
 
 2025년부터 2026년 사이, 유독 화제를 모은 공공기관 디지털 홍보 사례들이 있었습니다. 이 기관들을 그대로 따라 한다고 같은 결과가 나오지는 않습니다. 다만 무엇이 다른 접근을 만들었는지 원리를 짚어보면, 우리 기관에 적용할 힌트를 얻을 수 있습니다.
@@ -56,8 +56,7 @@ PICK: 이번 캠페인, 기관 채널 안에서만 끝나고 있지 않나요? �
 
 결국 다른 기관의 사례를 참고하는 이유는 그대로 따라 하기 위해서가 아니라, 우리 기관에 맞는 원리를 찾기 위해서입니다.
 
-**참고 자료**
-
+REFS:참고 자료
 - 충주시 충TV: [https://www.kocca.kr/trend/vol20/sub/s43.html](https://www.kocca.kr/trend/vol20/sub/s43.html)
 - 제주시청 유튜브: [https://www.headlinejeju.co.kr/news/articleView.html?idxno=470936](https://www.headlinejeju.co.kr/news/articleView.html?idxno=470936)
 - 서울시 SNS대상: [https://www.newstomato.com/ReadNewspaper.aspx?epaper=1&no=698190](https://www.newstomato.com/ReadNewspaper.aspx?epaper=1&no=698190)

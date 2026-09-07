@@ -5,11 +5,11 @@ hashtags:
   - AI
   - 데이터
   - 캠페인
-reference: 'https://zdnet.co.kr/view/?no=20260610140815'
+reference: ''
 hook: 예산 편성 시즌마다 박 주무관은 같은 질문을 받습니다. "내년엔 뭘 준비해야 하나요?" 트렌드 자료를 찾아봐도 민간 마케팅 이야기뿐,
   공공기관에 바로 적용할 수 있는 내용은 많지 않습니다.
 date: '2026-09-08'
-thumb: ''
+thumb: /assets/uploads/thumb-pr-trends-2027-seven-changes.png
 ---
 
 공공 홍보 트렌드는 민간과 다르게 움직입니다. 유행보다 제도와 예산, 플랫폼 정책 변화가 먼저 움직이고 콘텐츠 트렌드는 그 뒤를 따라갑니다. 그래서 담당자에게 필요한 것은 유행 자체보다 그 유행을 가능하게 하거나 제약하는 제도 변화를 먼저 읽는 일입니다. 2027년을 앞두고 지금 확인해야 할 변화 7가지를 짚어봤습니다.
@@ -62,8 +62,7 @@ PICK: 다음 보고서에는 팔로워 수 외에 지표를 최소 1개 이상 �
 
 결국 트렌드를 준비한다는 것은 유행을 따라잡는 일이 아니라, 그 유행을 가능하게 한 제도 변화를 우리 기관 언어로 옮겨두는 일입니다.
 
-**참고 자료**
-
+REFS:참고 자료
 - 행정안전부, 「공공부문 AI 도입·활용 가이드」 배포 보도: [https://zdnet.co.kr/view/?no=20260610140815](https://zdnet.co.kr/view/?no=20260610140815)
 - 개인정보보호위원회, 「생성형 인공지능 개발·활용을 위한 개인정보 처리 안내서」: [https://www.korea.kr/news/policyNewsView.do?newsId=148947194](https://www.korea.kr/news/policyNewsView.do?newsId=148947194)
 - 오픈서베이, AI 검색 트렌드 리포트 2026 하반기: [https://blog.opensurvey.co.kr/trendreport/ai-search-2-2026/](https://blog.opensurvey.co.kr/trendreport/ai-search-2-2026/)
