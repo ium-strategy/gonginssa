@@ -48,6 +48,12 @@ def load_articles():
             "body": body,
             "date": str(front.get("date") or FALLBACK_DATE),
             "thumb": (front.get("thumb") or "").strip(),
+            # 아래 세 값은 원래 hook/본문/카테고리에서 자동 계산됐지만(excerpt는 hook 앞부분,
+            # readTime은 글자 수, tabs는 카테고리→TAB_MAP), admin.html에서 직접 지정한 값이
+            # frontmatter에 있으면 그 값을 우선한다. 비어 있으면 기존처럼 자동 계산으로 대체.
+            "excerpt": (front.get("excerpt") or "").strip(),
+            "readTime": front.get("readTime") or None,
+            "tabs": front.get("tabs") or None,
         })
     # 최신 발행일 우선 정렬 (동일 날짜면 파일명 순서 유지)
     articles.sort(key=lambda a: a["date"], reverse=True)
@@ -352,15 +358,15 @@ def build():
     articles = load_articles()
     entries = []
     for a in articles:
-        excerpt = make_excerpt(a["hook"])
+        excerpt = a["excerpt"] or make_excerpt(a["hook"])
         body_html = render_body(a["body"])
-        minutes = read_minutes(a["hook"], a["body"])
+        minutes = a["readTime"] or read_minutes(a["hook"], a["body"])
         # 주제 태그: 마크다운 frontmatter 값만. 분류·필터·홈 클라우드에 쓰인다.
         # 카테고리명을 자동으로 붙이면 모든 글에 같은 태그가 달려 분류 기능을 잃으므로 넣지 않는다.
         tags = list(a["hashtags"])
         # 브랜드 태그: 전 아티클에 항상 노출. 검색 귀속용이며 주제 분류에는 쓰지 않는다.
         brand_tags = list(BRAND_TAGS)
-        tabs = TAB_MAP.get(a["category"], ["popular"])
+        tabs = a["tabs"] or TAB_MAP.get(a["category"], ["popular"])
         thumb = a["thumb"] or THUMB_MAP.get(a["category"], THUMB_MAP["실무 꿀팁"])
         # 실제 사진(thumb)이 있으면 그걸, 없으면(SVG 기본 썸네일) 소셜 공유용 대표 이미지로 대체
         # (site_url + "/" + og_thumb 로 합치므로 앞의 "/"는 제거해서 이중 슬래시 방지)
