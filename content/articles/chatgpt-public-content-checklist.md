@@ -4,11 +4,11 @@ category: 실무 꿀팁
 hashtags:
   - AI
   - 보도자료
-reference: 'https://www.korea.kr/news/policyNewsView.do?newsId=148947194'
+reference: ''
 hook: 보도자료 초안을 챗GPT로 먼저 써본 박 주무관은 문득 멈칫합니다. "이거, 나중에 감사에서 문제되지 않을까." 명확한 답을 주는
   사람이 없어 눈치껏 쓰고 있는 게 사실입니다.
 date: '2026-09-08'
-thumb: ''
+thumb: /assets/uploads/thumb-chatgpt-public-content-checklist.png
 ---
 
 정부도 같은 질문에 답하기 시작했습니다. 행정안전부는 2026년 6월 「공공부문 AI 도입·활용 가이드」를, 개인정보보호위원회는 2025년 8월 「생성형 인공지능 개발·활용을 위한 개인정보 처리 안내서」를 내놓으며 기준을 만들어가고 있습니다. '써도 되는가'의 문제는 이제 '어떻게 써야 하는가'의 문제로 넘어갔습니다.
@@ -54,7 +54,6 @@ PICK: 우리 기관의 AI 활용 지침, 담당 부서에 확인해본 적 있�
 
 결국 챗GPT를 써도 되는지 묻는 것보다 중요한 것은, 무엇을 입력했고 누가 최종 확인했는지 설명할 수 있는가입니다.
 
-**참고 자료**
-
+REFS:참고 자료
 - 행정안전부, 「공공부문 AI 도입·활용 가이드」 배포 보도: [https://zdnet.co.kr/view/?no=20260610140815](https://zdnet.co.kr/view/?no=20260610140815)
 - 개인정보보호위원회, 「생성형 인공지능 개발·활용을 위한 개인정보 처리 안내서」: [https://www.korea.kr/news/policyNewsView.do?newsId=148947194](https://www.korea.kr/news/policyNewsView.do?newsId=148947194)

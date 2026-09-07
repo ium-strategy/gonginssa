@@ -124,6 +124,14 @@ def render_body(raw):
             items = [l.strip("- ").strip() for l in lines[1:] if l.strip().startswith("-")]
             lis = "".join(f"<li>{inline(i)}</li>" for i in items)
             out.append(f'<div class="a-checklist"><p class="a-checklist-title">{inline(title)}</p><ul>{lis}</ul></div>')
+        elif b.startswith("REFS:"):
+            # 참고 자료 목록을 박스로 묶어서 보여준다 (- [문구](URL) 형태의 줄들)
+            rest = b[len("REFS:"):].strip()
+            lines = rest.split("\n")
+            title = lines[0].strip()
+            items = [l.strip("- ").strip() for l in lines[1:] if l.strip().startswith("-")]
+            lis = "".join(f"<li>{inline(i)}</li>" for i in items)
+            out.append(f'<div class="a-refs"><p class="a-refs-title">{inline(title)}</p><ul>{lis}</ul></div>')
         elif b.startswith(">"):
             lines = [l.lstrip(">").strip() for l in b.split("\n")]
             out.append(f'<blockquote class="a-quote">{"<br>".join(inline(l) for l in lines if l)}</blockquote>')
