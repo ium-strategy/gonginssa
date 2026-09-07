@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-07-4",
+      "date": "2026-09-07",
+      "category": "기능",
+      "summary": "직접 삽입하던 gtag.js 제거 — GTM(GTM-5R8SW56S)으로 완전 이관",
+      "detail": "홈, 아티클 목록, 아티클 상세 11편(build_articles.py 템플릿), 개인정보처리방침에서 직접 삽입돼 있던 gtag.js 스니펫(<script async src=googletagmanager.com/gtag/js...> + gtag('config', G-3X8H586RWT))을 제거했다. GTM에서 Google 태그(기본 설정) + GA4 이벤트 태그 9종을 만들어 게시(Publish) 완료했으므로, 이제 GA4 측정은 전부 GTM을 통해서만 이뤄진다 — gtag.js를 남겨뒀으면 페이지뷰·이벤트가 두 경로로 중복 집계됐을 것. Playwright로 GTM만 남은 상태에서도 outbound_click 등 커스텀 이벤트가 dataLayer에 정상적으로 쌓이는 것과, window.gtag 함수가 더 이상 남아있지 않은 것까지 확인."
+    },
+    {
       "id": "u-2026-09-07-3",
       "date": "2026-09-07",
       "category": "기능",
