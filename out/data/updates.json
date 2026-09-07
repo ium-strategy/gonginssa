@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-06-6",
+      "date": "2026-09-06",
+      "category": "기타",
+      "summary": "슬랙 알림 채널 재설정 — 기존 웹훅 계정 비활성화로 인한 알림 두절 조치",
+      "detail": "구독/상담 신청 슬랙 알림이 전혀 오지 않는 문제의 원인이 확인됐다: 기존 Incoming Webhook을 설치했던 슬랙 계정이 비활성화되면서 웹훅 URL 자체가 정지된 것(코드 문제 아님). 새 슬랙 워크스페이스에 새 채널과 새 Incoming Webhook 앱(Blank app)을 만들어 Cloudflare Pages의 SLACK_WEBHOOK_URL 환경변수를 교체했다. 이 커밋은 환경변수 변경을 반영하는 새 배포를 트리거하기 위한 목적도 겸한다(Cloudflare Pages는 환경변수만 바꾸면 재배포 전까지 반영되지 않는다)."
+    },
+    {
       "id": "u-2026-09-06-5",
       "date": "2026-09-06",
       "category": "기능",
