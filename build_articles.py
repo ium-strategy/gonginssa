@@ -180,6 +180,13 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <script type="application/ld+json">
 {{"@context":"https://schema.org","@type":"Article","headline":{title_json},"description":{excerpt_json},"datePublished":"{date}","dateModified":"{date}","inLanguage":"ko-KR","keywords":{keywords_json},"image":"{site_url}/{thumb}","mainEntityOfPage":{{"@type":"WebPage","@id":"{site_url}/articles/{slug}.html"}},"author":{{"@type":"Organization","name":"이음전략소","url":"https://www.iumist.com/"}},"publisher":{{"@type":"Organization","name":"공인싸","url":"{site_url}/","logo":{{"@type":"ImageObject","url":"{site_url}/assets/logo-mark.png"}},"parentOrganization":{{"@type":"Organization","name":"이음전략소"}}}}}}
 </script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
+new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+}})(window,document,'script','dataLayer','GTM-5R8SW56S');</script>
+<!-- End Google Tag Manager -->
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3X8H586RWT"></script>
 <script>
@@ -190,6 +197,10 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 </script>
 </head>
 <body data-article-id="{slug}">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5R8SW56S"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <a class="skip-link" href="#top">본문 바로가기</a>
 

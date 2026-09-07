@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-07-2",
+      "date": "2026-09-07",
+      "category": "기능",
+      "summary": "Google 태그매니저(GTM-5R8SW56S) 스니펫 설치",
+      "detail": "홈, 아티클 목록, 아티클 상세 11편(build_articles.py 템플릿), 개인정보처리방침에 GTM 컨테이너 스니펫(head 스크립트 + body noscript)을 추가했다. 관리자 화면(admin.html, admin-subscribers.html)은 기존 정책대로 측정 제외해 넣지 않았다. 기존 gtag.js 직접 삽입 방식은 당장은 그대로 남겨뒀다 — GTM 안에서 GA4 구성 태그(측정 ID G-3X8H586RWT)를 만들어 게시하기 전에 gtag.js를 지우면 그 사이 측정 공백이 생기기 때문에, GTM 쪽 GA4 태그 게시가 확인된 뒤에 gtag.js를 제거할 예정. Playwright로 GTM 스크립트가 실제로 로드되고 dataLayer에 gtm.js 이벤트가 정상적으로 쌓이는 것까지 확인."
+    },
+    {
       "id": "u-2026-09-07-1",
       "date": "2026-09-07",
       "category": "기능",
