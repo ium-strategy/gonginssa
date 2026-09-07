@@ -131,10 +131,13 @@
       }
       // GA4 — 검색으로 페이지에 들어온 경우 결과 수와 함께 1회만 집계한다.
       // (탭 전환 때마다 중복 발생하지 않도록 플래그로 막는다)
-      if (activeQuery && !searchTracked && typeof gtag === "function") {
+      if (activeQuery && !searchTracked) {
         searchTracked = true;
+        // 260907: GTM 맞춤 이벤트 트리거가 잡는 dataLayer.push({event:...}) 형태로 통일
         try {
-          gtag("event", "article_search", {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: "article_search",
             search_term: activeQuery,
             result_count: list.length,
           });
@@ -164,8 +167,8 @@
         if (!btn) return;
         const tag = btn.dataset.tag || "";
         setTag(tag);
-        if (tag && typeof gtag === "function") {
-          try { gtag("event", "tag_click", { tag_name: tag, page_ref: "articles" }); } catch (err) {}
+        if (tag) {
+          try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "tag_click", tag_name: tag, page_ref: "articles" }); } catch (err) {}
         }
       });
     }

@@ -60,10 +60,12 @@
     if ((window.scrollY || doc.scrollTop) / total < 0.75) return;
     fired = true;
     window.removeEventListener("scroll", check);
-    if (typeof gtag !== "function") return;
     const t = document.querySelector("h1");
+    // 260907: GTM 맞춤 이벤트 트리거가 잡는 dataLayer.push({event:...}) 형태로 통일
     try {
-      gtag("event", "article_read", {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "article_read",
         article_slug: location.pathname.split("/").pop().replace(".html", ""),
         article_title: t ? t.textContent.trim().slice(0, 80) : "",
       });

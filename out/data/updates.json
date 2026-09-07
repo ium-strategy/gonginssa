@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-07-3",
+      "date": "2026-09-07",
+      "category": "기능",
+      "summary": "GA4 커스텀 이벤트 9종을 GTM 맞춤 이벤트 트리거가 잡는 형식으로 전환",
+      "detail": "ui.js(giTrack), archive.js, render.js, article.js에서 gtag('event', 이름, 파라미터) 직접 호출을 dataLayer.push({event: 이름, ...파라미터}) 형식으로 바꿨다. gtag()가 실제로 푸시하는 인자 배열 형태는 GTM의 '맞춤 이벤트' 트리거가 못 잡기 때문에, GTM 도입에 맞춰 표준 형식으로 통일. 대상: subscribe_submit, consult_open, consult_submit, tag_click, article_click, outbound_click, cta_click, article_read, article_search(비공식). ⚠️ 이 이벤트들은 GTM에서 대응하는 맞춤 이벤트 트리거 + GA4 이벤트 태그를 만들어 게시하기 전까지는 어디에도 기록되지 않는다 — GTM 설정 완료 즉시 확인 필요. Playwright로 각 이벤트가 dataLayer에 올바른 형식으로 쌓이는 것까지 확인."
+    },
+    {
       "id": "u-2026-09-07-2",
       "date": "2026-09-07",
       "category": "기능",

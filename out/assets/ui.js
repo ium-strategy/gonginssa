@@ -76,10 +76,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // 엔드포인트가 없거나 오류가 나도 사용자 경험이 끊기지 않도록 처리한다.
   /* ================== GA4 이벤트 ==================
      퍼널만 측정한다: 구독 → 상담 → 계약. 이벤트를 늘리면 아무도 안 본다.
-     gtag이 아직 로드되지 않았거나 광고차단으로 없을 수도 있으므로 항상 존재 확인. */
+     260907: GTM(GTM-5R8SW56S) 도입에 맞춰 gtag() 직접 호출 대신
+     dataLayer.push({event:...})로 바꿨다 — GTM의 "맞춤 이벤트" 트리거는
+     이 형태만 잡는다(gtag()가 실제로 푸시하는 인자 배열 형태는 못 잡음).
+     GTM 쪽에 이 8개 이벤트에 대응하는 트리거·태그가 게시되기 전까지는
+     이 이벤트들이 어디에도 안 찍히니, GTM 설정이 끝나는 대로 확인 필요. */
   function giTrack(name, params) {
-    if (typeof gtag !== "function") return;
-    try { gtag("event", name, params || {}); } catch (e) {}
+    try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: name, ...(params || {}) }); } catch (e) {}
   }
   function giPageRef() {
     // 어느 아티클에서 발생한 전환인지 구분하기 위한 경로
