@@ -6,7 +6,7 @@ hashtags:
 reference: ''
 hook: “철거한 현수막, 재활용 업체 부를까요…?” 선거는 끝났지만 김 주무관의 업무는 끝나지 않았습니다. 거리에서 걷어온 현수막이 쌓이기 시작합니다.
   폐기하면 끝이지만, 다른 방법은 없을까요?
-date: '2026-08-19'
+date: "2026-08-10"
 thumb: /assets/uploads/thumb-waste-banner-upcycling.jpg
 ---
 
