@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-08-1",
+      "date": "2026-09-08",
+      "category": "SEO·개발",
+      "summary": "메인·아티클 목록 검색 수집 구조 개선 — 정적 카드 마크업 SSR 주입",
+      "detail": "지금까지 홈·아티클 목록의 태그클라우드·탭 그리드·카테고리탭·카드 그리드는 render.js·archive.js가 자바스크립트로만 그려서, 실행 전 정적 HTML(검색엔진 크롤러 포함)에는 글 제목·요약·링크가 전혀 없었다(점검 결과 0/11개). build_articles.py가 빌드 시점에 render.js의 cardHTML()과 동일한 카드 마크업을 파이썬으로 미리 구워 index.html·articles.html의 <!--SSR:*--> 마커 사이에 심어 넣도록 변경했다. render.js·archive.js는 수정하지 않았으므로 페이지가 열리고 fetch가 끝나면 지금까지처럼 다시 덮어써 탭 전환·태그 필터·검색 등 인터랙션은 그대로 동작한다(Playwright로 확인, 콘솔 에러 없음) — 달라지는 건 자바스크립트 실행 전 첫 페인트뿐. 태그 사전은 out/data/config.js의 tagDictionary를 파싱해서 쓰므로 값이 어긋날 일이 없고, 마커 치환은 멱등이라 재빌드해도 동일 결과. 검증: 두 페이지 모두 /articles/*.html 링크 14개(전체 아티클)가 정적 HTML에 노출됨을 확인, div 개폐 balance 확인, 재빌드 2회 byte-identical 확인."
+    },
+    {
       "id": "u-2026-09-07-9",
       "date": "2026-09-07",
       "category": "기능",
