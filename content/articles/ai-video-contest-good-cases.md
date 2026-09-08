@@ -8,7 +8,7 @@ hashtags:
 reference: ''
 hook: “요즘 AI 영상 공모전 많이 하던데, 우리도 한번 해보죠.” 회의 중 팀장님의 한마디에 김 주무관은 고민에 빠집니다. 막상 준비하려니
   어디서부터 어떻게 시작해야 할지 막막합니다. 일단 비슷한 사례부터 찾아보기로 합니다.
-date: '2026-08-19'
+date: "2026-08-07"
 thumb: /assets/uploads/thumb-ai-video-contest-good-cases.jpg
 ---
 
