@@ -7,7 +7,7 @@ hashtags:
 reference: https://blog.naver.com/ium_strategy/224356559890
 hook: 공모전 마감이 일주일 앞으로 다가왔습니다. 기관 홈페이지와 SNS에 공고를 올리고 관련 단체에도 협조를 요청했지만, 접수 건수는 여전히
   기대에 못 미칩니다. 지금이라도 홍보 예산을 늘리자고 보고해야 할까요?
-date: '2026-08-19'
+date: "2026-08-03"
 thumb: /assets/uploads/contest-low-entries-thumb.jpg
 ---
 
