@@ -7,7 +7,7 @@ hashtags:
 reference: ''
 hook: “인턴십 공고는 다 올렸는데, 지원자가 왜 이것밖에 안 될까요?” 홈페이지와 기관 SNS에도 올렸고, 보도자료까지 나갔습니다. 할 수 있는
   건 다 한 것 같은데, 왜 사람들은 이 프로그램을 모를까요?
-date: '2026-08-19'
+date: "2026-08-14"
 thumb: /assets/uploads/thumb-seoul-youngcareerians-recruitment.jpg
 ---
 
