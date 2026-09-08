@@ -6,7 +6,7 @@ hashtags:
 reference: ''
 hook: “제목이 왜 이렇게 길고 복잡해졌지?” 보도자료를 쓰다 보면 제목 한 줄에서 막힐 때가 있습니다. 기관명이나 사업명은 길고, 빠뜨리면 안
   될 내용은 많습니다. 이것저것 챙겨 넣다 보면 어느새 보도자료 제목이 본문 요약처럼 길어집니다.
-date: '2026-08-19'
+date: "2026-08-21"
 thumb: /assets/uploads/thumb-press-release-title-3-cuts.jpg
 ---
 
