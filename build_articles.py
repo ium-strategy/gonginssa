@@ -23,6 +23,7 @@ FALLBACK_DATE = "2026-08-19"  # frontmatter에 date가 비어 있을 때만 사�
 TAB_MAP = {"실무 꿀팁": ["popular", "workbook"], "레퍼런스": ["popular", "featured"]}
 BRAND_TAGS = ["이음전략소", "공인싸"]  # 전 아티클 공통 노출 — 주제 태그와 별개
 THUMB_MAP = {"실무 꿀팁": "assets/articles/thumb-tips.svg", "레퍼런스": "assets/articles/thumb-reference.svg"}
+CATEGORY_LABEL = {"practical": "실무 꿀팁", "case": "레퍼런스"}  # entries의 category_key → 표시용 한글 라벨
 OG_FALLBACK_IMAGE = "assets/og-image.jpg"  # SVG 썸네일은 카카오톡·페이스북 등에서 og:image로 잘 안 뜨므로 소셜 공유용은 별도 처리
 
 def load_articles():
@@ -163,6 +164,100 @@ def make_excerpt(hook):
     if len(ex) > 78:
         ex = ex[:76].rstrip() + "…"
     return ex
+
+def load_tag_dictionary():
+    """out/data/config.js의 tagDictionary 배열을 그대로 읽어온다 — 홈·목록 SSR 카드가
+    쓰는 사전을 여기 따로 하드코딩하면 config.js를 고칠 때 둘이 어긋날 수 있어서,
+    실제 배포되는 config.js를 파싱해 단일 출처로 쓴다."""
+    cfg_path = os.path.join(OUT, "data", "config.js")
+    if not os.path.exists(cfg_path):
+        return []
+    text = open(cfg_path, encoding="utf-8").read()
+    m = re.search(r"tagDictionary:\s*\[(.*?)\]", text, re.DOTALL)
+    if not m:
+        return []
+    return re.findall(r'"([^"]*)"', m.group(1))
+
+TIME_ICON = ('<svg viewBox="0 0 16 16" fill="none" style="color:var(--text-body)">'
+             '<circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.3"/>'
+             '<path d="M8 4.6V8L10.2 9.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>')
+
+def card_html(e, featured):
+    """assets/render.js의 cardHTML()과 동일한 마크업 — 홈·목록 정적 SSR 카드에 쓴다.
+    두 곳이 어긋나면 자바스크립트가 로드된 뒤(진짜 방문자) 모습과 그 전(크롤러·초기 페인트)
+    모습이 달라지므로, 여기 수정할 땐 render.js도 같이 확인할 것."""
+    cat_label = CATEGORY_LABEL.get(e["category"], e["category"])
+    meta_line = (f'<span class="meta-line"><span>{esc(cat_label)}</span><span class="sep">|</span>'
+                 f'<span class="time">{TIME_ICON}{e["readTime"]}분</span></span>')
+    href = esc(e["url"])
+    if featured:
+        return (f'<a class="tcard-featured" href="{href}">'
+                f'<div class="thumb"><img src="{esc(e["thumb"])}" alt=""></div>'
+                f'<div class="info"><h3>{esc(e["title"])}</h3><p class="summary">{esc(e["excerpt"])}</p>{meta_line}</div>'
+                f'</a>')
+    return (f'<a class="tcard" href="{href}">'
+            f'<div class="thumb"><img src="{esc(e["thumb"])}" alt=""></div>'
+            f'<div class="info"><h4>{esc(e["title"])}</h4>{meta_line}</div>'
+            f'</a>')
+
+def render_tab_panel_html(tab_key, entries):
+    """render.js의 renderTabPanel()과 동일한 필터·정렬(발행일 내림차순), 첫 카드만 featured."""
+    lst = sorted((e for e in entries if tab_key in (e["tabs"] or [])), key=lambda e: e["date"], reverse=True)
+    if not lst:
+        return '<p class="sec-sub" style="padding:20px 0">아직 이 탭에 담긴 아티클이 없습니다.</p>'
+    return "".join(card_html(e, i == 0) for i, e in enumerate(lst))
+
+def _topic_counts(entries, tag_dict):
+    counts = {}
+    for e in entries:
+        for t in e["tags"]:
+            counts[t] = counts.get(t, 0) + 1
+    return sorted((t for t in tag_dict if counts.get(t)), key=lambda t: (-counts[t], t)), counts
+
+def render_topic_cloud_html(entries, tag_dict):
+    """render.js의 홈 태그클라우드와 동일 — 실제 집계, 건수 내림차순."""
+    topics, counts = _topic_counts(entries, tag_dict)
+    return "".join(
+        f'<a class="tag" href="articles.html?tag={quote(t)}" data-tag="{esc(t)}">{esc(t)}<span class="cnt">{counts[t]}</span></a>'
+        for t in topics
+    )
+
+def render_category_tabs_html(entries):
+    """archive.js의 renderTabs() — 전체보기 + 실제 등장한 카테고리, 등장 순서·건수 그대로."""
+    present, seen = [], set()
+    for e in entries:
+        if e["category"] not in seen:
+            seen.add(e["category"])
+            present.append(e["category"])
+    out = []
+    for i, k in enumerate(["all"] + present):
+        count = len(entries) if k == "all" else sum(1 for e in entries if e["category"] == k)
+        label = "전체보기" if k == "all" else CATEGORY_LABEL.get(k, k)
+        active = " active" if i == 0 else ""
+        out.append(f'<button type="button" class="tab-btn{active}" data-cat="{k}">{esc(label)} · {count}</button>')
+    return "".join(out)
+
+def render_archive_topic_cloud_html(entries, tag_dict):
+    """archive.js의 renderTopicCloud() — 필터 이전(전체) 기준. '전체보기' 칩 포함."""
+    topics, counts = _topic_counts(entries, tag_dict)
+    all_chip = f'<button type="button" class="tag active" data-tag="">전체보기<span class="cnt">{len(entries)}</span></button>'
+    chips = "".join(
+        f'<button type="button" class="tag" data-tag="{esc(t)}">#{esc(t)}<span class="cnt">{counts[t]}</span></button>'
+        for t in topics
+    )
+    return all_chip + chips
+
+def render_archive_grid_html(entries):
+    """archive.js의 renderGrid() — 전체 아티클, 발행일 내림차순(entries가 이미 이 순서)."""
+    return "".join(card_html(e, False) for e in entries)
+
+def inject_ssr(text, replacements):
+    """<!--SSR:NAME-->...<!--/SSR:NAME--> 사이 내용을 통째로 갈아끼운다. 마커 자체는 남겨두므로
+    다음 빌드에서도 같은 자리를 다시 찾아 갱신할 수 있다(멱등)."""
+    for name, content in replacements.items():
+        start, end = f"<!--SSR:{name}-->", f"<!--/SSR:{name}-->"
+        text = re.sub(re.escape(start) + r".*?" + re.escape(end), start + content + end, text, flags=re.DOTALL)
+    return text
 
 ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <html lang="ko">
@@ -423,6 +518,36 @@ def build():
 
     with open(f"{OUT}/data/articles.json", "w", encoding="utf-8") as f:
         json.dump({"articles": entries}, f, ensure_ascii=False, indent=2)
+
+    # 홈(index.html)·목록(articles.html) 정적 카드 마크업 주입
+    # ------------------------------------------------------------
+    # 지금까지는 render.js·archive.js가 자바스크립트로만 카드를 그려서, 실행 전
+    # HTML(검색엔진 크롤러 포함)에는 글 제목·요약·링크가 전혀 없었다(0/11개 확인됨).
+    # 여기서 빌드 시점에 같은 카드를 미리 정적 HTML로 구워 <!--SSR:*--> 마커 사이에
+    # 심어둔다. render.js·archive.js는 그대로 두므로(수정 없음), 페이지가 열리고
+    # fetch가 끝나면 지금까지처럼 다시 덮어써 필터링·탭 전환 등 인터랙션은 동일하게
+    # 동작한다 — 달라지는 건 자바스크립트가 뜨기 전 첫 페인트뿐이다.
+    tag_dict = load_tag_dictionary()
+
+    index_path = f"{OUT}/index.html"
+    if os.path.exists(index_path):
+        html_text = open(index_path, encoding="utf-8").read()
+        repl = {"CLOUD": render_topic_cloud_html(entries, tag_dict)}
+        for tab_key in ("popular", "workbook", "featured"):
+            repl[f"TAB:{tab_key}"] = render_tab_panel_html(tab_key, entries)
+        with open(index_path, "w", encoding="utf-8") as f:
+            f.write(inject_ssr(html_text, repl))
+
+    articles_path = f"{OUT}/articles.html"
+    if os.path.exists(articles_path):
+        html_text = open(articles_path, encoding="utf-8").read()
+        repl = {
+            "CATTABS": render_category_tabs_html(entries),
+            "TOPICCLOUD": render_archive_topic_cloud_html(entries, tag_dict),
+            "GRID": render_archive_grid_html(entries),
+        }
+        with open(articles_path, "w", encoding="utf-8") as f:
+            f.write(inject_ssr(html_text, repl))
 
     # sitemap.xml — 홈, 개인정보처리방침 + 전체 아티클 (robots.txt 가 참조하는 파일)
     today = entries[0]["date"] if entries else FALLBACK_DATE
