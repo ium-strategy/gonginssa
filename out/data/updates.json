@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-08-2",
+      "date": "2026-09-08",
+      "category": "기능",
+      "summary": "admin.html에 본문 편집기 추가 — 이미지·링크 직접 삽입",
+      "detail": "admin.html \"게시글 관리\"는 제목·요약·썸네일 같은 메타데이터만 편집 가능하고 본문 편집 기능이 아예 없었다(본문은 지금까지 Decap CMS(/admin/)에서만 편집 가능). \"게시글 편집\" 화면에 본문 textarea + 툴바(이미지 삽입/링크 삽입/굵게/소제목)를 추가했다. 새 Function functions/api/upload-asset.js가 업로드한 이미지를 out/assets/uploads/에 커밋하고(Decap CMS와 같은 media_folder 공유) 공개 URL을 돌려주면, 본문에 ![](url \"캡션\") 형태로 자동 삽입된다. functions/api/save-article.js에는 GET ?slug= 핸들러를 추가해 편집기가 열릴 때 원문 body를 가져오고, POST에 body 필드를 받아 통째로 교체하는 경로를 추가했다 — hashtags·hook·참고링크는 여전히 이 폼이 모르는 값이라 손대지 않고 원본 보존. 본문 textarea는 기존 게시글을 불러온 뒤에만 활성화되고, 로딩 실패·미인증 시엔 항상 비활성 상태를 유지해 원본을 실수로 지우지 않는다. 새 게시글(본문 없음)은 여전히 Decap CMS(/admin/) 안내로 유지. 실제 아티클 원문으로 GET→수정→POST 왕복 테스트 후 build_articles.py 전체 파이프라인까지 통과시켜 PICK 박스·이미지 캡션 정상 렌더링 확인, wrangler pages dev(Miniflare)로 실제 Workers 런타임에서 인증·에러 처리 확인, Playwright로 툴바 동작 확인 — 단 실제 GITHUB_TOKEN으로의 커밋까지는 프로덕션에서 확인 필요."
+    },
+    {
       "id": "u-2026-09-08-1",
       "date": "2026-09-08",
       "category": "SEO·개발",
