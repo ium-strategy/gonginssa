@@ -7,7 +7,7 @@ hashtags:
 reference: ''
 hook: “이번 주엔 뭘 올리지?” SNS 콘텐츠 일정을 들여다보던 김 주무관. 예정된 사업 홍보는 이미 끝났고, 새로 들어온 홍보 요청도 없는
   상황입니다. 그런데 다음 게시물 칸은 여전히 빈칸. 뭔가 하나는 올려야 하는데, 마땅한 소재가 떠오르지 않습니다.
-date: '2026-08-19'
+date: "2026-08-17"
 thumb: /assets/uploads/thumb-civil-complaint-bigdata-content.jpg
 ---
 
