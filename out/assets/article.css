@@ -2,7 +2,9 @@
  * 공인싸 (GONGINSSA) — 아티클 상세페이지 전용 스타일
  * site.css 의 브랜드 토큰(:root)을 그대로 이어서 사용한다.
  * =========================================================== */
-.a-wrap{max-width:720px;margin:0 auto;padding:48px 24px 64px}
+/* v1.1 (2026-09-09) 가독성 개편 — 퍼블리 아티클 기준 벤치마크.
+   본문 폭 712px(760-24*2)·18px·행간 1.8·어절 단위 줄바꿈으로 한 줄 40~44자를 유지한다. */
+.a-wrap{max-width:760px;margin:0 auto;padding:48px 24px 64px}
 .a-breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);margin-bottom:22px}
 .a-breadcrumb a{color:var(--text-muted)}
 .a-breadcrumb a:hover{color:var(--text-brand)}
@@ -11,35 +13,35 @@
 .a-title{font-size:32px;line-height:1.35;letter-spacing:-.02em;font-weight:700;color:var(--text-body);margin-bottom:16px}
 .a-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted);margin-bottom:24px}
 .a-meta .sep{color:var(--border-control)}
-.a-hook{font-size:16px;line-height:1.75;color:var(--text-body);background:var(--bg-surface);border-radius:var(--radius);padding:20px 22px;margin-bottom:36px}
+.a-hook{font-size:17px;line-height:1.75;color:var(--text-body);background:var(--bg-surface);border-radius:var(--radius);padding:22px 24px;margin-bottom:40px;word-break:keep-all;overflow-wrap:break-word}
 
-.a-body{font-size:16px;line-height:1.85;color:var(--text-body)}
-.a-body p{margin:0 0 20px}
-.a-body h2{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:40px 0 16px;color:var(--text-body)}
-.a-body h3{font-size:18px;font-weight:700;margin:28px 0 12px;color:var(--text-body)}
-.a-body ul{margin:0 0 20px;padding-left:20px}
-.a-body li{margin-bottom:8px}
+.a-body{font-size:18px;line-height:1.8;color:var(--text-body);word-break:keep-all;overflow-wrap:break-word}
+.a-body p{margin:0 0 28px}
+.a-body h2{font-size:26px;line-height:1.4;font-weight:700;letter-spacing:-.01em;margin:56px 0 16px;color:var(--text-body)}
+.a-body h3{font-size:20px;line-height:1.45;font-weight:700;margin:36px 0 12px;color:var(--text-body)}
+.a-body ul{margin:0 0 28px;padding-left:22px}
+.a-body li{margin-bottom:10px}
 .a-body a{color:var(--text-brand);text-decoration:underline;text-underline-offset:2px}
 .a-body code{background:var(--bg-accent);color:var(--text-brand);padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:14px}
 .a-body strong{font-weight:700}
 
-.a-quote{border-left:3px solid var(--brand);padding:4px 0 4px 18px;margin:0 0 20px;color:var(--text-brand);font-weight:600}
+.a-quote{border-left:3px solid var(--brand);padding:4px 0 4px 18px;margin:0 0 28px;color:var(--text-brand);font-weight:600}
 
 .a-video{position:relative;width:100%;padding-top:56.25%;margin:8px 0 28px;border-radius:var(--radius);overflow:hidden;background:#0D0D14}
 .a-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 
-.a-figure{margin:8px 0 28px}
+.a-figure{margin:8px 0 32px}
 .a-figure img{width:100%;height:auto;border-radius:var(--radius);display:block}
-.a-figure figcaption{margin-top:8px;font-size:13px;color:var(--text-muted);text-align:center;line-height:1.5}
+.a-figure figcaption{margin-top:10px;font-size:13px;color:var(--text-muted);text-align:center;line-height:1.5}
 
-.a-pick{display:flex;flex-direction:column;gap:6px;background:var(--bg-accent);border-radius:var(--radius);padding:18px 20px;margin:0 0 24px}
+.a-pick{display:flex;flex-direction:column;gap:8px;background:var(--bg-accent);border-radius:var(--radius);padding:20px 22px;margin:0 0 32px}
 .a-pick-label{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--text-brand)}
-.a-pick p{margin:0;color:var(--text-body);font-size:15px;line-height:1.7}
+.a-pick p{margin:0;color:var(--text-body);font-size:16px;line-height:1.75}
 
 .a-checklist{background:var(--bg-surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:18px 20px;margin:0 0 24px}
 .a-checklist-title{font-weight:700;margin:0 0 10px;font-size:14.5px}
 .a-checklist ul{margin:0;padding-left:0;list-style:none}
-.a-checklist li{position:relative;padding-left:26px;margin-bottom:8px;font-size:14.5px;color:var(--text-body)}
+.a-checklist li{position:relative;padding-left:26px;margin-bottom:10px;font-size:15.5px;color:var(--text-body)}
 .a-checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border-radius:5px;border:1.5px solid var(--border-control)}
 
 .a-refs{background:var(--bg-surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:18px 20px;margin:24px 0 0}
@@ -51,7 +53,7 @@
 .a-table-wrap{overflow-x:auto;margin:0 0 24px}
 /* 열이 많은 표(예: 개인정보 국외이전 6열)가 좁은 본문 폭(720px)에 눌려
    "이/전/국가"처럼 한 글자씩 줄바꿈되는 걸 막는다 — 대신 옆으로 스크롤되게 */
-.a-table-wrap table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}
+.a-table-wrap table{width:100%;min-width:560px;border-collapse:collapse;font-size:15px}
 .a-table-wrap td{border:1px solid var(--border-soft);padding:10px 12px;text-align:left;vertical-align:top}
 .a-table-wrap tr:first-child td{background:var(--bg-surface);font-weight:700;white-space:nowrap}
 
@@ -69,5 +71,10 @@
 @media (max-width:680px){
   .a-wrap{padding:32px 20px 48px}
   .a-title{font-size:24px}
+  .a-hook{font-size:16px;padding:18px 20px;margin-bottom:32px}
+  .a-body{font-size:17px;line-height:1.75}
+  .a-body p{margin:0 0 22px}
+  .a-body h2{font-size:23px;margin:44px 0 14px}
+  .a-body h3{font-size:19px;margin:30px 0 10px}
   .subscribe-compact{flex-direction:column;align-items:stretch;text-align:left}
 }
