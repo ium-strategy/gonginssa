@@ -327,6 +327,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     {reference_html}
     <div class="a-tags">{tags_html}</div>
+    <div class="a-share">
+      <span class="a-share-label">이 글이 도움이 됐다면 공유해보세요</span>
+      <div class="a-share-btns">
+        <button type="button" class="a-share-btn a-share-copy" id="shareCopyBtn">🔗 링크 복사</button>
+        <button type="button" class="a-share-btn a-share-kakao" id="shareKakaoBtn" hidden>💬 카카오톡 공유</button>
+      </div>
+    </div>
   </article>
 
   <section class="block reveal a-related">

@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-11-1",
+      "date": "2026-09-11",
+      "category": "기능",
+      "summary": "아티클에 공유 기능 추가 — 링크 복사 · 카카오톡 공유",
+      "detail": "아티클 상세페이지 태그 영역 아래에 공유 버튼 2개를 추가했다. '🔗 링크 복사'는 별도 설정 없이 즉시 동작(navigator.clipboard, 구형 브라우저는 execCommand 폴백)하며 클릭 시 토스트로 확인해준다. '💬 카카오톡 공유'는 카카오 디벨로퍼스 앱의 JavaScript 키가 필요한 기능이라, out/data/config.js의 kakaoJsKey가 비어있는 기본 상태에서는 버튼 자체를 숨긴다(동작 안 하는 버튼을 보여주지 않기 위함) — 키를 등록한 사람이 도메인(gonginssa.kr)까지 앱 플랫폼에 등록하면 자동으로 버튼이 나타난다. 카카오 SDK(t1.kakaocdn.net, v2.8.0)를 그때만 동적으로 불러오고, 공유 콘텐츠(제목·설명·이미지)는 페이지의 title·meta description·og:image를 그대로 재사용해 별도 데이터 소스가 필요 없다. 두 버튼 모두 클릭 시 GA4 share_click 이벤트(method: copy_link|kakao)를 dataLayer에 남긴다. Playwright로 키 없을 때 카카오 버튼이 실제로 안 보이는지(발견 당시 [hidden] 속성을 .a-share-btn의 display:inline-flex 규칙이 덮어써서 숨겨지지 않던 버그를 찾아 수정), 링크 복사·토스트·클립보드 내용·dataLayer 이벤트, 카카오 SDK 스텁으로 초기화·Kakao.Share.sendDefault 페이로드까지 확인."
+    },
+    {
       "id": "u-2026-09-10-1",
       "date": "2026-09-10",
       "category": "SEO",

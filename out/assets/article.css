@@ -62,6 +62,19 @@
 .a-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
 .a-tag{font-size:12.5px;color:var(--text-muted);background:var(--bg-surface);border-radius:999px;padding:5px 12px}
 
+.a-share{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:36px;padding-top:28px;border-top:1px solid var(--border-soft)}
+.a-share-label{font-size:14px;font-weight:600;color:var(--text-body)}
+.a-share-btns{display:flex;gap:8px;flex-wrap:wrap}
+.a-share-btn{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;border-radius:999px;padding:9px 16px;border:1.5px solid var(--border-control);background:var(--bg-page);color:var(--text-body);cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.a-share-btn[hidden]{display:none}
+.a-share-btn:hover{border-color:var(--brand);color:var(--brand)}
+.a-share-kakao{background:#FEE500;border-color:#FEE500;color:#191919}
+.a-share-kakao:hover{background:#FDD800;border-color:#FDD800;color:#191919}
+
+/* bottom:104px — 하단 플로팅 구독 배너(.float-bar)가 뜬 상태에서도 겹치지 않도록 그 위에 띄운다 */
+.a-toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(12px);background:var(--brand-900);color:#fff;font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:200;white-space:nowrap}
+.a-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 .a-related{padding-top:8px}
 
 .subscribe-compact{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;background:var(--bg-accent);border-radius:var(--radius);padding:28px 32px}
