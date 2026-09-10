@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
+# 아티클 목록의 태그/검색 필터 쿼리 URL은 색인 대상에서 제외한다.
+# articles.html 자체는 canonical(쿼리 없는 URL)이 있지만, 홈·아티클의
+# 해시태그 링크(articles.html?tag=X)가 실제 크롤링 가능한 URL로 곳곳에
+# 걸려 있어 검색엔진이 canonical 대신 이 쿼리 버전을 대표 URL로 색인하는
+# 사례가 있었다(네이버에서 "전체 아티클 모아보기"가 ?tag=보도자료로 노출).
+Disallow: /articles.html?tag=
+Disallow: /articles.html?q=
+Disallow: /articles?tag=
+Disallow: /articles?q=
 
 Sitemap: https://gonginssa.kr/sitemap.xml
