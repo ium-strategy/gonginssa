@@ -74,3 +74,93 @@
   window.addEventListener("scroll", check, { passive: true });
 })();
 
+/* ================== 공유 버튼 — 링크 복사 · 카카오톡 ==================
+   링크 복사는 별도 설정 없이 항상 동작한다. 카카오톡 공유는 config.js의
+   kakaoJsKey가 비어있으면(기본값) 버튼 자체를 숨긴다 — 카카오 디벨로퍼스에
+   앱을 만들고 키를 넣기 전까지는 동작 안 하는 버튼을 보여주지 않기 위함. */
+(function () {
+  const CFG = window.GI_CONFIG;
+
+  function showToast(msg) {
+    let el = document.querySelector(".a-toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "a-toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove("show"), 2000);
+  }
+
+  function trackShare(method) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "share_click",
+        share_method: method,
+        article_slug: document.body.dataset.articleId || "",
+      });
+    } catch (e) {}
+  }
+
+  const copyBtn = document.getElementById("shareCopyBtn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      const url = location.href;
+      const done = () => { showToast("✓ 링크가 복사되었습니다"); trackShare("copy_link"); };
+      const fail = () => showToast("링크 복사에 실패했습니다. 주소창에서 직접 복사해주세요.");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(fail);
+      } else {
+        // 구형 브라우저 폴백 — 임시 입력창을 만들어 복사한다.
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = url;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          done();
+        } catch (e) {
+          fail();
+        }
+      }
+    });
+  }
+
+  const kakaoBtn = document.getElementById("shareKakaoBtn");
+  if (kakaoBtn && CFG.kakaoJsKey) {
+    const sdk = document.createElement("script");
+    sdk.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.8.0/kakao.min.js";
+    sdk.onload = () => {
+      try {
+        if (window.Kakao && !window.Kakao.isInitialized()) window.Kakao.init(CFG.kakaoJsKey);
+        kakaoBtn.hidden = false;
+      } catch (e) {}
+    };
+    document.head.appendChild(sdk);
+
+    kakaoBtn.addEventListener("click", () => {
+      if (!window.Kakao || !window.Kakao.isInitialized()) return;
+      const desc = document.querySelector('meta[name="description"]');
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      const url = location.href;
+      window.Kakao.Share.sendDefault({
+        objectType: "feed",
+        content: {
+          title: document.title.replace(/\s*—\s*공인싸\s*$/, ""),
+          description: desc ? desc.content : "",
+          imageUrl: ogImage ? ogImage.content : "",
+          link: { mobileWebUrl: url, webUrl: url },
+        },
+        buttons: [{ title: "아티클 보기", link: { mobileWebUrl: url, webUrl: url } }],
+      });
+      trackShare("kakao");
+    });
+  }
+})();
+
