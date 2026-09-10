@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-11-5",
+      "date": "2026-09-11",
+      "category": "콘텐츠",
+      "summary": "노션 콘텐츠 기획안 중 \"업로드 필요\" 7편 발행",
+      "detail": "노션 '콘텐츠 기획안' 데이터베이스에서 상태가 \"업로드 필요\"인 항목 8건을 확인해 발행했다. 이 중 1건('공공기관 인스타그램, 팔로워 수만 보면 성과를 놓칩니다')은 이미 사이트에 발행된 글(instagram-followers-vs-reach)과 동일해 노션 상태 표기만 갱신되지 않은 것으로 확인, 중복 발행을 건너뛰었다. 나머지 7건은 본문 끝에 \"배포 전 검토 필요\"라는 내부 검토 메모(작성자 판단 근거·기존 글과의 소재 중복 가능성 등)가 붙어 있었는데, 이 메모는 실제 아티클에는 포함하지 않는 내부용 표시라는 안내에 따라 제거하고 본문만 그대로 발행했다. 노션 본문의 이미지도 함께 내려받아 out/assets/uploads/에 저장(1280px 초과분은 리사이즈, JPEG 재압축으로 평균 10배 이상 용량 절감)하고 그대로 반영했다. 노션의 번호 매김 목록(1. 2. 3.)은 사이트 렌더러가 지원하지 않아 글머리 기호 목록으로, '공인싸 실무 PICK' 블록은 기존 PICK: 문법으로 변환. 신규 7편: 홍보대행사 선정 체크리스트(pr-agency-selection-checklist), 보도자료 재활용법(press-release-repurpose-10-contents), AI 검색 시대 홈페이지(ai-search-era-homepage-changes), SNS 지표 설계법(sns-metrics-report-design), SNS 운영대행 과업지시서(sns-agency-rfp-checklist), 공공기관 콘텐츠 사례 7선(policy-content-cases-7), 연구보고서 카드뉴스·숏폼 전환(research-report-to-cardnews-shortform). 전부 썸네일 미지정 상태로 발행해 카테고리 기본 이미지로 표시됨(자동 썸네일 생성 기능은 별도 보류 중)."
+    },
+    {
       "id": "u-2026-09-11-4",
       "date": "2026-09-11",
       "category": "버그 수정",
