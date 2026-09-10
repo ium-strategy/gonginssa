@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-11-4",
+      "date": "2026-09-11",
+      "category": "버그 수정",
+      "summary": "카카오톡 공유 시 썸네일 위쪽이 잘려 보이던 문제 수정",
+      "detail": "카카오톡으로 공유했을 때 아티클 썸네일(원본은 사이트에서 정상적으로 16:9로 보임)의 위쪽 제목 영역이 잘리고 아이콘 부분만 확대돼 보이는 문제 확인. 원인은 Kakao.Share.sendDefault 호출 시 content.imageWidth/imageHeight를 넘기지 않은 것 — 카카오 피드 템플릿은 이 값이 없으면 이미지의 실제 비율을 몰라 자체 기본 박스 기준으로 확대·크롭한다(카카오 데브톡에서 동일 증상 다수 확인). out/assets/article.js의 shareKakao()를 수정해 공유 시점에 실제 og:image를 로드해 자연 크기(naturalWidth/naturalHeight)를 읽은 뒤 그 값을 imageWidth/imageHeight로 함께 전달하도록 했다 — 아티클 썸네일 대부분은 1280x720이지만 예외(595x394)가 있어 고정값 대신 매번 실측하도록 처리, 로드 실패 시에만 카카오 권장 비율(1200x630)로 폴백."
+    },
+    {
       "id": "u-2026-09-11-3",
       "date": "2026-09-11",
       "category": "버그 수정",

@@ -134,16 +134,34 @@
     }
   }
 
-  function shareKakao() {
+  // 카카오톡 피드 템플릿은 content.imageWidth/imageHeight를 안 주면 이미지 실제
+  // 비율을 몰라서 자체 기본 박스에 맞춰 확대·크롭한다 — 아티클마다 썸네일 크기가
+  // 다를 수 있어(1280x720이 대부분이지만 예외도 있음) 공유 시점에 실제 이미지를
+  // 로드해 자연 크기를 읽은 뒤 그 값을 넘긴다(260911 썸네일 위쪽이 잘려 보이던 문제).
+  function loadImageSize(url) {
+    return new Promise((resolve) => {
+      if (!url) { resolve(null); return; }
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
+  async function shareKakao() {
     if (!window.Kakao || !window.Kakao.isInitialized()) return;
     const desc = document.querySelector('meta[name="description"]');
     const ogImage = document.querySelector('meta[property="og:image"]');
+    const imageUrl = ogImage ? ogImage.content : "";
+    const size = await loadImageSize(imageUrl);
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
         title: shareTitle,
         description: desc ? desc.content : "",
-        imageUrl: ogImage ? ogImage.content : "",
+        imageUrl: imageUrl,
+        imageWidth: size ? size.width : 1200,
+        imageHeight: size ? size.height : 630,
         link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
       },
       buttons: [{ title: "아티클 보기", link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }],
