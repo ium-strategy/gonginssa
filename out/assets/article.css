@@ -64,12 +64,20 @@
 
 .a-share{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:36px;padding-top:28px;border-top:1px solid var(--border-soft)}
 .a-share-label{font-size:14px;font-weight:600;color:var(--text-body)}
-.a-share-btns{display:flex;gap:8px;flex-wrap:wrap}
-.a-share-btn{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;border-radius:999px;padding:9px 16px;border:1.5px solid var(--border-control);background:var(--bg-page);color:var(--text-body);cursor:pointer;transition:border-color .15s ease,background .15s ease}
-.a-share-btn[hidden]{display:none}
-.a-share-btn:hover{border-color:var(--brand);color:var(--brand)}
-.a-share-kakao{background:#FEE500;border-color:#FEE500;color:#191919}
-.a-share-kakao:hover{background:#FDD800;border-color:#FDD800;color:#191919}
+.a-share-wrap{position:relative}
+.a-share-toggle{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;border-radius:999px;padding:9px 16px;border:1.5px solid var(--border-control);background:var(--bg-page);color:var(--text-body);cursor:pointer;transition:border-color .15s ease,color .15s ease}
+.a-share-toggle svg{width:15px;height:15px;flex-shrink:0}
+.a-share-toggle:hover,.a-share-toggle[aria-expanded="true"]{border-color:var(--brand);color:var(--brand)}
+.a-share-menu{position:absolute;right:0;top:calc(100% + 8px);background:var(--bg-page);border:1px solid var(--border-soft);border-radius:14px;box-shadow:0 16px 40px -12px rgba(40,25,102,.22);padding:8px;display:flex;flex-direction:column;gap:2px;min-width:176px;z-index:20}
+.a-share-menu[hidden]{display:none}
+.a-share-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-size:14px;font-weight:600;color:var(--text-body);background:none;border:none;border-radius:9px;padding:9px 10px;cursor:pointer;transition:background .12s ease}
+.a-share-item[hidden]{display:none}
+.a-share-item:hover{background:var(--bg-surface)}
+.a-share-ico{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:13px;font-weight:800;flex-shrink:0;color:#fff}
+.a-share-ico-link{background:var(--text-muted)}
+.a-share-ico-kakao{background:#FEE500;color:#191919}
+.a-share-ico-threads{background:#000}
+.a-share-ico-band{background:#00C73C}
 
 /* bottom:104px — 하단 플로팅 구독 배너(.float-bar)가 뜬 상태에서도 겹치지 않도록 그 위에 띄운다 */
 .a-toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(12px);background:var(--brand-900);color:#fff;font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:200;white-space:nowrap}

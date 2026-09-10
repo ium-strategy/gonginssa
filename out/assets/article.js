@@ -74,12 +74,18 @@
   window.addEventListener("scroll", check, { passive: true });
 })();
 
-/* ================== 공유 버튼 — 링크 복사 · 카카오톡 ==================
-   링크 복사는 별도 설정 없이 항상 동작한다. 카카오톡 공유는 config.js의
-   kakaoJsKey가 비어있으면(기본값) 버튼 자체를 숨긴다 — 카카오 디벨로퍼스에
-   앱을 만들고 키를 넣기 전까지는 동작 안 하는 버튼을 보여주지 않기 위함. */
+/* ================== 공유 버튼 — 드롭다운(URL 복사 · 카카오톡 · 스레드 · 네이버 밴드) ==================
+   "공유하기" 아이콘을 누르면 채널 목록이 드롭다운으로 뜬다.
+   카카오톡은 config.js의 kakaoJsKey가 비어있으면(기본값) 목록에서 숨긴다 —
+   카카오 디벨로퍼스에 앱을 만들고 키를 넣기 전까지는 동작 안 하는 항목을
+   보여주지 않기 위함. 인스타그램은 웹에서 쓸 수 있는 공식 공유 URL이
+   없어서(앱 내부 전용) 목록에 넣지 않는 대신, navigator.share를 지원하는
+   기기(주로 모바일)에서는 "공유하기" 버튼 자체가 OS 네이티브 공유창을
+   먼저 시도한다 — 설치돼 있으면 인스타그램·스레드 등도 거기서 뜬다. */
 (function () {
   const CFG = window.GI_CONFIG;
+  const shareUrl = location.href;
+  const shareTitle = document.title.replace(/\s*—\s*공인싸\s*$/, "");
 
   function showToast(msg) {
     let el = document.querySelector(".a-toast");
@@ -105,62 +111,119 @@
     } catch (e) {}
   }
 
-  const copyBtn = document.getElementById("shareCopyBtn");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", () => {
-      const url = location.href;
-      const done = () => { showToast("✓ 링크가 복사되었습니다"); trackShare("copy_link"); };
-      const fail = () => showToast("링크 복사에 실패했습니다. 주소창에서 직접 복사해주세요.");
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(done).catch(fail);
-      } else {
-        // 구형 브라우저 폴백 — 임시 입력창을 만들어 복사한다.
-        try {
-          const ta = document.createElement("textarea");
-          ta.value = url;
-          ta.style.position = "fixed";
-          ta.style.opacity = "0";
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-          done();
-        } catch (e) {
-          fail();
-        }
+  function copyLink() {
+    const done = () => { showToast("✓ 링크가 복사되었습니다"); trackShare("copy_link"); };
+    const fail = () => showToast("링크 복사에 실패했습니다. 주소창에서 직접 복사해주세요.");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(done).catch(fail);
+    } else {
+      // 구형 브라우저 폴백 — 임시 입력창을 만들어 복사한다.
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = shareUrl;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        done();
+      } catch (e) {
+        fail();
       }
-    });
+    }
   }
 
-  const kakaoBtn = document.getElementById("shareKakaoBtn");
-  if (kakaoBtn && CFG.kakaoJsKey) {
+  function shareKakao() {
+    if (!window.Kakao || !window.Kakao.isInitialized()) return;
+    const desc = document.querySelector('meta[name="description"]');
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    window.Kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title: shareTitle,
+        description: desc ? desc.content : "",
+        imageUrl: ogImage ? ogImage.content : "",
+        link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+      },
+      buttons: [{ title: "아티클 보기", link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }],
+    });
+    trackShare("kakao");
+  }
+
+  function shareThreads() {
+    const text = `${shareTitle}\n${shareUrl}`;
+    window.open(`https://www.threads.net/intent/post?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+    trackShare("threads");
+  }
+
+  function shareBand() {
+    const body = encodeURIComponent(shareTitle);
+    const route = encodeURIComponent(shareUrl);
+    window.open(`https://band.us/plugin/share?body=${body}&route=${route}`, "_blank", "noopener");
+    trackShare("band");
+  }
+
+  const toggleBtn = document.getElementById("shareToggleBtn");
+  const menu = document.getElementById("shareMenu");
+  if (!toggleBtn || !menu) return;
+
+  function closeMenu() {
+    menu.hidden = true;
+    toggleBtn.setAttribute("aria-expanded", "false");
+  }
+  function openMenu() {
+    menu.hidden = false;
+    toggleBtn.setAttribute("aria-expanded", "true");
+  }
+
+  // 모바일 등 OS 네이티브 공유 시트를 지원하는 기기에서는 그걸 먼저 시도한다
+  // (인스타그램·카카오톡·메시지 등 설치된 앱이 전부 뜸). 실패/미지원이면
+  // 지금까지처럼 드롭다운 메뉴를 연다.
+  toggleBtn.addEventListener("click", async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: shareTitle, url: shareUrl });
+        trackShare("native");
+        return;
+      } catch (e) {
+        // 사용자가 공유창을 취소한 경우도 여기로 온다 — 드롭다운을 대신 열지 않고 조용히 종료
+        if (e && e.name === "AbortError") return;
+      }
+    }
+    if (menu.hidden) openMenu();
+    else closeMenu();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menu.hidden && !menu.contains(e.target) && e.target !== toggleBtn && !toggleBtn.contains(e.target)) closeMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  const kakaoItem = menu.querySelector('[data-share="kakao"]');
+  if (kakaoItem && CFG.kakaoJsKey) {
     const sdk = document.createElement("script");
     sdk.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.8.0/kakao.min.js";
     sdk.onload = () => {
       try {
         if (window.Kakao && !window.Kakao.isInitialized()) window.Kakao.init(CFG.kakaoJsKey);
-        kakaoBtn.hidden = false;
+        kakaoItem.hidden = false;
       } catch (e) {}
     };
     document.head.appendChild(sdk);
-
-    kakaoBtn.addEventListener("click", () => {
-      if (!window.Kakao || !window.Kakao.isInitialized()) return;
-      const desc = document.querySelector('meta[name="description"]');
-      const ogImage = document.querySelector('meta[property="og:image"]');
-      const url = location.href;
-      window.Kakao.Share.sendDefault({
-        objectType: "feed",
-        content: {
-          title: document.title.replace(/\s*—\s*공인싸\s*$/, ""),
-          description: desc ? desc.content : "",
-          imageUrl: ogImage ? ogImage.content : "",
-          link: { mobileWebUrl: url, webUrl: url },
-        },
-        buttons: [{ title: "아티클 보기", link: { mobileWebUrl: url, webUrl: url } }],
-      });
-      trackShare("kakao");
-    });
   }
+
+  menu.addEventListener("click", (e) => {
+    const item = e.target.closest(".a-share-item");
+    if (!item) return;
+    closeMenu();
+    const kind = item.dataset.share;
+    if (kind === "copy") copyLink();
+    else if (kind === "kakao") shareKakao();
+    else if (kind === "threads") shareThreads();
+    else if (kind === "band") shareBand();
+  });
 })();
 
