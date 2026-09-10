@@ -1,6 +1,13 @@
 {
   "updates": [
     {
+      "id": "u-2026-09-10-1",
+      "date": "2026-09-10",
+      "category": "SEO",
+      "summary": "네이버 검색결과 \"전체 아티클 모아보기\"가 태그 필터 URL로 잘못 노출되던 문제 수정",
+      "detail": "네이버에서 '공인싸' 검색 시 \"전체 아티클 모아보기\" 관련문서가 articles.html?tag=보도자료(필터링된 3건)로 노출되는 문제 발견. articles.html에 정규 canonical(쿼리 없는 URL)이 이미 있었지만, 홈·아티클 상세의 해시태그 링크가 실제 크롤링 가능한 articles.html?tag=X URL로 곳곳에 걸려 있어 네이버가 canonical 대신 이 쿼리 버전을 대표 URL로 색인한 것으로 확인. out/robots.txt에 /articles.html?tag=·/articles.html?q=·확장자 없는 /articles?tag=·/articles?q= Disallow 규칙 추가해 앞으로 이런 쿼리 URL이 색인되지 않도록 차단. 이미 색인된 기존 URL은 robots.txt만으로는 즉시 사라지지 않으므로 네이버 서치어드바이저에서 수동 URL 삭제 요청 병행 필요(운영자 액션)."
+    },
+    {
       "id": "u-2026-09-09-1",
       "date": "2026-09-09",
       "category": "디자인",
