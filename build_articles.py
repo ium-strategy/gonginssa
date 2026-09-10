@@ -5,6 +5,7 @@ Decap CMS(/admin/)가 바로 이 content/articles/*.md 파일들을 커밋하므
 담당자가 관리자 화면에서 글을 쓰고 저장하면(GitHub 커밋) Cloudflare Pages 빌드가 이 스크립트를 다시 실행해 사이트에 반영한다.
 (과거 notion_articles.py 기반 방식은 migrate_to_md.py 로 최초 1회 이 폴더로 이관 완료.)"""
 import glob
+import hashlib
 import json
 import math
 import os
@@ -18,6 +19,19 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(BASE, "content", "articles")
 OUT = os.path.join(BASE, "out")
 SITE_URL = "https://gonginssa.kr"  # 2026-08-19 Netlify+가비아 도메인 연결 완료 — 실제 라이브 도메인
+
+def asset_ver(rel_path):
+    """out/ 기준 상대경로 정적 자산(css/js)의 내용 해시 앞 8자리.
+    CSS·JS를 고쳐도 브라우저·CDN이 예전 파일을 계속 캐싱해서 새 스타일이나
+    스크립트가 반영 안 되는 문제(260911 공유 버튼 드롭다운이 안 보이던 사고
+    원인)를 막으려고, 링크에 ?v=<해시>를 붙인다. 파일 내용이 바뀌면 URL도
+    자동으로 바뀌어 캐시가 강제로 무효화된다."""
+    p = os.path.join(OUT, rel_path)
+    try:
+        with open(p, "rb") as f:
+            return hashlib.sha1(f.read()).hexdigest()[:8]
+    except FileNotFoundError:
+        return "0"
 FALLBACK_DATE = "2026-08-19"  # frontmatter에 date가 비어 있을 때만 사용하는 안전장치
 
 TAB_MAP = {"실무 꿀팁": ["popular", "workbook"], "레퍼런스": ["popular", "featured"]}
@@ -259,6 +273,23 @@ def inject_ssr(text, replacements):
         text = re.sub(re.escape(start) + r".*?" + re.escape(end), start + content + end, text, flags=re.DOTALL)
     return text
 
+# index.html·articles.html이 링크하는 정적 자산 — ARTICLE_TEMPLATE(포맷 문자열)과 달리
+# 손으로 쓴 정적 HTML이라 .format() 대신 아래 inject_asset_versions()가 정규식으로 처리한다.
+STATIC_PAGE_ASSETS = [
+    "assets/site.css", "assets/article.css",
+    "data/config.js", "assets/render.js", "assets/archive.js",
+    "assets/ui.js", "assets/search.js",
+]
+
+def inject_asset_versions(text):
+    """index.html·articles.html 안의 css/js href·src 뒤에 ?v=<내용해시>를 붙인다(asset_ver 참고).
+    이미 ?v=가 붙어 있으면 새 값으로 교체하므로 여러 번 실행해도 안전하다(멱등)."""
+    for rel in STATIC_PAGE_ASSETS:
+        ver = asset_ver(rel)
+        pattern = r'((?:href|src)=")' + re.escape(rel) + r'(?:\?v=[0-9a-f]+)?(")'
+        text = re.sub(pattern, rf'\g<1>{rel}?v={ver}\g<2>', text)
+    return text
+
 ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -284,8 +315,8 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUITE@2/fonts/static/woff2/SUITE.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css">
-<link rel="stylesheet" href="../assets/article.css">
+<link rel="stylesheet" href="../assets/site.css?v={ver_site_css}">
+<link rel="stylesheet" href="../assets/article.css?v={ver_article_css}">
 <script type="application/ld+json">
 {{"@context":"https://schema.org","@type":"Article","headline":{title_json},"description":{excerpt_json},"datePublished":"{date}","dateModified":"{date}","inLanguage":"ko-KR","keywords":{keywords_json},"image":"{site_url}/{thumb}","mainEntityOfPage":{{"@type":"WebPage","@id":"{site_url}/articles/{slug}.html"}},"author":{{"@type":"Organization","name":"이음전략소","url":"https://www.iumist.com/"}},"publisher":{{"@type":"Organization","name":"공인싸","url":"{site_url}/","logo":{{"@type":"ImageObject","url":"{site_url}/assets/logo-mark.png"}},"parentOrganization":{{"@type":"Organization","name":"이음전략소"}}}}}}
 </script>
@@ -331,7 +362,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="a-share-label">이 글이 도움이 됐다면 공유해보세요</span>
       <div class="a-share-wrap">
         <button type="button" class="a-share-toggle" id="shareToggleBtn" aria-haspopup="true" aria-expanded="false">
-          <svg viewBox="0 0 20 20" fill="none"><path d="M14.5 6.5a2.5 2.5 0 1 0-2.45-3H12a2.5 2.5 0 0 0 .1 2.06l-4.3 2.48a2.5 2.5 0 1 0 0 3.92l4.3 2.48A2.5 2.5 0 1 0 14.5 13a2.48 2.48 0 0 0-1.85.83l-4.3-2.48a2.53 2.53 0 0 0 0-1.7l4.3-2.48c.48.51 1.16.83 1.85.83Z" stroke="currentColor" stroke-width="1.3"/></svg>
+          <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T591-694L309-530q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Z"/></svg>
           공유하기
         </button>
         <div class="a-share-menu" id="shareMenu" hidden>
@@ -454,10 +485,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
-<script src="../data/config.js"></script>
-<script src="../assets/article.js"></script>
-<script src="../assets/ui.js"></script>
-<script src="../assets/search.js" defer></script>
+<script src="../data/config.js?v={ver_config_js}"></script>
+<script src="../assets/article.js?v={ver_article_js}"></script>
+<script src="../assets/ui.js?v={ver_ui_js}"></script>
+<script src="../assets/search.js?v={ver_search_js}" defer></script>
 </body>
 </html>
 """
@@ -467,6 +498,13 @@ def build():
     os.makedirs(f"{OUT}/data", exist_ok=True)
     articles = load_articles()
     entries = []
+    # 아티클 템플릿이 링크하는 정적 자산들의 캐시무효화 버전 — 빌드 1회당 한 번만 계산
+    ver_site_css = asset_ver("assets/site.css")
+    ver_article_css = asset_ver("assets/article.css")
+    ver_config_js = asset_ver("data/config.js")
+    ver_article_js = asset_ver("assets/article.js")
+    ver_ui_js = asset_ver("assets/ui.js")
+    ver_search_js = asset_ver("assets/search.js")
     for a in articles:
         excerpt = a["excerpt"] or make_excerpt(a["hook"])
         body_html = render_body(a["body"])
@@ -527,6 +565,12 @@ def build():
             keywords_json=json.dumps(", ".join(tags + brand_tags), ensure_ascii=False),
             slug=a["slug"],
             category_key=category_key,
+            ver_site_css=ver_site_css,
+            ver_article_css=ver_article_css,
+            ver_config_js=ver_config_js,
+            ver_article_js=ver_article_js,
+            ver_ui_js=ver_ui_js,
+            ver_search_js=ver_search_js,
         )
         with open(f'{OUT}/articles/{a["slug"]}.html', "w", encoding="utf-8") as f:
             f.write(html_out)
@@ -550,8 +594,9 @@ def build():
         repl = {"CLOUD": render_topic_cloud_html(entries, tag_dict)}
         for tab_key in ("popular", "workbook", "featured"):
             repl[f"TAB:{tab_key}"] = render_tab_panel_html(tab_key, entries)
+        html_text = inject_ssr(html_text, repl)
         with open(index_path, "w", encoding="utf-8") as f:
-            f.write(inject_ssr(html_text, repl))
+            f.write(inject_asset_versions(html_text))
 
     articles_path = f"{OUT}/articles.html"
     if os.path.exists(articles_path):
@@ -561,8 +606,9 @@ def build():
             "TOPICCLOUD": render_archive_topic_cloud_html(entries, tag_dict),
             "GRID": render_archive_grid_html(entries),
         }
+        html_text = inject_ssr(html_text, repl)
         with open(articles_path, "w", encoding="utf-8") as f:
-            f.write(inject_ssr(html_text, repl))
+            f.write(inject_asset_versions(html_text))
 
     # sitemap.xml — 홈, 개인정보처리방침 + 전체 아티클 (robots.txt 가 참조하는 파일)
     today = entries[0]["date"] if entries else FALLBACK_DATE
