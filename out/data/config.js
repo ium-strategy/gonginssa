@@ -25,7 +25,7 @@ window.GI_CONFIG = {
   // 카카오 디벨로퍼스(developers.kakao.com)에서 앱 생성 → 앱 키의 JavaScript 키를 그대로 넣으면 된다.
   // 앱의 플랫폼 설정에 이 사이트 도메인(gonginssa.kr)도 등록해야 실제로 동작한다.
   // 비워두면(기본값) article.js가 카카오톡 공유 버튼을 아예 숨기고 "링크 복사"만 보여준다.
-  kakaoJsKey: "",
+  kakaoJsKey: "247b2464e63324edd1f727d52e2dd449",
   // 아티클 탭 (Articles 섹션 상단 3개 탭) — 순서 유지
   tabs: [
     { key: "popular", label: "인기픽", title: "요즘 다들 이거부터 읽더라고요" },
