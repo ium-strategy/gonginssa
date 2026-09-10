@@ -288,7 +288,14 @@ document.addEventListener("DOMContentLoaded", function () {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  // 스크롤 리빌
+  // 스크롤 리빌 — IntersectionObserver로 뷰포트에 들어오면 .in을 붙여 드러낸다.
+  // 일부 브라우저(사파리가 새로고침 시 스크롤 위치를 복원하는 경우 등)에서는
+  // observe() 시점에 이미 화면 안에 있던 요소가 isIntersecting 콜백을 한 번도
+  // 못 받아 .reveal의 opacity:0가 영영 안 풀리는 사고가 있었다(261011, 홈페이지
+  // 아티클 카드 전체가 안 보이는 문제로 발견) — 그래서 (1) 관찰을 시작하기 전에
+  // 이미 화면 안에 있는 요소는 바로 드러내고, (2) 그래도 옵저버가 못 잡는
+  // 경우를 대비해 짧은 타임아웃 이후 전부 강제로 드러내는 안전장치를 둔다.
+  const revealEls = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -300,7 +307,12 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     { threshold: 0.12 }
   );
-  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+  revealEls.forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) el.classList.add("in");
+    else observer.observe(el);
+  });
+  setTimeout(() => revealEls.forEach((el) => el.classList.add("in")), 1500);
 
   /* 주요 CTA 클릭 — 어떤 버튼이 실제로 눌리는지 확인용
      ⚠️ 260907: 이 리스너가 원래 DOMContentLoaded 콜백 밖(스크립트 최상위)에
