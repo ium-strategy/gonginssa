@@ -61,7 +61,23 @@ collections:
         media_library:
           config:
             max_file_size: 5000000
-        hint: "비워두면 카테고리 기본 썸네일이 자동 적용됩니다. 권장 비율 16:9 (예: 1200×675)."
+        hint: "비워두면 제목·카테고리로 브랜드 썸네일이 자동 생성됩니다(그라데이션 배경 + 제목 + 아이콘). 직접 올리려면 권장 비율 16:9 (예: 1200×675)."
+      - label: "자동 썸네일 아이콘"
+        name: "icon"
+        widget: "select"
+        required: false
+        hint: "썸네일 이미지를 비워둔 경우에만 사용됩니다. 비워두면 제목·해시태그로 자동 판별합니다."
+        options:
+          - { label: "자동 판별(기본)", value: "" }
+          - { label: "AI·챗봇", value: "ai" }
+          - { label: "확성기·홍보", value: "megaphone" }
+          - { label: "카메라·사진", value: "camera" }
+          - { label: "사람·팔로워", value: "people" }
+          - { label: "달력·일정", value: "calendar" }
+          - { label: "영상", value: "video" }
+          - { label: "그래프·트렌드", value: "chart" }
+          - { label: "트로피·공모전", value: "trophy" }
+          - { label: "문서(기본형)", value: "doc" }
       - label: "본문"
         name: "body"
         widget: "markdown"

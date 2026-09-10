@@ -15,6 +15,8 @@ import html as htmlmod
 import yaml
 from urllib.parse import quote
 
+import thumb_gen  # 썸네일 미지정 시 제목·카테고리로 자동 생성(thumb_gen.py 참고)
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(BASE, "content", "articles")
 OUT = os.path.join(BASE, "out")
@@ -63,6 +65,9 @@ def load_articles():
             "body": body,
             "date": str(front.get("date") or FALLBACK_DATE),
             "thumb": (front.get("thumb") or "").strip(),
+            # 비어있으면 thumb_gen이 제목·카테고리로 자동 생성한다. icon은 그때 쓸 아이콘을
+            # 직접 지정하고 싶을 때만(선택) — 비우면 제목·태그로 자동 판별.
+            "icon": (front.get("icon") or "").strip(),
             # 아래 세 값은 원래 hook/본문/카테고리에서 자동 계산됐지만(excerpt는 hook 앞부분,
             # readTime은 글자 수, tabs는 카테고리→TAB_MAP), admin.html에서 직접 지정한 값이
             # frontmatter에 있으면 그 값을 우선한다. 비어 있으면 기존처럼 자동 계산으로 대체.
@@ -515,10 +520,28 @@ def build():
         # 브랜드 태그: 전 아티클에 항상 노출. 검색 귀속용이며 주제 분류에는 쓰지 않는다.
         brand_tags = list(BRAND_TAGS)
         tabs = a["tabs"] or TAB_MAP.get(a["category"], ["popular"])
-        thumb = a["thumb"] or THUMB_MAP.get(a["category"], THUMB_MAP["실무 꿀팁"])
-        # 실제 사진(thumb)이 있으면 그걸, 없으면(SVG 기본 썸네일) 소셜 공유용 대표 이미지로 대체
+        if a["thumb"]:
+            thumb = a["thumb"]
+        else:
+            # 썸네일을 직접 안 올렸으면(Decap CMS "썸네일 이미지" 필드를 비워두면) 제목·
+            # 카테고리로 브랜드 템플릿 썸네일을 자동 생성한다(assets/uploads/auto/thumb-<slug>.png,
+            # 빌드마다 새로 그려짐 — 제목을 고치면 썸네일도 같이 갱신된다).
+            # 폰트·Pillow 등 생성 환경 문제로 실패해도 빌드 전체가 죽지 않도록 카테고리
+            # 기본 SVG로 안전하게 대체한다.
+            try:
+                icon_key = thumb_gen.pick_icon_key(a["title"], a["hashtags"], a["icon"])
+                auto_rel = f"assets/uploads/auto/thumb-{a['slug']}.png"
+                thumb_gen.generate(a["title"], a["category"], os.path.join(OUT, auto_rel),
+                                    icon_key=icon_key, tags=a["hashtags"])
+                thumb = "/" + auto_rel
+            except Exception as e:
+                print(f"⚠️  {a['slug']}: 썸네일 자동 생성 실패({e}) — 카테고리 기본 이미지로 대체")
+                thumb = THUMB_MAP.get(a["category"], THUMB_MAP["실무 꿀팁"])
+        # og:image·트위터카드도 같은 이미지를 그대로 쓴다(수동 업로드·자동 생성 모두 PNG/JPG라
+        # 문제없지만, 생성 실패로 SVG 기본 이미지가 된 경우만 og:image는 SVG가 카카오톡·
+        # 페이스북에서 잘 안 뜨므로 별도 JPG로 대체).
         # (site_url + "/" + og_thumb 로 합치므로 앞의 "/"는 제거해서 이중 슬래시 방지)
-        og_thumb = (a["thumb"] or OG_FALLBACK_IMAGE).lstrip("/")
+        og_thumb = OG_FALLBACK_IMAGE if thumb.endswith(".svg") else thumb.lstrip("/")
         date = a["date"]
         url = f'articles/{a["slug"]}.html'
         # config.js 의 기존 카테고리 배지 taxonomy(trend/case/practical/resource/data) 재사용
