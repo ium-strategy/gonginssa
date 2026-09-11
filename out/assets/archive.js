@@ -24,6 +24,44 @@
     const queryEl = $("queryFilter");
     let searchTracked = false;
 
+    // 태그로 들어온 페이지(?tag=영상)가 "전체 아티클 모아보기"라고 계속 표시되던 문제 수정.
+    // <title>·<h1>·브레드크럼·부제목·og:title/twitter:title은 원래 빌드 시점에 고정된
+    // 정적 텍스트라 태그 필터(클라이언트에서만 처리)와 완전히 분리돼 있었다 — 태그를
+    // 고르거나 태그 URL로 바로 들어와도 절대 안 바뀌었다. 기본값을 한 번 저장해두고
+    // 태그 활성/해제될 때마다 되돌릴 수 있게 한다.
+    const titleEl = $("archiveTitle");
+    const subtitleEl = $("archiveSubtitle");
+    const breadcrumbEl = $("archiveBreadcrumb");
+    const ogTitleEl = document.querySelector('meta[property="og:title"]');
+    const twitterTitleEl = document.querySelector('meta[name="twitter:title"]');
+    const DEFAULTS = {
+      docTitle: document.title,
+      h1: titleEl ? titleEl.textContent : "",
+      subtitle: subtitleEl ? subtitleEl.textContent : "",
+      breadcrumb: breadcrumbEl ? breadcrumbEl.textContent : "",
+      ogTitle: ogTitleEl ? ogTitleEl.getAttribute("content") : "",
+      twitterTitle: twitterTitleEl ? twitterTitleEl.getAttribute("content") : "",
+    };
+
+    function updateHeading() {
+      if (activeTag) {
+        const label = `'${activeTag}' 아티클 모아보기`;
+        document.title = `${label} — 공인싸`;
+        if (titleEl) titleEl.textContent = label;
+        if (subtitleEl) subtitleEl.textContent = `'${activeTag}' 태그가 붙은 아티클만 모아봤어요.`;
+        if (breadcrumbEl) breadcrumbEl.textContent = activeTag;
+        if (ogTitleEl) ogTitleEl.setAttribute("content", `${label} — 공인싸`);
+        if (twitterTitleEl) twitterTitleEl.setAttribute("content", `${label} — 공인싸`);
+      } else {
+        document.title = DEFAULTS.docTitle;
+        if (titleEl) titleEl.textContent = DEFAULTS.h1;
+        if (subtitleEl) subtitleEl.textContent = DEFAULTS.subtitle;
+        if (breadcrumbEl) breadcrumbEl.textContent = DEFAULTS.breadcrumb;
+        if (ogTitleEl) ogTitleEl.setAttribute("content", DEFAULTS.ogTitle);
+        if (twitterTitleEl) twitterTitleEl.setAttribute("content", DEFAULTS.twitterTitle);
+      }
+    }
+
     function categoryLabel(key) {
       if (key === "all") return "전체보기";
       return (CFG.categories[key] && CFG.categories[key].name) || key;
@@ -101,6 +139,7 @@
       if (tag) url.searchParams.set("tag", tag);
       else url.searchParams.delete("tag");
       history.replaceState(null, "", url);
+      updateHeading();
       renderTopicCloud();
       renderTabs();
       renderGrid();
@@ -188,6 +227,7 @@
         if (activeTag && !ARTICLES.some((a) => (a.tags || []).includes(activeTag))) {
           activeTag = "";
         }
+        updateHeading();
         renderTopicCloud();
         renderQueryFilter();
         renderTabs();
