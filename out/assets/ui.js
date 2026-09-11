@@ -184,6 +184,40 @@ document.addEventListener("DOMContentLoaded", function () {
       if (e.key === "Escape" && !bizOverlay.hidden) closeBizInfo();
     });
   }
+
+  // 구독 동의 항목("개인정보 수집 및 이용"·"광고성 정보 수신") 상세 모달 — 기존 "더보기"
+  // 펼침 텍스트 대신, 문장 안 항목명 링크를 누르면 모달로 자세히 보여준다. 열기 버튼이
+  // 체크박스 <label> 안에 중첩돼 있어 그냥 두면 클릭 시 체크박스도 같이 토글되므로
+  // preventDefault+stopPropagation으로 막는다(같은 label 안 다른 부분을 누르면
+  // 지금처럼 정상적으로 체크박스가 토글됨).
+  function setupSimpleModal(overlayId, closeBtnId, openBtn) {
+    const overlay = document.getElementById(overlayId);
+    const closeBtn = document.getElementById(closeBtnId);
+    if (!overlay || !openBtn) return;
+    let lastFocus = null;
+    function open(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      lastFocus = document.activeElement;
+      overlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      if (closeBtn) closeBtn.focus();
+    }
+    function close() {
+      overlay.hidden = true;
+      document.body.style.overflow = "";
+      if (lastFocus) lastFocus.focus();
+    }
+    openBtn.addEventListener("click", open);
+    if (closeBtn) closeBtn.addEventListener("click", close);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !overlay.hidden) close();
+    });
+  }
+  setupSimpleModal("privacyDetailOverlay", "privacyDetailCloseBtn", document.getElementById("privacyDetailBtn"));
+  setupSimpleModal("marketingDetailOverlay", "marketingDetailCloseBtn", document.getElementById("marketingDetailBtn"));
   if (consultCloseBtn) consultCloseBtn.addEventListener("click", closeConsult);
   if (consultOverlay) {
     consultOverlay.addEventListener("click", (e) => {
