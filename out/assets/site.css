@@ -175,12 +175,14 @@
   .sub-checks{display:flex;flex-direction:column;gap:2px}
   .agree-all{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-body);padding-bottom:6px;margin-bottom:2px}
   .agree-all input{accent-color:var(--brand);width:15px;height:15px}
-  .agree-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .agree-row{display:flex;align-items:center;gap:8px}
   .agree-row .agree{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--text-muted);padding:3px 0}
   .agree-row .agree input{margin-top:2px;flex-shrink:0;accent-color:var(--border-control)}
-  .agree-toggle{background:none;border:none;font-size:12.5px;color:var(--text-muted);font-weight:600;padding:4px 2px;cursor:pointer;white-space:nowrap}
-  .agree-toggle:hover{color:var(--text-body)}
-  .agree-detail{font-size:12.5px;color:var(--text-muted);line-height:1.6;padding:0 0 8px 23px;margin-top:-2px}
+  /* 260911: "더보기" 토글 버튼 대신, 문장 안 항목명 자체를 밑줄 링크로 눌러 상세 내용을
+     모달로 띄운다. 체크박스가 있는 <label> 안에 중첩된 <button>이라 클릭 시 체크박스가
+     같이 토글되지 않도록 ui.js에서 preventDefault+stopPropagation 처리함. */
+  .agree-link{background:none;border:none;padding:0;margin:0;font:inherit;color:var(--text-muted);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+  .agree-link:hover{color:var(--text-brand)}
   .sub-bottom .btn{padding:14px 30px;white-space:nowrap}
   .status{margin-top:10px;font-size:12.5px;font-weight:600;color:var(--success);display:none;width:100%}
 

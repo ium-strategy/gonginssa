@@ -36,7 +36,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUITE@2/fonts/static/woff2/SUITE.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=7391b66e">
+<link rel="stylesheet" href="assets/site.css?v=bfcc6a31">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"공인싸","alternateName":["GONGINSSA","공인싸 인싸레터"],"url":"https://gonginssa.kr/","logo":"https://gonginssa.kr/assets/logo-mark.png","parentOrganization":{"@type":"Organization","name":"이음전략소","alternateName":"IUM Strategy","url":"https://www.iumist.com/"}}
 </script>
@@ -183,19 +183,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <div class="agree-row">
                 <label class="agree">
                   <input type="checkbox" name="privacy_agree" class="agree-required" required>
-                  <span>[필수] 개인정보 수집 및 이용에 동의합니다.</span>
+                  <span>[필수] <button type="button" class="agree-link" id="privacyDetailBtn">개인정보 수집 및 이용</button>에 동의합니다.</span>
                 </label>
-                <button type="button" class="agree-toggle" aria-expanded="false">더보기</button>
               </div>
-              <p class="agree-detail" hidden>수집 항목: 이메일, 이름 · 목적: 뉴스레터 발송 및 구독 관리 · 보유 기간: 구독 해지 시까지</p>
               <div class="agree-row">
                 <label class="agree">
-                  <input type="checkbox" name="marketing_agree" class="agree-required" required>
-                  <span>[필수] 광고성 정보 수신에 동의합니다.</span>
+                  <!-- 260911: 광고성 정보 수신은 정보통신망법상 선택 동의 항목이라 동의 안 해도
+                       구독이 막히면 안 된다 — required를 빼되 agree-required는 유지해
+                       "전체 동의" 체크와는 계속 함께 토글되게 한다(ui.js validateForm은
+                       [required] 속성만 검사하므로 이 체크박스는 검증 대상에서 빠진다). -->
+                  <input type="checkbox" name="marketing_agree" class="agree-required">
+                  <span>[선택] <button type="button" class="agree-link" id="marketingDetailBtn">광고성 정보 수신</button>에 동의합니다.</span>
                 </label>
-                <button type="button" class="agree-toggle" aria-expanded="false">더보기</button>
               </div>
-              <p class="agree-detail" hidden>인싸레터를 이메일로 보내드려요 · 수신 동의는 언제든 철회할 수 있어요.</p>
             </div>
             <button type="submit" class="btn btn-primary">무료 구독하기</button>
             <p class="status" id="subStatus">✓ 구독 신청이 접수되었습니다. 다음 인싸레터부터 보내드릴게요.</p>
@@ -302,9 +302,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
+<div class="modal-overlay" id="privacyDetailOverlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="privacyDetailTitle">
+    <button type="button" class="modal-close" id="privacyDetailCloseBtn" aria-label="닫기">✕</button>
+    <h2 id="privacyDetailTitle">[필수] 개인정보 수집 및 이용</h2>
+    <p class="modal-sub">(주)이음전략소는 공인싸 인싸레터 서비스를 제공하기 위한 개인정보를 수집하고 이용합니다.</p>
+    <dl class="biz-info-list">
+      <div><dt>수집 목적</dt><dd>뉴스레터 발송, 맞춤형 서비스 제공</dd></div>
+      <div><dt>수집 항목</dt><dd>이메일 주소, 이름, 구독 경로</dd></div>
+      <div><dt>보유 및 이용기간</dt><dd>구독 해지 또는 서비스 종료 시까지</dd></div>
+    </dl>
+    <p class="modal-sub" style="margin-top:16px">귀하는 개인정보 수집 및 이용에 동의하지 않을 권리가 있습니다. 단, 동의하지 않으실 경우 공인싸 인싸레터 구독 서비스를 이용하실 수 없습니다.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="marketingDetailOverlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="marketingDetailTitle">
+    <button type="button" class="modal-close" id="marketingDetailCloseBtn" aria-label="닫기">✕</button>
+    <h2 id="marketingDetailTitle">[선택] 광고성 정보 수신</h2>
+    <p class="modal-sub">제휴 콘텐츠, 프로모션, 이벤트 등 광고성 정보 수신에 동의합니다. 동의하지 않아도 공인싸 서비스 이용에 제한이 없으며, 언제든 무료로 수신을 거부할 수 있습니다.</p>
+  </div>
+</div>
+
 <script src="data/config.js?v=d164dc6e"></script>
 <script src="assets/render.js?v=bac21443"></script>
-<script src="assets/ui.js?v=b5d1d428"></script>
+<script src="assets/ui.js?v=e7f9b610"></script>
 <script src="assets/search.js?v=d02404d8" defer></script>
 </body>
 </html>
